@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, Bot, User, RefreshCw, Lightbulb, Zap, BookOpen } from 'lucide-react';
 
 /**
- * @description Widget Flotante de Tutor IA (Estilo Prolijo y Elegante SinPanic0)
- * Botón tipo píldora limpio con animación sutil, paleta Navy (#2F4156), Teal (#567C8D) y Sky-Blue (#C8D9E6).
+ * @description Widget Flotante de Tutor IA (Estilo SinPanic0)
+ * Ubicado en bottom-20 en móviles para NO tapar la barra de navegación inferior (Progreso/Perfil).
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -183,8 +183,8 @@ Respecto a **"${userPrompt}"**:
 
   return (
     <>
-      {/* Botón Flotante Prolijo (Diseño Cápsula Elegante SinPanic0) */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Botón Flotante Prolijo en bottom-20 en móviles para NO tapar la barra inferior */}
+      <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50">
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
@@ -201,9 +201,9 @@ Respecto a **"${userPrompt}"**:
         )}
       </div>
 
-      {/* Ventana Desplegable del Chat IA */}
+      {/* Ventana Desplegable del Chat IA (Desplegada por encima del menú inferior) */}
       {isOpen && (
-        <div className="fixed bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px] h-[580px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-sky-blue/30 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed bottom-20 right-3 left-3 sm:left-auto sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[400px] h-[520px] max-h-[75vh] bg-white rounded-3xl shadow-2xl border border-sky-blue/30 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
           
           {/* Header del Chat */}
           <div className="bg-gradient-to-r from-[#2F4156] via-[#3A5A78] to-[#567C8D] p-4 text-white flex items-center justify-between shadow-md">
