@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, Bot, User, RefreshCw, Lightbulb, Zap, BookOpen } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User, RefreshCw, Lightbulb, Zap, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
  * @description Widget Flotante de Tutor IA (Compatible 100% con Modo Claro y Oscuro)
- * Garantiza alto contraste y legibilidad perfecta de letras en modo oscuro.
+ * Permite deslizar horizontalmente las sugerencias con la rueda del ratón, táctil y botones de navegación.
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,6 +17,7 @@ export const AiTutorWidget = () => {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  const chipsContainerRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -33,8 +34,18 @@ export const AiTutorWidget = () => {
     "📐 Explícame el Teorema de Pitágoras",
     "🔬 ¿Qué es la selección natural?",
     "🏛️ ¿Qué es la Acción de Tutela?",
-    "🇬🇧 Tips para el componente de Inglés"
+    "🇬🇧 Tips para el componente de Inglés",
+    "⚡ ¿Cómo calcular velocidad en Física?",
+    "🧪 Tabla Periódica & Enlaces Químicos",
+    "📊 ¿Cómo interpretar gráficas ICFES?"
   ];
+
+  const scrollChips = (direction) => {
+    if (chipsContainerRef.current) {
+      const scrollAmount = direction === 'left' ? -200 : 200;
+      chipsContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   // Motor Inteligente de Inteligencia Artificial para el ICFES
   const generateAiResponse = async (userPrompt) => {
@@ -122,6 +133,30 @@ La **Acción de Tutela** (Art. 86 de la Constitución de 1991) es un tema fijo e
    - **First Conditional:** *If I study, I will pass.*
    - **Second Conditional:** *If I studied, I would pass.*
 3. **Comprensión:** Lee primero las preguntas y luego escanea el texto buscando los sustantivos y verbos clave.`;
+    }
+
+    if (promptLower.includes('física') || promptLower.includes('velocidad') || promptLower.includes('fuerza')) {
+      return `⚡ **Física ICFES - Cinemática y Fuerzas:**
+
+- **Velocidad promedio:** $$v = \\frac{d}{t}$$ (Distancia sobre tiempo).
+- **Segunda Ley de Newton:** $$F = m \\cdot a$$ (Fuerza = masa × aceleración).
+- **Conservación de Energía:** La energía no se crea ni se destruye, solo se transforma (de potencial a cinética).`;
+    }
+
+    if (promptLower.includes('química') || promptLower.includes('periódica') || promptLower.includes('enlace')) {
+      return `🧪 **Química ICFES - Conceptos Frecuentes:**
+
+- **Enlace Iónico:** Transferencia de electrones entre Metal + No Metal.
+- **Enlace Covalente:** Compartición de electrones entre No Metales.
+- **pH:** Menor a 7 es Ácido, 7 es Neutro (Agua pura), mayor a 7 es Básico/Alcalino.`;
+    }
+
+    if (promptLower.includes('gráfica') || promptLower.includes('tabla') || promptLower.includes('interpretar')) {
+      return `📊 **Análisis de Gráficas en el ICFES:**
+
+1. **Lee los Ejes:** Revisa siempre los títulos del eje X (variable independiente) y eje Y (variable dependiente) antes de leer la pregunta.
+2. **Identifica Tendencias:** Observa si la curva sube (directamente proporcional) o baja (inversamente proporcional).
+3. **Cuidado con las Escalas:** Verifica si el gráfico empieza en 0 o si tiene un salto de escala.`;
     }
 
     if (promptLower.includes('hola') || promptLower.includes('buenos') || promptLower.includes('buenas')) {
@@ -277,18 +312,44 @@ Respecto a **"${userPrompt}"**:
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Sugerencias Rápidas */}
+          {/* Sugerencias Rápidas Deslizables con Botones de Desplazamiento */}
           {messages.length < 5 && (
-            <div className="p-2 bg-white dark:bg-[#162130] border-t border-sky-blue/20 dark:border-slate-800 flex gap-1.5 overflow-x-auto scrollbar-none">
-              {quickQuestions.map((q, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSendMessage(q)}
-                  className="ai-chip-btn px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors shrink-0"
-                >
-                  {q}
-                </button>
-              ))}
+            <div className="relative bg-white dark:bg-[#162130] border-t border-sky-blue/20 dark:border-slate-800 p-2 flex items-center group">
+              <button
+                onClick={() => scrollChips('left')}
+                className="p-1 rounded-full bg-[#2F4156]/10 dark:bg-slate-800 hover:bg-[#2F4156]/20 text-[#2F4156] dark:text-white shrink-0 mr-1 z-10 transition-colors"
+                title="Deslizar a la izquierda"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <div
+                ref={chipsContainerRef}
+                onWheel={(e) => {
+                  if (e.deltaY !== 0 && chipsContainerRef.current) {
+                    chipsContainerRef.current.scrollLeft += e.deltaY;
+                  }
+                }}
+                className="ai-chips-scroll-area flex gap-2 overflow-x-auto scroll-smooth py-1 px-1 scrollbar-thin select-none touch-pan-x flex-1"
+              >
+                {quickQuestions.map((q, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSendMessage(q)}
+                    className="ai-chip-btn px-3.5 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-transform active:scale-95 shrink-0 cursor-pointer shadow-sm"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => scrollChips('right')}
+                className="p-1 rounded-full bg-[#2F4156]/10 dark:bg-slate-800 hover:bg-[#2F4156]/20 text-[#2F4156] dark:text-white shrink-0 ml-1 z-10 transition-colors"
+                title="Deslizar a la derecha"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
           )}
 

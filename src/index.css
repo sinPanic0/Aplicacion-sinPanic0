@@ -297,3 +297,18 @@ html, body {
 .dark .ai-chat-input::placeholder {
   color: #94A3B8 !important;
 }
+
+/* ── Scrollbar sutil horizontal para sugerencias de la IA ── */
+.ai-chips-scroll-area::-webkit-scrollbar {
+  height: 4px;
+}
+.ai-chips-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ai-chips-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(86, 124, 141, 0.4);
+  border-radius: 4px;
+}
+.dark .ai-chips-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(200, 217, 230, 0.3);
+}
