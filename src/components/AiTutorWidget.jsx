@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, Bot, User, RefreshCw, Lightbulb, Zap, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
- * @description Widget Flotante de Tutor IA (Compatible 100% con Modo Claro y Oscuro)
- * Permite deslizar horizontalmente las sugerencias con la rueda del ratón, táctil y botones de navegación.
+ * @description Widget Flotante de Tutor IA (Estilo Delicado SinPanic0)
+ * Sin barra de desplazamiento tosca nativa. Navegación delicada con rueda de ratón, gestos y botones minimalistas.
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,7 +42,7 @@ export const AiTutorWidget = () => {
 
   const scrollChips = (direction) => {
     if (chipsContainerRef.current) {
-      const scrollAmount = direction === 'left' ? -200 : 200;
+      const scrollAmount = direction === 'left' ? -180 : 180;
       chipsContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
   };
@@ -312,15 +312,15 @@ Respecto a **"${userPrompt}"**:
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Sugerencias Rápidas Deslizables con Botones de Desplazamiento */}
+          {/* Sugerencias Rápidas Deslizables con Navegación Delicada */}
           {messages.length < 5 && (
-            <div className="relative bg-white dark:bg-[#162130] border-t border-sky-blue/20 dark:border-slate-800 p-2 flex items-center group">
+            <div className="relative bg-white dark:bg-[#162130] border-t border-sky-blue/20 dark:border-slate-800 py-2 px-2.5 flex items-center gap-1">
               <button
                 onClick={() => scrollChips('left')}
-                className="p-1 rounded-full bg-[#2F4156]/10 dark:bg-slate-800 hover:bg-[#2F4156]/20 text-[#2F4156] dark:text-white shrink-0 mr-1 z-10 transition-colors"
+                className="w-7 h-7 rounded-full bg-[#C8D9E6]/30 dark:bg-[#27394D] hover:bg-[#C8D9E6]/60 dark:hover:bg-[#374E66] text-[#2F4156] dark:text-white flex items-center justify-center shrink-0 z-10 transition-all border border-[#C8D9E6] dark:border-[#3E546E] active:scale-90 shadow-sm"
                 title="Deslizar a la izquierda"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={14} />
               </button>
 
               <div
@@ -330,7 +330,7 @@ Respecto a **"${userPrompt}"**:
                     chipsContainerRef.current.scrollLeft += e.deltaY;
                   }
                 }}
-                className="ai-chips-scroll-area flex gap-2 overflow-x-auto scroll-smooth py-1 px-1 scrollbar-thin select-none touch-pan-x flex-1"
+                className="ai-chips-scroll-area flex gap-2 overflow-x-auto scroll-smooth py-1 px-1 select-none touch-pan-x flex-1"
               >
                 {quickQuestions.map((q, idx) => (
                   <button
@@ -345,10 +345,10 @@ Respecto a **"${userPrompt}"**:
 
               <button
                 onClick={() => scrollChips('right')}
-                className="p-1 rounded-full bg-[#2F4156]/10 dark:bg-slate-800 hover:bg-[#2F4156]/20 text-[#2F4156] dark:text-white shrink-0 ml-1 z-10 transition-colors"
+                className="w-7 h-7 rounded-full bg-[#C8D9E6]/30 dark:bg-[#27394D] hover:bg-[#C8D9E6]/60 dark:hover:bg-[#374E66] text-[#2F4156] dark:text-white flex items-center justify-center shrink-0 z-10 transition-all border border-[#C8D9E6] dark:border-[#3E546E] active:scale-90 shadow-sm"
                 title="Deslizar a la derecha"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={14} />
               </button>
             </div>
           )}

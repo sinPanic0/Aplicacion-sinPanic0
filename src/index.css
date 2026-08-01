@@ -318,17 +318,13 @@ html, body {
   color: #94A3B8 !important;
 }
 
-/* ── Scrollbar sutil horizontal para sugerencias de la IA ── */
+/* ── Ocultar completamente la barra nativa tosca en sugerencias de la IA ── */
 .ai-chips-scroll-area::-webkit-scrollbar {
-  height: 4px;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
-.ai-chips-scroll-area::-webkit-scrollbar-track {
-  background: transparent;
-}
-.ai-chips-scroll-area::-webkit-scrollbar-thumb {
-  background: rgba(86, 124, 141, 0.4);
-  border-radius: 4px;
-}
-.dark .ai-chips-scroll-area::-webkit-scrollbar-thumb {
-  background: rgba(200, 217, 230, 0.3);
+.ai-chips-scroll-area {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
