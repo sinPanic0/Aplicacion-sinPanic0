@@ -1,0 +1,54 @@
+/* Custom styles for SinPanic0 iOS Redesign */
+
+/* Glassmorphism Panel style iOS */
+.ios-glass {
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.dark .ios-glass {
+  background-color: rgba(47, 65, 86, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Input Transitions */
+input, select, textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Custom shadow utilities */
+.ios-shadow {
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.ios-shadow-lg {
+  box-shadow: 0 10px 40px rgba(47, 65, 86, 0.08), 0 2px 8px rgba(47, 65, 86, 0.04);
+}
+
+/* Card hover/active animation */
+.ios-card {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.ios-card:active {
+  transform: scale(0.97);
+}
+
+/* screen animation transitions */
+.screen-fade-enter {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.screen-slide-enter {
+  animation: slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

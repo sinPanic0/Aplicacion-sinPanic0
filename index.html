@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sin-panic0</title>
+    <script>
+      (function() {
+        try {
+          const isDark = window.localStorage.getItem('sinpanico_darkmode_global') === 'true';
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+    </script>
+    <style>
+      html, body {
+        background-color: #F5EFEB;
+        transition: background-color 0.2s ease;
+      }
+      html.dark, html.dark body {
+        background-color: #0C1017;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

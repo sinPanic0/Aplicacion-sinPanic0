@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+:root {
+  /* ─── PALETA ORIGINAL — Azul Navy + Beige cálido ─── */
+  --color-navy-val: #2F4156;         /* Navy profundo – textos principales */
+  --color-teal-val: #567C8D;         /* Teal azul-gris – textos secundarios */
+  --color-sky-blue-val: #C8D9E6;     /* Sky blue suave – bordes y acentos */
+  --color-beige-val: #F5EFEB;        /* Beige cálido – fondo principal */
+  --color-brand-white-val: #FFFFFF;  /* Blanco puro – tarjetas */
+  --color-card-hover: #EDE6DF;       /* Beige oscuro para hover */
+
+  /* Semantic tokens (light mode) */
+  --color-active-nav-bg: #2F4156;    /* Nav activo – navy */
+  --color-active-nav-text: #FFFFFF;
+  --color-logo-bg: #2F4156;
+  --color-logo-icon: #FFFFFF;
+  --color-icon-box-bg: rgba(200, 217, 230, 0.35);
+  --color-icon-box-text: #2F4156;
+}
+
+.dark {
+  /* ─── DARK MODE — Azul noche profundo ─── */
+  --color-navy-val: #D4E2EE;         /* Texto principal: azul-blanco suave */
+  --color-teal-val: #7A9BAE;         /* Texto secundario: teal apagado */
+  --color-sky-blue-val: #1C2E3E;     /* Bordes: azul pizarra oscuro */
+  --color-beige-val: #0E1620;        /* Fondo: azul noche profundo */
+  --color-brand-white-val: #162130;  /* Tarjetas: azul oscuro */
+  --color-card-hover: #1C2E3E;       /* Hover: algo más claro */
+
+  /* Semantic tokens (dark mode) */
+  --color-active-nav-bg: #2A4A62;    /* Nav activo: azul pastel profundo */
+  --color-active-nav-text: #C8DCF0;  /* Texto nav: azul cielo suave */
+  --color-logo-bg: #1E3A52;
+  --color-logo-icon: #A0C4DC;
+  --color-icon-box-bg: rgba(42, 74, 98, 0.5);
+  --color-icon-box-text: #A0C4DC;
+  color-scheme: dark;
+}
+
+@theme {
+  --color-navy: var(--color-navy-val);
+  --color-teal: var(--color-teal-val);
+  --color-sky-blue: var(--color-sky-blue-val);
+  --color-beige: var(--color-beige-val);
+  --color-brand-white: var(--color-brand-white-val);
+
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-in: slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-up: scale-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-in {
+    from { transform: translateX(24px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes scale-up {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+}
+
+/* Base global */
+html, body {
+  background-color: var(--color-beige-val) !important;
+  color: var(--color-navy-val) !important;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Hardcoded beige cards in dark mode → subtle dark variant */
+.dark [class*="bg-\[#F5EFEB\]"] {
+  background-color: #1A2B3C !important;
+}
+
+/* ══════════════════════════════════════════════════
+   DARK MODE — Overrides globales
+   ══════════════════════════════════════════════════ */
+
+.dark .bg-white {
+  background-color: var(--color-brand-white-val) !important;
+}
+.dark .bg-white\/85, .dark .bg-white\/90 {
+  background-color: rgba(22, 33, 48, 0.92) !important;
+}
+.dark .bg-beige {
+  background-color: var(--color-beige-val) !important;
+}
+.dark .text-navy {
+  color: var(--color-navy-val) !important;
+}
+.dark .text-teal {
+  color: var(--color-teal-val) !important;
+}
+.dark .border-sky-blue,
+.dark .border-sky-blue\/10,
+.dark .border-sky-blue\/15,
+.dark .border-sky-blue\/20,
+.dark .border-sky-blue\/25,
+.dark .border-sky-blue\/30,
+.dark .border-sky-blue\/35,
+.dark .border-sky-blue\/40 {
+  border-color: var(--color-sky-blue-val) !important;
+}
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .ios-shadow,
+.dark .ios-shadow-lg {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.2) !important;
+}
+.dark .shadow-lg {
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
+}
+.dark input, .dark select, .dark textarea {
+  background-color: var(--color-brand-white-val) !important;
+  color: var(--color-navy-val) !important;
+  border-color: var(--color-sky-blue-val) !important;
+}
+.dark input:disabled {
+  background-color: var(--color-card-hover) !important;
+  color: var(--color-teal-val) !important;
+  opacity: 0.8;
+}
+.dark select.bg-white, .dark option {
+  background-color: var(--color-brand-white-val) !important;
+  color: var(--color-navy-val) !important;
+}
+
+/* ── Icon boxes (bg-sky-blue/20) ── */
+.dark div.bg-sky-blue\/20,
+.dark div.bg-sky-blue\/30 {
+  background-color: var(--color-icon-box-bg) !important;
+}
+.dark div.bg-sky-blue\/20 svg,
+.dark div.bg-sky-blue\/30 svg {
+  color: var(--color-icon-box-text) !important;
+}
+.dark button.bg-sky-blue\/20,
+.dark span.bg-sky-blue\/20 {
+  background-color: var(--color-icon-box-bg) !important;
+}
+.dark .bg-sky-blue\/10 {
+  background-color: rgba(28, 46, 62, 0.4) !important;
+  color: var(--color-teal-val) !important;
+}
+.dark .bg-sky-blue\/15 {
+  background-color: rgba(42, 74, 98, 0.3) !important;
+}
+.dark .bg-sky-blue\/5 {
+  background-color: rgba(28, 46, 62, 0.25) !important;
+}
+
+/* ── bg-navy global fix (en dark, navy-val es claro → bg quedaría blanco) ── */
+.dark .bg-navy {
+  background-color: #2A4A62 !important;
+}
+/* ── Sidebar nav activo ── */
+.dark aside button.bg-navy {
+  background-color: var(--color-active-nav-bg) !important;
+  color: var(--color-active-nav-text) !important;
+  box-shadow: 0 2px 12px rgba(42,74,98,0.4) !important;
+}
+.dark aside button.bg-navy svg {
+  color: var(--color-active-nav-text) !important;
+}
+/* ── Logo en sidebar ── */
+.dark aside .bg-navy.text-white {
+  background-color: var(--color-logo-bg) !important;
+  color: var(--color-logo-icon) !important;
+}
+.dark aside .bg-navy.text-white svg {
+  color: var(--color-logo-icon) !important;
+}
+/* ── Toggle dark mode icon box ── */
+.dark .bg-navy.text-sky-blue {
+  background-color: #1E3A52 !important;
+  color: #A0C4DC !important;
+}
+/* ── Botones de acción (exam, etc) ── */
+.dark button.bg-navy {
+  background-color: #2A4A62 !important;
+}
+
+/* ── Bottom nav active ── */
+.dark nav button.text-navy {
+  color: var(--color-active-nav-text) !important;
+}
+.dark nav button.text-navy svg {
+  color: var(--color-active-nav-text) !important;
+}
+
+/* ── bg-teal en días calendario ── */
+.dark .bg-teal {
+  background-color: #3A7B96 !important;
+  color: #FFFFFF !important;
+}
+
+/* ── Días rojos (faltas/errores) ── */
+.dark .bg-red-500 {
+  background-color: #B84455 !important;
+  color: #FFFFFF !important;
+}
+.dark .border-red-400 {
+  border-color: #D06070 !important;
+}
+.dark .hover\:bg-red-50:hover {
+  background-color: rgba(184,68,85,0.15) !important;
+}
+
+/* ── Bordes blancos (avatar) ── */
+.dark .border-white {
+  border-color: #1C2E3E !important;
+}
+
+/* ── Settings dropdown ── */
+.dark .settings-dropdown {
+  background-color: #162130 !important;
+  border-color: #1C2E3E !important;
+}
+
+/* ── Card hover ── */
+.dark .hover\:bg-beige\/40:hover {
+  background-color: var(--color-card-hover) !important;
+}
+.dark .hover\:bg-beige\/50:hover {
+  background-color: var(--color-card-hover) !important;
+}
+
+/* ── SVG chart overrides ── */
+.dark circle[stroke="#F5EFEB"], .dark circle[stroke="#FAF8F5"] {
+  stroke: #1C2E3E !important;
+}
+.dark line[stroke="#C8D9E6"], .dark line[stroke="#BAD1E5"] {
+  stroke: #1C2E3E !important;
+}
+.dark rect[fill="#567C8D"], .dark rect[fill="#3B6B82"] {
+  fill: #7A9BAE !important;
+}
+.dark text[fill="#2F4156"] {
+  fill: #C8DCF0 !important;
+}
+.dark text[fill="#567C8D"] {
+  fill: #7A9BAE !important;
+}
+
+/* ── Shadow navy variants ── */
+.dark .shadow-navy\/20 {
+  box-shadow: 0 4px 16px rgba(42,74,98,0.3) !important;
+}
+.dark .shadow-navy\/10 {
+  box-shadow: 0 2px 8px rgba(42,74,98,0.2) !important;
+}
