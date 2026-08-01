@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, Bot, User, RefreshCw, Lightbulb, Zap, BookOpen } from 'lucide-react';
 
 /**
- * @description Widget Flotante de Tutor IA (Estilo SinPanic0)
- * Utiliza la paleta oficial de la aplicación (Navy #2F4156, Teal #567C8D, Sky Blue #C8D9E6, Beige #F5EFEB).
+ * @description Widget Flotante de Tutor IA (Estilo Prolijo y Elegante SinPanic0)
+ * Botón tipo píldora limpio con animación sutil, paleta Navy (#2F4156), Teal (#567C8D) y Sky-Blue (#C8D9E6).
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +41,6 @@ export const AiTutorWidget = () => {
     const promptLower = userPrompt.toLowerCase();
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-    // Si existe clave de API de Gemini configurada, llamar a la API real de Google Gemini
     if (apiKey) {
       try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
@@ -63,7 +62,6 @@ export const AiTutorWidget = () => {
       }
     }
 
-    // Motor de Respuestas Pedagógicas Inteligentes en Español adaptado a la paleta SinPanic0
     await new Promise(resolve => setTimeout(resolve, 700 + Math.random() * 500));
 
     if (promptLower.includes('lectura') || promptLower.includes('crítica') || promptLower.includes('texto')) {
@@ -185,28 +183,29 @@ Respecto a **"${userPrompt}"**:
 
   return (
     <>
-      {/* Botón Flotante de Activación de IA (Estilo Paleta SinPanic0: Navy #2F4156 + Teal #567C8D) */}
+      {/* Botón Flotante Prolijo (Diseño Cápsula Elegante SinPanic0) */}
       <div className="fixed bottom-6 right-6 z-50">
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#2F4156] via-[#3A5A78] to-[#567C8D] text-white shadow-xl shadow-navy/30 hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white/80"
+            className="group flex items-center gap-2.5 px-4 py-3 rounded-full bg-[#2F4156] text-white shadow-xl shadow-navy/20 hover:shadow-2xl hover:bg-[#3A5A78] hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20"
             title="Abrir Tutor IA SinPanic0"
           >
-            <Sparkles size={24} className="animate-pulse text-sky-blue" />
-            <span className="absolute -top-1 -right-1 flex h-4 w-4">
+            <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border border-white text-[9px] font-black text-white items-center justify-center">IA</span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
             </span>
+            <Sparkles size={18} className="text-[#C8D9E6] group-hover:rotate-12 transition-transform" />
+            <span className="text-xs font-black tracking-wide pr-0.5">Tutor IA</span>
           </button>
         )}
       </div>
 
-      {/* Ventana Desplegable del Chat IA (Integrada con paleta Navy, Teal, Sky-Blue y Beige) */}
+      {/* Ventana Desplegable del Chat IA */}
       {isOpen && (
         <div className="fixed bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px] h-[580px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-sky-blue/30 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
           
-          {/* Header del Chat con degradado Navy / Teal */}
+          {/* Header del Chat */}
           <div className="bg-gradient-to-r from-[#2F4156] via-[#3A5A78] to-[#567C8D] p-4 text-white flex items-center justify-between shadow-md">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 text-white shadow-inner">
@@ -278,7 +277,7 @@ Respecto a **"${userPrompt}"**:
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Sugerencias Rápidas con estilo SinPanic0 (Sky-blue & Navy) */}
+          {/* Sugerencias Rápidas */}
           {messages.length < 5 && (
             <div className="p-2 bg-white border-t border-sky-blue/20 flex gap-1.5 overflow-x-auto scrollbar-none">
               {quickQuestions.map((q, idx) => (
