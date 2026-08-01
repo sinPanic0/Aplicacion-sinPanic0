@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { EXAM_QUESTIONS, PRACTICE_QUESTIONS } from './utils/questions';
 import { supabase } from './lib/supabaseClient';
+import { AiTutorWidget } from './components/AiTutorWidget';
 
 const SUBJECTS = [
   { id: 1, name: 'Lectura Crítica', completed: 0, total: 21, icon: Book, color: 'emerald', score: 380 },
@@ -2293,6 +2294,9 @@ const App = () => {
 
       {/* Bottom Navigation for Mobile */}
       {isMobile && showNav && <BottomNav />}
+
+      {/* Tutor IA Flotante (Gemini AI Assistant) */}
+      <AiTutorWidget />
     </div>
   );
 };
