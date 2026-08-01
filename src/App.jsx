@@ -719,28 +719,50 @@ const App = () => {
             }).eq('user_id', userId).then(() => {}).catch(e => console.error("Error resetting daily active minutes:", e));
           }
 
-          setUserProfile(prev => {
-            const localKey = `sinpanico_points_${userId}`;
-            let savedPoints = window.localStorage.getItem(localKey);
-            if (savedPoints === null) {
-              savedPoints = prev.knowledgePoints || 350;
-              window.localStorage.setItem(localKey, savedPoints);
-            } else {
-              savedPoints = Number(savedPoints);
-            }
+          // Synchronize Knowledge Points (KP) & Daily Points across devices
+          const cloudTotalKP = Number(profile.knowledge_points) || 0;
+          const localKey = `sinpanico_points_${userId}`;
+          const localTotalKP = Number(window.localStorage.getItem(localKey)) || 0;
+          const syncedTotalKP = Math.max(cloudTotalKP, localTotalKP);
 
-            return {
-              ...prev,
-              grade: profile.grade || '11° Grado',
-              testDate: profile.test_date ? new Date(profile.test_date) : prev.testDate,
-              timeLeftMonths: profile.time_left_months || 3,
-              intensity: profile.intensity || 3,
-              totalHoursStudied: Number(profile.total_hours_studied) || 0,
-              streak: profile.streak || 0,
-              knowledgePoints: savedPoints,
-              full_name: profile.full_name || ''
-            };
-          });
+          let syncedDailyPoints = 0;
+          if (profile.last_points_date === todayStr) {
+            const cloudDailyPoints = Number(profile.daily_points) || 0;
+            const localDailyKey = `sinpanico_daily_points_${userId}`;
+            let localDailyMap = {};
+            try { localDailyMap = JSON.parse(window.localStorage.getItem(localDailyKey) || '{}'); } catch(e){}
+            const localDailyPoints = Number(localDailyMap[todayStr]) || 0;
+            syncedDailyPoints = Math.max(cloudDailyPoints, localDailyPoints);
+          } else {
+            // New calendar day! Reset daily points accumulated today to 0 while keeping total KP balance
+            syncedDailyPoints = 0;
+            supabase.from('user_profiles').update({
+              daily_points: 0,
+              last_points_date: todayStr
+            }).eq('user_id', userId).then(() => {}).catch(e => console.error("Error resetting daily points:", e));
+          }
+
+          setDailyPointsMap(prev => ({
+            ...prev,
+            [todayStr]: syncedDailyPoints
+          }));
+
+          window.localStorage.setItem(`sinpanico_daily_points_${userId}`, JSON.stringify({
+            [todayStr]: syncedDailyPoints
+          }));
+          window.localStorage.setItem(localKey, syncedTotalKP);
+
+          setUserProfile(prev => ({
+            ...prev,
+            grade: profile.grade || '11° Grado',
+            testDate: profile.test_date ? new Date(profile.test_date) : prev.testDate,
+            timeLeftMonths: profile.time_left_months || 3,
+            intensity: profile.intensity || 3,
+            totalHoursStudied: Number(profile.total_hours_studied) || 0,
+            streak: profile.streak || 0,
+            knowledgePoints: syncedTotalKP,
+            full_name: profile.full_name || ''
+          }));
           if (profile.selected_method) setSelectedMethod(profile.selected_method);
         }
 
@@ -2445,7 +2467,16 @@ const ExamScreen = ({
         return newState;
       });
 
+      const diagPoints = 50;
+      const diagTodayPoints = (dailyPointsMap[todayStr] || 0) + diagPoints;
+      const diagTotalKP = (userProfile.knowledgePoints || 0) + diagPoints;
+
+      setDailyPointsMap(prev => ({ ...prev, [todayStr]: diagTodayPoints }));
+      setUserProfile(prev => ({ ...prev, knowledgePoints: diagTotalKP }));
+
       if (userId) {
+        window.localStorage.setItem(`sinpanico_daily_points_${userId}`, JSON.stringify({ ...dailyPointsMap, [todayStr]: diagTodayPoints }));
+        window.localStorage.setItem(`sinpanico_points_${userId}`, diagTotalKP);
         try {
           const { error: dbError } = await supabase.from('user_diagnostics').upsert({
             user_id: userId,
@@ -2457,6 +2488,12 @@ const ExamScreen = ({
           }, { onConflict: 'user_id,subject_id' });
 
           if (dbError) throw dbError;
+
+          await supabase.from('user_profiles').update({
+            knowledge_points: diagTotalKP,
+            daily_points: diagTodayPoints,
+            last_points_date: todayStr
+          }).eq('user_id', userId);
         } catch (e) {
           console.error(e);
           setGlobalError('No se pudo guardar el progreso del diagnóstico. Por favor, verifica tu conexión a internet.');
@@ -2535,7 +2572,10 @@ const ExamScreen = ({
           if (practiceError) throw practiceError;
 
           const { error: profileError } = await supabase.from('user_profiles').update({
-            total_hours_studied: updatedProfile.totalHoursStudied
+            total_hours_studied: updatedProfile.totalHoursStudied,
+            knowledge_points: updatedProfile.knowledgePoints,
+            daily_points: todayPoints,
+            last_points_date: todayStr2
           }).eq('user_id', userId);
           if (profileError) throw profileError;
 
