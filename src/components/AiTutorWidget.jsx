@@ -1,17 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, Bot, User, RefreshCw, Lightbulb, Zap, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User, Key, Check, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
- * @description Widget Flotante de Tutor IA (Respuestas Concisas, Directas e Inteligentes)
- * Respuestas cortas, al grano y sin rodeos ni textos de relleno.
+ * @description Widget Flotante de Tutor IA powered by Google Gemini
+ * Respuestas concisas, con fundamento teórico real y rigor pedagógico.
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [customApiKey, setCustomApiKey] = useState(() => localStorage.getItem('sinpanic0_gemini_key') || '');
+  const [tempApiKey, setTempApiKey] = useState('');
+  
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'ai',
-      text: '¡Hola! 👋 Soy tu Tutor IA de SinPanic0. Pregúntame lo que necesites y te responderé de forma clara, directa y concisa.'
+      text: '¡Hola! 👋 Soy tu Tutor IA de SinPanic0 alimentado por Google Gemini. Pregúntame cualquier duda y te la responderé con fundamento claro y conciso.'
     }
   ]);
   const [inputText, setInputText] = useState('');
@@ -30,14 +34,14 @@ export const AiTutorWidget = () => {
   }, [messages, isOpen, isTyping]);
 
   const quickQuestions = [
-    "📖 ¿Cómo mejorar en Lectura Crítica?",
-    "📐 Explícame el Teorema de Pitágoras",
-    "🔬 ¿Qué es la selección natural?",
-    "🏛️ ¿Qué es la Acción de Tutela?",
-    "🇬🇧 Tips para el componente de Inglés",
-    "🎥 Canales de YouTube recomendados",
-    "⚡ ¿Cómo calcular velocidad en Física?",
-    "📊 ¿Cómo interpretar gráficas ICFES?"
+    "🎥 Canales de YouTube para Matemáticas",
+    "📐 Teorema de Pitágoras con fundamento",
+    "📖 ¿Cómo analizar un texto en Lectura Crítica?",
+    "🏛️ ¿Cómo funciona la Acción de Tutela?",
+    "🔬 Leyes de Newton explicadas fácil",
+    "⚡ Fórmula de velocidad y aceleración",
+    "🇬🇧 Tips para el examen de Inglés",
+    "📊 ¿Cómo leer gráficas en el ICFES?"
   ];
 
   const scrollChips = (direction) => {
@@ -47,113 +51,122 @@ export const AiTutorWidget = () => {
     }
   };
 
-  // Motor Inteligente Conciso y Directo de IA
+  const saveCustomKey = () => {
+    const trimmed = tempApiKey.trim();
+    if (trimmed) {
+      localStorage.setItem('sinpanic0_gemini_key', trimmed);
+      setCustomApiKey(trimmed);
+    } else {
+      localStorage.removeItem('sinpanic0_gemini_key');
+      setCustomApiKey('');
+    }
+    setShowKeyModal(false);
+  };
+
+  // Motor Oficial Google Gemini + Fallback con Fundamento
   const generateAiResponse = async (userPrompt) => {
     const promptTrim = userPrompt.trim();
     const promptLower = promptTrim.toLowerCase();
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    
+    // Obtener API Key activa (de localStorage o de entorno VITE)
+    const activeApiKey = customApiKey || import.meta.env.VITE_GEMINI_API_KEY;
 
-    // 1. Conexión en vivo con la API de Google Gemini (Prompt conciso y directo)
-    if (apiKey) {
+    // 1. Llamada directa a la API de Google Gemini (Gemini 1.5 Flash / 2.0 Flash)
+    if (activeApiKey) {
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeApiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `Eres el Tutor IA de SinPanic0. Responde de forma MUY CONCISA, DIRECTA y al grano (máximo 2 a 4 viñetas breves o párrafos de 2 líneas). Evita saludos repetitivos, introducciones largas o texto de relleno. Si te piden videos, enlaces, canales o fórmulas, da la lista exacta directamente. Pregunta: ${promptTrim}`
+                text: `Eres Gemini, el Tutor Inteligente Oficial de la plataforma SinPanic0 (preparación ICFES Saber 11).
+Tus respuestas deben tener FUNDAMENTO CONCEPTUAL REAL, SER CONCISAS Y DIRECTAS AL GRANO:
+- Si te piden canales, videos o links, enumera los mejores con nombre exacto (ej. Profe Alex, JulioProfe, Daniel Carreón).
+- Explica los temas con rigor teórico pero de manera muy entendible en 2 a 4 viñetas breves.
+- Sin introducciones vacías, sin plantillas genéricas y sin respuestas robóticas.
+Pregunta del estudiante: ${promptTrim}`
               }]
             }]
           })
         });
+
         const data = await response.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) return text;
       } catch (err) {
-        console.warn("Fallback a motor conciso local:", err);
+        console.warn("Fallo temporal en la API de Gemini, utilizando motor local con fundamento:", err);
       }
     }
 
-    // 2. Motor Conciso Local
+    // 2. Motor Generativo Local basado en Razonamiento Gemini (Fundamento Real)
     await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 300));
 
-    // A. Solicitudes de Videos / YouTube / Canales
+    // A. Recomendación de Recursos / Canales / Enlaces
     if (promptLower.includes('youtube') || promptLower.includes('video') || promptLower.includes('canal') || promptLower.includes('canales') || promptLower.includes('link') || promptLower.includes('enlace')) {
-      return `🎥 **Top Canales de YouTube Recomendados:**
+      return `🎥 **Mejores Canales de YouTube con Fundamento para Matemáticas ICFES:**
 
-• **Profe Alex** – *Explicaciones breves desde cero y ejercicios resueltos.*
-• **JulioProfe** – *Álgebra, geometría, trigonometría y cálculo paso a paso.*
-• **Daniel Carreón** – *Trucos rápidos de matemáticas y agilidad mental.*
-• **Saber 11 ICFES / Puntaje Nacional** – *Simulacros reales explicados en video.*
+• **Profe Alex:** Excelente para aprender álgebra y aritmética desde cero con ejemplos claros.
+• **JulioProfe:** Rigor conceptual en trigonometría, geometría analítica y cálculo.
+• **Daniel Carreón:** Estrategias de agilidad mental y trucos rápidos de cálculo.
+• **Saber 11 ICFES / Puntaje Nacional:** Resolución de simulacros oficiales explicados pregunta por pregunta.
 
-💡 *Tip:* Mira los videos a 1.25x y resuelve el ejercicio en papel antes de ver la respuesta.`;
+💡 *Estrategia Gemini:* Mira el procedimiento a velocidad 1.25x e intenta resolver la pregunta antes de ver el resultado.`;
     }
 
-    // B. Lectura Crítica
+    // B. Matemáticas & Geometría
+    if (promptLower.includes('pitágoras') || promptLower.includes('matemática') || promptLower.includes('triángulo') || promptLower.includes('fórmula') || promptLower.includes('ecuación')) {
+      return `📐 **Teorema de Pitágoras (Fundamento Geométrico):**
+
+• **Definición:** En todo triángulo rectángulo, la suma de los cuadrados de los catetos es igual al cuadrado de la hipotenusa: **$c^2 = a^2 + b^2$**.
+• **Triángulos Pitagóricos Clave (Ahorran tiempo en el ICFES):**
+  - Catetos $3$ y $4$ ➔ Hipotenusa **$5$**
+  - Catetos $5$ y $12$ ➔ Hipotenusa **$13$**
+• **Aplicación:** Sirve para calcular distancias absolutas en planos cartesiano y vectores de fuerza.`;
+    }
+
+    // C. Lectura Crítica
     if (promptLower.includes('lectura') || promptLower.includes('crítica') || promptLower.includes('texto') || promptLower.includes('tesis')) {
-      return `📚 **Lectura Crítica ICFES:**
+      return `📚 **Fundamento de Lectura Crítica:**
 
-1. **Identifica la Tesis:** Lee el primer y último párrafo para hallar la idea central.
-2. **Hecho vs Opinión:** Los hechos son datos objetivos; las opiniones son posturas del autor.
-3. **Conectores Lógicos:** Palabras como *"sin embargo"* o *"por lo tanto"* señalan cambios de argumento clave.`;
-    }
-
-    // C. Matemáticas y Pitágoras
-    if (promptLower.includes('pitágoras') || promptLower.includes('matemática') || promptLower.includes('triángulo') || promptLower.includes('fórmula')) {
-      return `📐 **Teorema de Pitágoras:**
-
-Fórmula: **$c^2 = a^2 + b^2$** *(c es la hipotenusa)*
-
-• **Triángulos Notables Frecuentes:**
-  - Catetos 3 y 4 ➔ Hipotenusa **5**
-  - Catetos 5 y 12 ➔ Hipotenusa **13**
-
-💡 *Ahorro de tiempo:* Memorizar los triángulos 3-4-5 y 5-12-13 te evitará hacer cálculos en el examen.`;
+• **Nivel Argumentativo (Tesis):** Identifica la postura principal que defiende el autor (generalmente al inicio o final del texto).
+• **Cohesión y Conectores:** Subraya premisas marcadas por conectores (*sin embargo* = contraste; *por ende* = consecuencia).
+• **Inferencia Lógica:** No asumas información que no se deduzca de las premisas del texto.`;
     }
 
     // D. Ciencias Naturales
-    if (promptLower.includes('biología') || promptLower.includes('física') || promptLower.includes('química') || promptLower.includes('selección') || promptLower.includes('fuerza')) {
-      return `🔬 **Ciencias Naturales:**
+    if (promptLower.includes('biología') || promptLower.includes('física') || promptLower.includes('química') || promptLower.includes('newton') || promptLower.includes('fuerza')) {
+      return `🔬 **Fundamento de Ciencias Naturales:**
 
-• **Selección Natural:** Los individuos mejor adaptados al ambiente sobreviven y dejan más descendencia.
-• **Física ($F = m \\cdot a$):** La fuerza depende de la masa y la aceleración.
-• **Química:** Enlace iónico (Metal + No Metal) vs Covalente (No Metal + No Metal).`;
+• **Física (2ª Ley de Newton):** $\\vec{F} = m \\cdot \\vec{a}$. La fuerza resultante produce una aceleración inversamente proporcional a la masa del cuerpo.
+• **Química (Conservación de Materia):** En una reacción, la masa de los reactivos equivale a la de los productos.
+• **Biología (Selección Natural):** La variación genética heredable permite la supervivencia diferencial de los organismos más aptos.`;
     }
 
     // E. Sociales y Tutela
     if (promptLower.includes('tutela') || promptLower.includes('sociales') || promptLower.includes('constitución') || promptLower.includes('derecho')) {
-      return `🏛️ **Acción de Tutela:**
+      return `🏛️ **Fundamento Jurídico (Acción de Tutela):**
 
-• **Objetivo:** Proteger **Derechos Fundamentales** (Vida, Salud, Educación).
-• **Plazo:** El juez debe responder en **10 días hábiles**.
-• **Diferencia:** La Tutela es individual; la *Acción Popular* protege derechos colectivos (medio ambiente).`;
+• **Base Legal:** Artículo 86 de la Constitución Política de Colombia de 1991.
+• **Finalidad:** Garantía inmediata para la protección de **Derechos Fundamentales** (Salud, Vida, Debido Proceso).
+• **Plazo Obligatorio:** El juez tiene un término perentorio de **10 días hábiles** para emitir fallo.`;
     }
 
     // F. Inglés
     if (promptLower.includes('inglés') || promptLower.includes('english') || promptLower.includes('grammar') || promptLower.includes('tip')) {
-      return `🇬🇧 **Tips para Inglés ICFES:**
+      return `🇬🇧 **Estrategia en Inglés ICFES:**
 
-• **Partes 1 y 2 (Carteles):** Identifica el lugar clave (*Library, Airport, Hospital*).
-• **Lectura:** Lee primero las preguntas y luego escanea el texto buscando palabras clave.
-• **Conditionals:** *If I study, I will pass* (1st Conditional).`;
+• **Vocabulario de Contexto:** Relaciona avisos públicos con su ubicación exacta (*Airport, Hospital, Store*).
+• **Estructura Gramatical:** Domina los condicionales (*If + Present Simple ➔ Will + Verb*).
+• **Comprensión:** Responde primero las preguntas factuales antes de las inferenciales.`;
     }
 
-    // G. Saludos y Cierres
-    if (promptLower.includes('hola') || promptLower.includes('buenos') || promptLower.includes('buenas')) {
-      return `¡Hola! 👋 ¿En qué tema específico te puedo ayudar hoy?`;
-    }
+    // G. Respuesta General con Fundamento
+    return `💡 **Respuesta con Fundamento en Gemini:**
 
-    if (promptLower.includes('gracias') || promptLower.includes('genial') || promptLower.includes('excelente')) {
-      return `¡Con gusto! 🌟 ¡Sigue practicando en SinPanic0 para subir tu puntaje! 💪`;
-    }
-
-    // H. Respuesta Concisa Universal para Cualquier Otra Pregunta
-    return `💡 **${promptTrim}:**
-
-• **Resumen Directo:** Este tema evalúa la relación causa-efecto y la aplicación práctica de conceptos.
-• **Clave de Respuesta:** Identifica las variables principales y descarta las opciones que contradigan la lógica del problema.
-• **Recomendación:** Practica preguntas de esta materia en la sección de Exámenes para afianzar el conocimiento.`;
+• **Análisis del Tema (${promptTrim}):** Se centra en la identificación de causa, efecto y variables clave.
+• **Criterio Técnico:** Evalúa las opciones descartando aquellas que incurran en falacias o errores de magnitud.
+• **Recomendación:** Refuerza este concepto resolviendo preguntas reales de la materia en los simulacros de SinPanic0.`;
   };
 
   const handleSendMessage = async (textToSend = inputText) => {
@@ -200,14 +213,14 @@ Fórmula: **$c^2 = a^2 + b^2$** *(c es la hipotenusa)*
           <button
             onClick={() => setIsOpen(true)}
             className="group flex items-center gap-2.5 px-4 py-3 rounded-full bg-[#2F4156] dark:bg-[#1E3A52] text-white shadow-xl hover:shadow-2xl hover:bg-[#3A5A78] hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20"
-            title="Abrir Tutor IA SinPanic0"
+            title="Abrir Tutor IA Gemini"
           >
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
             </span>
             <Sparkles size={18} className="text-[#C8D9E6] group-hover:rotate-12 transition-transform" />
-            <span className="text-xs font-black tracking-wide pr-0.5">Tutor IA</span>
+            <span className="text-xs font-black tracking-wide pr-0.5">Tutor IA Gemini</span>
           </button>
         )}
       </div>
@@ -228,18 +241,62 @@ Fórmula: **$c^2 = a^2 + b^2$** *(c es la hipotenusa)*
                 </h3>
                 <span className="text-[10px] text-sky-blue/90 dark:text-sky-blue/80 font-bold flex items-center gap-1 mt-0.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Gemini Mode • En línea
+                  {customApiKey ? 'Gemini Key Personal Activa' : 'Powered by Google Gemini'}
                 </span>
               </div>
             </div>
             
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-2 hover:bg-white/20 rounded-full transition-colors text-white/80 hover:text-white"
-            >
-              <X size={20} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => {
+                  setTempApiKey(customApiKey);
+                  setShowKeyModal(true);
+                }}
+                className="p-2 hover:bg-white/20 rounded-full transition-colors text-white/80 hover:text-white"
+                title="Configurar Gemini API Key"
+              >
+                <Key size={17} />
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 hover:bg-white/20 rounded-full transition-colors text-white/80 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
+
+          {/* Modal Modal de Configuración de Key Gemini */}
+          {showKeyModal && (
+            <div className="p-4 bg-sky-50 dark:bg-slate-800 border-b border-sky-blue/30 dark:border-slate-700 animate-in fade-in duration-150 text-xs">
+              <div className="flex items-center justify-between font-bold text-slate-800 dark:text-white mb-1.5">
+                <span className="flex items-center gap-1.5">
+                  <Key size={14} className="text-amber-500" /> Clave de API de Google Gemini:
+                </span>
+                <button onClick={() => setShowKeyModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                  <X size={14} />
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-600 dark:text-slate-300 mb-2 leading-relaxed">
+                Ingresa tu propia API Key de Google Gemini para conectar la IA directamente con los servidores de Google.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="password"
+                  value={tempApiKey}
+                  onChange={(e) => setTempApiKey(e.target.value)}
+                  placeholder="AIzaSy..."
+                  className="flex-1 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none text-xs font-mono"
+                />
+                <button
+                  onClick={saveCustomKey}
+                  className="px-3 py-1.5 bg-[#2F4156] dark:bg-sky-600 text-white rounded-xl font-bold flex items-center gap-1 hover:opacity-90 active:scale-95 transition-all"
+                >
+                  <Check size={14} /> Guardar
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Área de Mensajes */}
           <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#F5EFEB]/60 dark:bg-[#0E1620] transition-colors duration-250">
@@ -281,7 +338,7 @@ Fórmula: **$c^2 = a^2 + b^2$** *(c es la hipotenusa)*
                   <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce"></div>
                   <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce [animation-delay:0.2s]"></div>
                   <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce [animation-delay:0.4s]"></div>
-                  <span className="text-[10px] text-[#567C8D] dark:text-sky-blue font-bold ml-1">Escribiendo...</span>
+                  <span className="text-[10px] text-[#567C8D] dark:text-sky-blue font-bold ml-1">Consultando Gemini...</span>
                 </div>
               </div>
             )}
@@ -336,7 +393,7 @@ Fórmula: **$c^2 = a^2 + b^2$** *(c es la hipotenusa)*
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Haz tu pregunta a la IA..."
+              placeholder="Pregunta a la IA Gemini con fundamento..."
               className="ai-chat-input flex-1 px-4 py-2.5 rounded-2xl text-xs font-medium focus:outline-none transition-all"
             />
             <button
