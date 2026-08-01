@@ -2214,7 +2214,7 @@ const App = () => {
         {/* Content Container */}
         <div className={`flex-1 flex flex-col ${!isMobile && showNav ? 'md:pl-64' : ''}`}>
           <div className={`flex-grow w-full ${isMobile ? 'max-w-md mx-auto bg-beige min-h-screen shadow-xl relative pb-20' : 'max-w-6xl mx-auto p-8'}`}>
-            <main className="h-full w-full screen-slide-enter" key={screen}>
+            <main className="h-full w-full animate-fade-in" key={screen}>
               {screen === 'welcome' && <WelcomeScreen />}
               {screen === 'auth_login' && <AuthScreen initialMode="login" />}
               {screen === 'auth_signup' && <AuthScreen initialMode="signup" />}

@@ -336,7 +336,7 @@ export const AppProvider = ({ children }) => {
   };
 
   if (isDbLoading) {
-    return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-emerald-600">Cargando progreso desde Supabase...</div>;
+    return <div className="min-h-screen bg-beige text-navy flex items-center justify-center font-bold text-sm">Cargando SinPanic0...</div>;
   }
 
   return (
