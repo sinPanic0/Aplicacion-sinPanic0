@@ -182,7 +182,8 @@ export const AppProvider = ({ children }) => {
    * @description Inicia un examen diagnóstico o de práctica, reseteando el estado necesario y barajando preguntas.
    */
   const startExam = (subject, mode = 'diagnostic', practiceId = null) => {
-    setSelectedSubject(subject);
+    const targetSubject = subject || { id: 1, name: 'Lectura Crítica' };
+    setSelectedSubject(targetSubject);
     setCurrentQIndex(0);
     setSelectedOption(null);
     setHasChecked(false);
@@ -192,32 +193,47 @@ export const AppProvider = ({ children }) => {
     
     if (mode === 'diagnostic') {
       setTimeLeft(15 * 60); // 15 minutos
-      // Inicializar array vacío para esta materia
-      setFailedCategories(prev => ({ ...prev, [subject.id]: [] }));
-      const available = EXAM_QUESTIONS[subject.id] || [];
+      setFailedCategories(prev => ({ ...prev, [targetSubject.id]: [] }));
+      const available = EXAM_QUESTIONS[targetSubject.id] || EXAM_QUESTIONS[1] || [];
       const shuffled = [...available].sort(() => 0.5 - Math.random());
-      // Tomamos 15 preguntas aleatorias para el diagnóstico
-      setCurrentQuestions(shuffled.slice(0, 15));
+      const selected = shuffled.slice(0, Math.min(15, shuffled.length));
+      setCurrentQuestions(selected.length > 0 ? selected : (EXAM_QUESTIONS[1] || []));
     } else {
       setTimeLeft(10 * 60); // 10 minutos
-      // Obtener preguntas de práctica basadas en categorías falladas o aleatorias
       let available = [];
-      const subjectFails = failedCategories[subject.id] || [];
-      if (subjectFails.length > 0) {
+      const subjectFails = failedCategories[targetSubject.id] || [];
+      
+      // 1. Intentar cargar preguntas de categorías falladas
+      if (subjectFails.length > 0 && PRACTICE_QUESTIONS[targetSubject.id]) {
         subjectFails.forEach(cat => {
-          if (PRACTICE_QUESTIONS[subject.id]?.[cat]) {
-            available = [...available, ...PRACTICE_QUESTIONS[subject.id][cat]];
+          if (PRACTICE_QUESTIONS[targetSubject.id]?.[cat]) {
+            available = [...available, ...PRACTICE_QUESTIONS[targetSubject.id][cat]];
           }
         });
-      } else {
-        available = [
-          ...(PRACTICE_QUESTIONS[subject.id]?.literal || []), 
-          ...(PRACTICE_QUESTIONS[subject.id]?.interpretacion || []),
-          ...(PRACTICE_QUESTIONS[subject.id]?.general || [])
-        ];
       }
+      
+      // 2. Si no hay suficientes, cargar de todas las categorías de práctica de la materia
+      if (available.length < 5 && PRACTICE_QUESTIONS[targetSubject.id]) {
+        Object.values(PRACTICE_QUESTIONS[targetSubject.id]).forEach(catArray => {
+          if (Array.isArray(catArray)) {
+            available = [...available, ...catArray];
+          }
+        });
+      }
+      
+      // 3. Si aún no hay suficientes, combinar con el banco de examen diagnóstico
+      if (available.length < 5 && EXAM_QUESTIONS[targetSubject.id]) {
+        available = [...available, ...EXAM_QUESTIONS[targetSubject.id]];
+      }
+
+      // 4. Garantía absoluta: fallback a materia 1 si estuviese vacío
+      if (available.length === 0) {
+        available = EXAM_QUESTIONS[1] || [];
+      }
+
       const shuffled = [...available].sort(() => 0.5 - Math.random());
-      setCurrentQuestions(shuffled.slice(0, 10)); // Tomar 10 aleatorias para práctica
+      const selected = shuffled.slice(0, Math.min(10, shuffled.length));
+      setCurrentQuestions(selected);
     }
     setScreen('exam');
   };

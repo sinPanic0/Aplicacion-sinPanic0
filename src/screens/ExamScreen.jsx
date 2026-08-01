@@ -48,18 +48,19 @@ export const ExamScreen = () => {
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  if (questions.length === 0) {
+  if (!questions || questions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center bg-slate-50">
         <AlertCircle size={48} className="text-orange-500 mb-4" />
-        <h2 className="text-xl font-bold text-slate-800 mb-2">Examen en construcción</h2>
-        <p className="text-slate-500 mb-8">Aún no hay preguntas cargadas para esta materia.</p>
-        <button onClick={() => setScreen('subject')} className="px-6 py-3 bg-slate-200 rounded-xl font-bold">Volver</button>
+        <h2 className="text-xl font-bold text-slate-800 mb-2">Cargando preguntas...</h2>
+        <p className="text-slate-500 mb-8">No se encontraron preguntas específicas, cargando módulo de respaldo.</p>
+        <button onClick={() => setScreen('subject')} className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold">Volver a Materias</button>
       </div>
     );
   }
 
-  const currentQuestion = questions[currentQIndex];
+  const currentQuestion = questions[currentQIndex] || questions[0];
+  if (!currentQuestion) return null;
 
   const handleCheck = () => {
     if (selectedOption === null) return;
