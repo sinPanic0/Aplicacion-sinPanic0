@@ -252,17 +252,50 @@ html, body {
   box-shadow: 0 2px 8px rgba(42,74,98,0.2) !important;
 }
 
-/* ── AI Tutor Dark Mode Overrides ── */
-.dark .ai-chat-bubble-ai {
-  background-color: #1E2B3C !important;
-  color: #F0F6FC !important;
-  border-color: #2D3F53 !important;
+/* =================================================═
+   AI TUTOR WIDGET — Strict App Mode Scoping
+   Ignores OS system dark mode preference; strictly
+   follows app's .dark class on root html.
+   ================================================== */
+
+/* ── Light Mode Default (App in Light Mode) ── */
+.ai-tutor-modal {
+  background-color: #FFFFFF !important;
+  color: #2F4156 !important;
+  border: 1px solid rgba(200, 217, 230, 0.6) !important;
 }
-.dark .ai-chat-bubble-ai div {
-  color: #F0F6FC !important;
+.ai-tutor-header {
+  background: linear-gradient(135deg, #2F4156 0%, #3A5A78 50%, #567C8D 100%) !important;
+  color: #FFFFFF !important;
+}
+.ai-tutor-body {
+  background-color: rgba(245, 239, 235, 0.75) !important;
+}
+.ai-tutor-key-modal {
+  background-color: #F0F6FC !important;
+  border-color: #C8D9E6 !important;
+  color: #2F4156 !important;
+}
+.ai-tutor-chips-bar {
+  background-color: #FFFFFF !important;
+  border-color: rgba(200, 217, 230, 0.4) !important;
+}
+.ai-tutor-footer {
+  background-color: #FFFFFF !important;
+  border-color: rgba(200, 217, 230, 0.4) !important;
 }
 
-/* ── AI Tutor User Bubble (Pure white text) ── */
+.ai-chat-bubble-ai {
+  background-color: #FFFFFF !important;
+  color: #2F4156 !important;
+  border: 1px solid rgba(200, 217, 230, 0.6) !important;
+}
+.ai-chat-bubble-ai div,
+.ai-chat-bubble-ai p,
+.ai-chat-bubble-ai span {
+  color: #2F4156 !important;
+}
+
 .ai-chat-bubble-user {
   background-color: #2F4156 !important;
   color: #FFFFFF !important;
@@ -272,17 +305,7 @@ html, body {
 .ai-chat-bubble-user span {
   color: #FFFFFF !important;
 }
-.dark .ai-chat-bubble-user {
-  background-color: #2A4A62 !important;
-  color: #FFFFFF !important;
-}
-.dark .ai-chat-bubble-user div,
-.dark .ai-chat-bubble-user p,
-.dark .ai-chat-bubble-user span {
-  color: #FFFFFF !important;
-}
 
-/* ── AI Tutor Bottom Components (Light & Dark Mode) ── */
 .ai-chip-btn {
   background-color: rgba(200, 217, 230, 0.35) !important;
   color: #2F4156 !important;
@@ -290,15 +313,6 @@ html, body {
 }
 .ai-chip-btn:hover {
   background-color: rgba(200, 217, 230, 0.7) !important;
-}
-.dark .ai-chip-btn {
-  background-color: #27394D !important;
-  color: #FFFFFF !important;
-  border: 1px solid #3E546E !important;
-}
-.dark .ai-chip-btn:hover {
-  background-color: #374E66 !important;
-  color: #FFFFFF !important;
 }
 
 .ai-chat-input {
@@ -309,6 +323,65 @@ html, body {
 .ai-chat-input::placeholder {
   color: #567C8D !important;
 }
+
+/* ── Dark Mode (ONLY active when root html has .dark class) ── */
+.dark .ai-tutor-modal {
+  background-color: #162130 !important;
+  color: #F0F6FC !important;
+  border: 1px solid #2A3E52 !important;
+}
+.dark .ai-tutor-header {
+  background: linear-gradient(135deg, #1E3A52 0%, #2A4A62 50%, #162130 100%) !important;
+  color: #FFFFFF !important;
+}
+.dark .ai-tutor-body {
+  background-color: #0E1620 !important;
+}
+.dark .ai-tutor-key-modal {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F0F6FC !important;
+}
+.dark .ai-tutor-chips-bar {
+  background-color: #162130 !important;
+  border-color: #1E293B !important;
+}
+.dark .ai-tutor-footer {
+  background-color: #162130 !important;
+  border-color: #1E293B !important;
+}
+
+.dark .ai-chat-bubble-ai {
+  background-color: #1E293B !important;
+  color: #F0F6FC !important;
+  border: 1px solid #334155 !important;
+}
+.dark .ai-chat-bubble-ai div,
+.dark .ai-chat-bubble-ai p,
+.dark .ai-chat-bubble-ai span {
+  color: #F0F6FC !important;
+}
+
+.dark .ai-chat-bubble-user {
+  background-color: #2A4A62 !important;
+  color: #FFFFFF !important;
+}
+.dark .ai-chat-bubble-user div,
+.dark .ai-chat-bubble-user p,
+.dark .ai-chat-bubble-user span {
+  color: #FFFFFF !important;
+}
+
+.dark .ai-chip-btn {
+  background-color: #27394D !important;
+  color: #FFFFFF !important;
+  border: 1px solid #3E546E !important;
+}
+.dark .ai-chip-btn:hover {
+  background-color: #374E66 !important;
+  color: #FFFFFF !important;
+}
+
 .dark .ai-chat-input {
   background-color: #0E1620 !important;
   color: #FFFFFF !important;

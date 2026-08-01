@@ -4,6 +4,8 @@ import { Sparkles, X, Send, Bot, User, Key, Check, ChevronLeft, ChevronRight } f
 /**
  * @description Widget Flotante de Tutor IA powered by Google Gemini Style
  * Respuestas fluidas, naturales, bien estructuradas y con ejercicios reales.
+ * Se adapta estrictamente al modo (Claro/Oscuro) activo en la app, ignorando
+ * la preferencia del sistema operativo móvil para evitar que se vea oscuro en Modo Claro.
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -312,10 +314,10 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
 
       {/* Ventana Desplegable del Chat IA */}
       {isOpen && (
-        <div className="fixed bottom-20 right-3 left-3 sm:left-auto sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[400px] h-[520px] max-h-[75vh] bg-white dark:bg-[#162130] text-[#2F4156] dark:text-[#F0F6FC] rounded-3xl shadow-2xl border border-sky-blue/30 dark:border-slate-700 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="ai-tutor-modal fixed bottom-20 right-3 left-3 sm:left-auto sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[400px] h-[520px] max-h-[75vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
           
           {/* Header del Chat */}
-          <div className="bg-gradient-to-r from-[#2F4156] via-[#3A5A78] to-[#567C8D] dark:from-[#1E3A52] dark:via-[#2A4A62] dark:to-[#162130] p-4 text-white flex items-center justify-between shadow-md transition-colors duration-250">
+          <div className="ai-tutor-header p-4 flex items-center justify-between shadow-md transition-colors duration-250">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 text-white shadow-inner">
                 <Bot size={22} />
@@ -353,8 +355,8 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
 
           {/* Modal de Configuración de Key Gemini */}
           {showKeyModal && (
-            <div className="p-4 bg-sky-50 dark:bg-slate-800 border-b border-sky-blue/30 dark:border-slate-700 animate-in fade-in duration-150 text-xs">
-              <div className="flex items-center justify-between font-bold text-slate-800 dark:text-white mb-1.5">
+            <div className="ai-tutor-key-modal p-4 border-b animate-in fade-in duration-150 text-xs">
+              <div className="flex items-center justify-between font-bold mb-1.5">
                 <span className="flex items-center gap-1.5">
                   <Key size={14} className="text-amber-500" /> Clave de API de Google Gemini:
                 </span>
@@ -362,7 +364,7 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
                   <X size={14} />
                 </button>
               </div>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300 mb-2 leading-relaxed">
+              <p className="text-[11px] mb-2 leading-relaxed opacity-80">
                 Ingresa tu API Key de Google Gemini para vincular la IA directamente con los servidores de Google AI Studio.
               </p>
               <div className="flex gap-2">
@@ -384,7 +386,7 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
           )}
 
           {/* Área de Mensajes */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#F5EFEB]/60 dark:bg-[#0E1620] transition-colors duration-250">
+          <div className="ai-tutor-body flex-1 p-4 overflow-y-auto space-y-4 transition-colors duration-250">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -403,11 +405,11 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
                 <div
                   className={`max-w-[85%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm transition-colors duration-250 ${
                     msg.sender === 'user'
-                      ? 'ai-chat-bubble-user bg-[#2F4156] dark:bg-[#2A4A62] text-white rounded-tr-none font-medium'
-                      : 'ai-chat-bubble-ai bg-white dark:bg-[#1E293B] border border-sky-blue/30 dark:border-slate-700 text-slate-800 dark:text-[#F0F6FC] rounded-tl-none font-normal'
+                      ? 'ai-chat-bubble-user rounded-tr-none font-medium'
+                      : 'ai-chat-bubble-ai rounded-tl-none font-normal'
                   }`}
                 >
-                  <div className={`whitespace-pre-line ${msg.sender === 'user' ? 'text-white font-medium' : 'text-slate-800 dark:text-[#F0F6FC]'}`}>
+                  <div className="whitespace-pre-line">
                     {msg.text}
                   </div>
                 </div>
@@ -419,7 +421,7 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
                 <div className="w-7 h-7 rounded-xl bg-[#2F4156] dark:bg-slate-700 text-white flex items-center justify-center shrink-0 text-xs">
                   <Bot size={14} />
                 </div>
-                <div className="bg-white dark:bg-[#1E293B] border border-sky-blue/30 dark:border-slate-700 p-3.5 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1.5">
+                <div className="ai-chat-bubble-ai p-3.5 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce"></div>
                   <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce [animation-delay:0.2s]"></div>
                   <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce [animation-delay:0.4s]"></div>
@@ -432,10 +434,10 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
 
           {/* Sugerencias Rápidas Deslizables */}
           {messages.length < 5 && (
-            <div className="relative bg-white dark:bg-[#162130] border-t border-sky-blue/20 dark:border-slate-800 py-2 px-2.5 flex items-center gap-1 transition-colors duration-250">
+            <div className="ai-tutor-chips-bar relative border-t py-2 px-2.5 flex items-center gap-1 transition-colors duration-250">
               <button
                 onClick={() => scrollChips('left')}
-                className="w-7 h-7 rounded-full bg-[#C8D9E6]/30 dark:bg-[#27394D] hover:bg-[#C8D9E6]/60 dark:hover:bg-[#374E66] text-[#2F4156] dark:text-white flex items-center justify-center shrink-0 z-10 transition-all border border-[#C8D9E6] dark:border-[#3E546E] active:scale-90 shadow-sm"
+                className="w-7 h-7 rounded-full bg-[#C8D9E6]/40 dark:bg-[#27394D] hover:bg-[#C8D9E6]/70 dark:hover:bg-[#374E66] text-[#2F4156] dark:text-white flex items-center justify-center shrink-0 z-10 transition-all border border-[#C8D9E6] dark:border-[#3E546E] active:scale-90 shadow-sm"
                 title="Deslizar a la izquierda"
               >
                 <ChevronLeft size={14} />
@@ -463,7 +465,7 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
 
               <button
                 onClick={() => scrollChips('right')}
-                className="w-7 h-7 rounded-full bg-[#C8D9E6]/30 dark:bg-[#27394D] hover:bg-[#C8D9E6]/60 dark:hover:bg-[#374E66] text-[#2F4156] dark:text-white flex items-center justify-center shrink-0 z-10 transition-all border border-[#C8D9E6] dark:border-[#3E546E] active:scale-90 shadow-sm"
+                className="w-7 h-7 rounded-full bg-[#C8D9E6]/40 dark:bg-[#27394D] hover:bg-[#C8D9E6]/70 dark:hover:bg-[#374E66] text-[#2F4156] dark:text-white flex items-center justify-center shrink-0 z-10 transition-all border border-[#C8D9E6] dark:border-[#3E546E] active:scale-90 shadow-sm"
                 title="Deslizar a la derecha"
               >
                 <ChevronRight size={14} />
@@ -472,7 +474,7 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
           )}
 
           {/* Caja de Entrada de Texto */}
-          <div className="p-3 bg-white dark:bg-[#162130] border-t border-sky-blue/20 dark:border-slate-800 flex items-center gap-2 transition-colors duration-250">
+          <div className="ai-tutor-footer p-3 border-t flex items-center gap-2 transition-colors duration-250">
             <input
               type="text"
               value={inputText}
