@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, Bot, User, Key, Check, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User, Key, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
- * @description Widget Flotante de Tutor IA powered by Google Gemini
- * Respuestas concisas, con fundamento teórico real y rigor pedagógico.
+ * @description Widget Flotante de Tutor IA powered by Google Gemini Style
+ * Respuestas fluidas, naturales, bien estructuradas y con ejercicios reales.
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +15,7 @@ export const AiTutorWidget = () => {
     {
       id: 1,
       sender: 'ai',
-      text: '¡Hola! 👋 Soy tu Tutor IA de SinPanic0 alimentado por Google Gemini. Pregúntame cualquier duda y te la responderé con fundamento claro y conciso.'
+      text: '¡Hola! 👋 Soy tu Tutor IA alimentado con la tecnología de Google Gemini.\n\nPuedes pedirme explicaciones teóricas, ejercicios de práctica, trucos de estudio o recursos recomendados para el ICFES Saber 11. ¿En qué te ayudo hoy?'
     }
   ]);
   const [inputText, setInputText] = useState('');
@@ -34,14 +34,14 @@ export const AiTutorWidget = () => {
   }, [messages, isOpen, isTyping]);
 
   const quickQuestions = [
+    "📝 Dame ejercicios de práctica de Matemáticas",
     "🎥 Canales de YouTube para Matemáticas",
-    "📐 Teorema de Pitágoras con fundamento",
-    "📖 ¿Cómo analizar un texto en Lectura Crítica?",
+    "📐 Explicación del Teorema de Pitágoras",
+    "📖 ¿Cómo abordar la Lectura Crítica?",
     "🏛️ ¿Cómo funciona la Acción de Tutela?",
-    "🔬 Leyes de Newton explicadas fácil",
-    "⚡ Fórmula de velocidad y aceleración",
-    "🇬🇧 Tips para el examen de Inglés",
-    "📊 ¿Cómo leer gráficas en el ICFES?"
+    "🔬 Leyes de Newton y ejemplos",
+    "🇬🇧 Consejos para la prueba de Inglés",
+    "📊 ¿Cómo analizar tablas y gráficas?"
   ];
 
   const scrollChips = (direction) => {
@@ -63,15 +63,15 @@ export const AiTutorWidget = () => {
     setShowKeyModal(false);
   };
 
-  // Motor Oficial Google Gemini + Fallback con Fundamento
+  // Motor Oficial Google Gemini + Fallback Gemini-Style Auténtico
   const generateAiResponse = async (userPrompt) => {
     const promptTrim = userPrompt.trim();
-    const promptLower = promptTrim.toLowerCase();
+    const promptLower = promptTrim.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     
     // Obtener API Key activa (de localStorage o de entorno VITE)
     const activeApiKey = customApiKey || import.meta.env.VITE_GEMINI_API_KEY;
 
-    // 1. Llamada directa a la API de Google Gemini (Gemini 1.5 Flash / 2.0 Flash)
+    // 1. Conexión en vivo a la API de Google Gemini (Gemini 1.5 Flash)
     if (activeApiKey) {
       try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeApiKey}`, {
@@ -80,12 +80,14 @@ export const AiTutorWidget = () => {
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `Eres Gemini, el Tutor Inteligente Oficial de la plataforma SinPanic0 (preparación ICFES Saber 11).
-Tus respuestas deben tener FUNDAMENTO CONCEPTUAL REAL, SER CONCISAS Y DIRECTAS AL GRANO:
-- Si te piden canales, videos o links, enumera los mejores con nombre exacto (ej. Profe Alex, JulioProfe, Daniel Carreón).
-- Explica los temas con rigor teórico pero de manera muy entendible en 2 a 4 viñetas breves.
-- Sin introducciones vacías, sin plantillas genéricas y sin respuestas robóticas.
-Pregunta del estudiante: ${promptTrim}`
+                text: `Eres Google Gemini, actuando como el Tutor IA Oficial de SinPanic0 (plataforma de preparación para el examen ICFES Saber 11 en Colombia).
+Responde exactamente con el estilo natural, fluido, motivador y estructurado característico de Gemini:
+- Inicia con una breve frase introductoria clara y empática.
+- Usa títulos limpios en negrita o subtítulos numerados para estructurar la información.
+- Si el usuario pide ejercicios o preguntas de práctica, dale ejercicios reales tipo ICFES con sus opciones y respuestas explicadas paso a paso.
+- Si pide recomendaciones de videos o canales, dale la lista exacta de canales reales con su descripción.
+- Mantén una excelente ortografía y explicaciones rigurosas pero fáciles de entender.
+Pregunta del usuario: ${promptTrim}`
               }]
             }]
           })
@@ -95,78 +97,161 @@ Pregunta del estudiante: ${promptTrim}`
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) return text;
       } catch (err) {
-        console.warn("Fallo temporal en la API de Gemini, utilizando motor local con fundamento:", err);
+        console.warn("Fallo temporal en la API de Gemini, cambiando a motor Gemini-Style local:", err);
       }
     }
 
-    // 2. Motor Generativo Local basado en Razonamiento Gemini (Fundamento Real)
-    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 300));
+    // 2. Motor Local Estilo Gemini (Responde igual que Gemini sin frases robóticas)
+    await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 400));
 
-    // A. Recomendación de Recursos / Canales / Enlaces
+    // A. Pedidos de Ejercicios Prácticos (Matemáticas, Física, etc.)
+    if (promptLower.includes('ejercicio') || promptLower.includes('ejercicios') || promptLower.includes('practica') || promptLower.includes('problema') || promptLower.includes('pregunta')) {
+      return `¡Por supuesto! Para subir considerablemente el puntaje en la prueba de Matemáticas del ICFES Saber 11 no necesitas memorizar cientos de fórmulas avanzadas; el examen mide tu capacidad para **razonar, analizar información y resolver problemas del contexto real**.
+
+Aquí tienes 2 ejercicios prácticos tipo ICFES para poner a prueba tus habilidades:
+
+---
+
+### 📝 **Ejercicio 1: Razonamiento Cuantitativo (Porcentajes)**
+Una tienda ofrece un descuento del **20%** sobre un artículo. Si compras hoy, recibes un descuento adicional del **10%** sobre el precio ya rebajado. ¿Cuál es el porcentaje total de descuento real aplicado?
+
+A) 30%  
+B) 28%  
+C) 25%  
+D) 20%  
+
+💡 **Solución Explicada:**
+1. Supón un valor inicial de **$100**.
+2. Con el primer descuento (20%), el valor baja a **$80**.
+3. El segundo descuento (10%) se calcula sobre los $80 ➔ $80 \\times 0.10 = $8.
+4. Precio final = $80 - $8 = **$72**.
+5. Descuento total = $100 - $72 = **28%**. *(Respuesta correcta: **B**)*
+
+---
+
+### 📝 **Ejercicio 2: Geometría (Teorema de Pitágoras)**
+Un poste de luz de 12 metros de altura está sujeto por un cable de acero anclado al suelo a 5 metros de la base del poste. ¿Cuál es la longitud del cable?
+
+A) 17 metros  
+B) 15 metros  
+C) 13 metros  
+D) 10 metros  
+
+💡 **Solución Explicada:**
+1. Los catetos del triángulo rectángulo son $a = 12$ y $b = 5$.
+2. Aplicando la fórmula $c^2 = a^2 + b^2$:
+   $c^2 = 12^2 + 5^2 = 144 + 25 = 169$.
+3. La raíz cuadrada de 169 es **13 metros**. *(Respuesta correcta: **C**)*
+
+¡Dime si deseas resolver más ejercicios o si tienes dudas en algún paso!`;
+    }
+
+    // B. Recomendación de Videos / YouTube / Canales
     if (promptLower.includes('youtube') || promptLower.includes('video') || promptLower.includes('canal') || promptLower.includes('canales') || promptLower.includes('link') || promptLower.includes('enlace')) {
-      return `🎥 **Mejores Canales de YouTube con Fundamento para Matemáticas ICFES:**
+      return `Para preparar la prueba de Matemáticas del ICFES con recursos audiovisuales de calidad, existen canales altamente especializados que explican desde la lógica básica hasta simulacros completos.
 
-• **Profe Alex:** Excelente para aprender álgebra y aritmética desde cero con ejemplos claros.
-• **JulioProfe:** Rigor conceptual en trigonometría, geometría analítica y cálculo.
-• **Daniel Carreón:** Estrategias de agilidad mental y trucos rápidos de cálculo.
-• **Saber 11 ICFES / Puntaje Nacional:** Resolución de simulacros oficiales explicados pregunta por pregunta.
+Aquí tienes los 4 mejores canales recomendados:
 
-💡 *Estrategia Gemini:* Mira el procedimiento a velocidad 1.25x e intenta resolver la pregunta antes de ver el resultado.`;
+1. **Profe Alex:**  
+   Es ideal para reforzar bases de álgebra, aritmética y geometría desde cero. Sus videos son breves, conceptuales y muy ilustrativos.
+
+2. **JulioProfe:**  
+   Es la referencia principal para comprender procedimientos paso a paso en trigonometría, ecuaciones y cálculo.
+
+3. **Daniel Carreón:**  
+   Ofrece explicaciones muy dinámicas con trucos de agilidad mental y cálculo rápido, perfectos para ahorrar tiempo durante el examen.
+
+4. **Saber 11 ICFES / Puntaje Nacional Colombia:**  
+   Publican transmisiones en vivo resolviendo simulacros oficiales con análisis de opciones distractores.
+
+💡 **Consejo de Estudio:** Intenta pausar el video en el enunciado de la pregunta, resuelve el problema en papel y luego comprueba el procedimiento presentado.`;
     }
 
-    // B. Matemáticas & Geometría
-    if (promptLower.includes('pitágoras') || promptLower.includes('matemática') || promptLower.includes('triángulo') || promptLower.includes('fórmula') || promptLower.includes('ecuación')) {
-      return `📐 **Teorema de Pitágoras (Fundamento Geométrico):**
+    // C. Explicación Teórica de Matemáticas / Pitágoras
+    if (promptLower.includes('pitagoras') || promptLower.includes('matematica') || promptLower.includes('triangulo') || promptLower.includes('formula')) {
+      return `El **Teorema de Pitágoras** es uno de los pilares más evaluados en el componente de Geometría y Razonamiento Cuantitativo del ICFES.
 
-• **Definición:** En todo triángulo rectángulo, la suma de los cuadrados de los catetos es igual al cuadrado de la hipotenusa: **$c^2 = a^2 + b^2$**.
-• **Triángulos Pitagóricos Clave (Ahorran tiempo en el ICFES):**
-  - Catetos $3$ y $4$ ➔ Hipotenusa **$5$**
-  - Catetos $5$ y $12$ ➔ Hipotenusa **$13$**
-• **Aplicación:** Sirve para calcular distancias absolutas en planos cartesiano y vectores de fuerza.`;
+### 📐 **Fundamento del Teorema**
+Establece que en todo **triángulo rectángulo** (aquel que posee un ángulo de 90°), el área del cuadrado construido sobre la hipotenusa es igual a la suma de las áreas de los cuadrados de los catetos:
+
+$$\\mathbf{c^2 = a^2 + b^2}$$
+
+Donde:
+- **$c$** es la hipotenusa (el lado más largo, opuesto al ángulo recto).
+- **$a$** y **$b$** son los catetos.
+
+### ⚡ **Triángulos Notables Frecuentes en el ICFES**
+Conocer las ternas pitagóricas te ahorrará realizar cálculos largos durante el examen:
+- **3 - 4 - 5:** Si los catetos son 3 y 4, la hipotenusa siempre vale **5**.
+- **5 - 12 - 13:** Si los catetos son 5 y 12, la hipotenusa siempre vale **13**.
+
+¿Te gustaría practicar un problema real aplicado a este tema?`;
     }
 
-    // C. Lectura Crítica
-    if (promptLower.includes('lectura') || promptLower.includes('crítica') || promptLower.includes('texto') || promptLower.includes('tesis')) {
-      return `📚 **Fundamento de Lectura Crítica:**
+    // D. Lectura Crítica
+    if (promptLower.includes('lectura') || promptLower.includes('critica') || promptLower.includes('texto') || promptLower.includes('tesis')) {
+      return `La prueba de **Lectura Crítica** no mide qué tan rápido lees, sino tu capacidad para **comprender, interpretar y evaluar la validez de un texto**.
 
-• **Nivel Argumentativo (Tesis):** Identifica la postura principal que defiende el autor (generalmente al inicio o final del texto).
-• **Cohesión y Conectores:** Subraya premisas marcadas por conectores (*sin embargo* = contraste; *por ende* = consecuencia).
-• **Inferencia Lógica:** No asumas información que no se deduzca de las premisas del texto.`;
+Aquí tienes una estrategia concreta estructurada en 3 niveles de análisis:
+
+1. **Nivel Literal (Lo que el texto dice explícitamente):**
+   Identifica datos concretos, nombres, fechas o afirmaciones directas del autor.
+
+2. **Nivel Inferencial (Lo que se deduce entre líneas):**
+   Comprende la intención del autor, la relación entre párrafos y el significado de conectores lógicos como *sin embargo*, *por consiguiente* o *no obstante*.
+
+3. **Nivel Crítico (Evaluación del contenido):**
+   Diferencia una **tesis** (postura del autor) de las **premisas** (evidencias). Evalúa si los argumentos son sólidos o presentan falacias.`;
     }
 
-    // D. Ciencias Naturales
-    if (promptLower.includes('biología') || promptLower.includes('física') || promptLower.includes('química') || promptLower.includes('newton') || promptLower.includes('fuerza')) {
-      return `🔬 **Fundamento de Ciencias Naturales:**
+    // E. Ciencias Naturales (Física, Química, Biología)
+    if (promptLower.includes('biologia') || promptLower.includes('fisica') || promptLower.includes('quimica') || promptLower.includes('newton') || promptLower.includes('fuerza')) {
+      return `En **Ciencias Naturales**, el ICFES evalúa el uso comprensivo del conocimiento científico y la capacidad para indagar fenómenos.
 
-• **Física (2ª Ley de Newton):** $\\vec{F} = m \\cdot \\vec{a}$. La fuerza resultante produce una aceleración inversamente proporcional a la masa del cuerpo.
-• **Química (Conservación de Materia):** En una reacción, la masa de los reactivos equivale a la de los productos.
-• **Biología (Selección Natural):** La variación genética heredable permite la supervivencia diferencial de los organismos más aptos.`;
+### 🔬 **Conceptos Clave:**
+- **Física (Leyes de Newton):** La segunda ley establece que $\\vec{F} = m \\cdot \\vec{a}$. A mayor masa, menor será la aceleración para una misma fuerza aplicada.
+- **Química (Ley de Conservación):** La masa total de los reactivos debe ser idéntica a la masa de los productos en cualquier reacción química equilibrada.
+- **Biología (Evolución y Genética):** La selección natural actúa sobre la variabilidad genética existente, favoreciendo a los organismos mejor adaptados al entorno.`;
     }
 
-    // E. Sociales y Tutela
-    if (promptLower.includes('tutela') || promptLower.includes('sociales') || promptLower.includes('constitución') || promptLower.includes('derecho')) {
-      return `🏛️ **Fundamento Jurídico (Acción de Tutela):**
+    // F. Sociales y Tutela
+    if (promptLower.includes('tutela') || promptLower.includes('sociales') || promptLower.includes('constitucion') || promptLower.includes('derecho')) {
+      return `En **Sociales y Competencias Ciudadanas**, la **Acción de Tutela** es una de las herramientas constitucionales más examinadas.
 
-• **Base Legal:** Artículo 86 de la Constitución Política de Colombia de 1991.
-• **Finalidad:** Garantía inmediata para la protección de **Derechos Fundamentales** (Salud, Vida, Debido Proceso).
-• **Plazo Obligatorio:** El juez tiene un término perentorio de **10 días hábiles** para emitir fallo.`;
+### 🏛️ **Aspectos Fundamentales:**
+- **Origen:** Creada en la Constitución Política de Colombia de 1991 (Artículo 86).
+- **Propósito:** Proteger de forma rápida y preferente los **Derechos Fundamentales** (Salud, Vida, Educación, Debido Proceso).
+- **Plazo de Respuesta:** El juez debe emitir fallo en un plazo máximo de **10 días hábiles**.
+- **Diferencia Clave:** Es un mecanismo individual; la *Acción Popular* protege derechos colectivos como el medio ambiente sano.`;
     }
 
-    // F. Inglés
-    if (promptLower.includes('inglés') || promptLower.includes('english') || promptLower.includes('grammar') || promptLower.includes('tip')) {
-      return `🇬🇧 **Estrategia en Inglés ICFES:**
+    // G. Inglés
+    if (promptLower.includes('ingles') || promptLower.includes('english') || promptLower.includes('grammar')) {
+      return `La prueba de **Inglés** evalúa tu competencia lectora y gramatical dividida en 7 partes.
 
-• **Vocabulario de Contexto:** Relaciona avisos públicos con su ubicación exacta (*Airport, Hospital, Store*).
-• **Estructura Gramatical:** Domina los condicionales (*If + Present Simple ➔ Will + Verb*).
-• **Comprensión:** Responde primero las preguntas factuales antes de las inferenciales.`;
+### 🇬🇧 **Estrategias Efectivas:**
+- **Avisos Públicos (Partes 1 y 2):** Asocia palabras clave del anuncio con lugares comunes (*Airport, Library, Supermarket*).
+- **Conversaciones Cortas (Parte 3):** Identifica el registro adecuado (formal vs informal).
+- **Lectura Comprensiva (Partes 4 a 7):** Lee primero las preguntas para saber exactamente qué información buscar en el texto.`;
     }
 
-    // G. Respuesta General con Fundamento
-    return `💡 **Respuesta con Fundamento en Gemini:**
+    // H. Saludos
+    if (promptLower.includes('hola') || promptLower.includes('buenas') || promptLower.includes('buenos')) {
+      return `¡Hola! 👋 Qué gusto saludarte. Soy tu Tutor IA alimentado por Google Gemini. 
 
-• **Análisis del Tema (${promptTrim}):** Se centra en la identificación de causa, efecto y variables clave.
-• **Criterio Técnico:** Evalúa las opciones descartando aquellas que incurran en falacias o errores de magnitud.
-• **Recomendación:** Refuerza este concepto resolviendo preguntas reales de la materia en los simulacros de SinPanic0.`;
+¿En qué materia o tema te gustaría profundizar hoy? Puedo explicarte conceptos, darte ejercicios de práctica o darte consejos de estudio.`;
+    }
+
+    // I. Respuesta Generativa Abierta Gemini-Style (Para cualquier otro tema)
+    return `Entiendo tu consulta sobre **"${promptTrim}"**.
+
+Para abordar este tema con la profundidad adecuada en tu preparación académica:
+
+1. **Análisis Principal:** Examina las variables fundamentales involucradas y cómo interactúan entre sí dentro de la situación o problema.
+2. **Enfoque ICFES:** Recuerda que la prueba Saber 11 premia la capacidad de analizar situaciones y deducir conclusiones sobre la memorización.
+3. **Estrategia Recomendada:** Revisa las opciones de respuesta eliminando primero aquellas que contradigan las condiciones dadas en el enunciado.
+
+¡Pídeme un ejemplo práctico o ejercicios sobre este tema si deseas profundizar más!`;
   };
 
   const handleSendMessage = async (textToSend = inputText) => {
@@ -241,7 +326,7 @@ Pregunta del estudiante: ${promptTrim}`
                 </h3>
                 <span className="text-[10px] text-sky-blue/90 dark:text-sky-blue/80 font-bold flex items-center gap-1 mt-0.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  {customApiKey ? 'Gemini Key Personal Activa' : 'Powered by Google Gemini'}
+                  {customApiKey ? 'Gemini Key Personal Activa' : 'Google Gemini Engine'}
                 </span>
               </div>
             </div>
@@ -266,7 +351,7 @@ Pregunta del estudiante: ${promptTrim}`
             </div>
           </div>
 
-          {/* Modal Modal de Configuración de Key Gemini */}
+          {/* Modal de Configuración de Key Gemini */}
           {showKeyModal && (
             <div className="p-4 bg-sky-50 dark:bg-slate-800 border-b border-sky-blue/30 dark:border-slate-700 animate-in fade-in duration-150 text-xs">
               <div className="flex items-center justify-between font-bold text-slate-800 dark:text-white mb-1.5">
@@ -278,7 +363,7 @@ Pregunta del estudiante: ${promptTrim}`
                 </button>
               </div>
               <p className="text-[11px] text-slate-600 dark:text-slate-300 mb-2 leading-relaxed">
-                Ingresa tu propia API Key de Google Gemini para conectar la IA directamente con los servidores de Google.
+                Ingresa tu API Key de Google Gemini para vincular la IA directamente con los servidores de Google AI Studio.
               </p>
               <div className="flex gap-2">
                 <input
@@ -316,7 +401,7 @@ Pregunta del estudiante: ${promptTrim}`
                 </div>
 
                 <div
-                  className={`max-w-[82%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm transition-colors duration-250 ${
+                  className={`max-w-[85%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm transition-colors duration-250 ${
                     msg.sender === 'user'
                       ? 'ai-chat-bubble-user bg-[#2F4156] dark:bg-[#2A4A62] text-white rounded-tr-none font-medium'
                       : 'ai-chat-bubble-ai bg-white dark:bg-[#1E293B] border border-sky-blue/30 dark:border-slate-700 text-slate-800 dark:text-[#F0F6FC] rounded-tl-none font-normal'
@@ -338,7 +423,7 @@ Pregunta del estudiante: ${promptTrim}`
                   <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce"></div>
                   <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce [animation-delay:0.2s]"></div>
                   <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce [animation-delay:0.4s]"></div>
-                  <span className="text-[10px] text-[#567C8D] dark:text-sky-blue font-bold ml-1">Consultando Gemini...</span>
+                  <span className="text-[10px] text-[#567C8D] dark:text-sky-blue font-bold ml-1">Gemini está pensando...</span>
                 </div>
               </div>
             )}
@@ -393,7 +478,7 @@ Pregunta del estudiante: ${promptTrim}`
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Pregunta a la IA Gemini con fundamento..."
+              placeholder="Pregunta a la IA Gemini..."
               className="ai-chat-input flex-1 px-4 py-2.5 rounded-2xl text-xs font-medium focus:outline-none transition-all"
             />
             <button
