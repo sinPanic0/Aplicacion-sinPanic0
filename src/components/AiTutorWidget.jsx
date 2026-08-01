@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, Bot, User, RefreshCw, Lightbulb, Zap, BookOpen, Minimize2 } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User, RefreshCw, Lightbulb, Zap, BookOpen } from 'lucide-react';
 
 /**
- * @description Widget Flotante de Tutor IA (Modo Gemini)
- * Permite a los estudiantes realizar preguntas sobre cualquier materia del ICFES,
- * técnicas de estudio, fórmulas o dudas académicas con respuestas inteligentes e instantáneas.
+ * @description Widget Flotante de Tutor IA (Estilo SinPanic0)
+ * Utiliza la paleta oficial de la aplicación (Navy #2F4156, Teal #567C8D, Sky Blue #C8D9E6, Beige #F5EFEB).
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +11,7 @@ export const AiTutorWidget = () => {
     {
       id: 1,
       sender: 'ai',
-      text: '¡Hola! 👋 Soy tu Tutor IA con tecnología Gemini para el ICFES. ¿En qué tema o materia tienes dudas hoy? ¡Pregúntame lo que quieras!'
+      text: '¡Hola! 👋 Soy tu Tutor IA de SinPanic0. ¿En qué tema o materia tienes dudas hoy? ¡Pregúntame sobre cualquier pregunta o concepto del ICFES!'
     }
   ]);
   const [inputText, setInputText] = useState('');
@@ -51,7 +50,7 @@ export const AiTutorWidget = () => {
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `Eres el Tutor IA oficial de SinPanic0, un experto pedagógico en las Pruebas ICFES de Colombia. Responde de forma clara, didáctica, motivadora y estructurada con viñetas cuando sea apropiado. Pregunta del usuario: ${userPrompt}`
+                text: `Eres el Tutor IA oficial de la aplicación SinPanic0, un experto pedagógico en las Pruebas ICFES de Colombia. Responde de forma clara, didáctica, motivadora y estructurada con viñetas cuando sea apropiado. Pregunta del estudiante: ${userPrompt}`
               }]
             }]
           })
@@ -64,92 +63,88 @@ export const AiTutorWidget = () => {
       }
     }
 
-    // Motor de Respuestas Pedagógicas Inteligentes en Español para el ICFES (Offline/Fallback de alta precisión)
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 600));
+    // Motor de Respuestas Pedagógicas Inteligentes en Español adaptado a la paleta SinPanic0
+    await new Promise(resolve => setTimeout(resolve, 700 + Math.random() * 500));
 
     if (promptLower.includes('lectura') || promptLower.includes('crítica') || promptLower.includes('texto')) {
       return `📚 **Estrategia Clave para Lectura Crítica ICFES:**
 
-1. **Identifica la Tesis:** Lee primero la última oración del primer párrafo. Por lo general, ahí se encuentra la idea principal del autor.
+1. **Identifica la Tesis:** Lee primero el primer y último párrafo. Por lo general, allí se concentra la postura central del autor.
 2. **Diferencia Hecho vs Opinión:** 
-   - *Hecho:* "El 25% de la población sufre estrés." (Verificable)
-   - *Opinión:* "La tecnología es el peor mal de la humanidad." (Argumentativo)
-3. **Cuidado con los Desconectores:** Atento a palabras como *"sin embargo"*, *"no obstante"* o *"por el contrario"*, pues cambian el sentido del argumento.
-4. **Analiza las Falacias:** Preguntas frecuentes evalúan el *hombre de paja* (exagerar una postura) o *ad hominem* (atacar a la persona).`;
+   - *Hecho:* "El 25% de los encuestados reportó estrés." (Dato objetivo)
+   - *Opinión:* "La tecnología destruirá la sociedad." (Postura del autor)
+3. **Atento a los Conectores:** Palabras como *"sin embargo"*, *"no obstante"* o *"en cambio"* señalan giros clave en el argumento.
+4. **Cuidado con las Falacias:** El ICFES evalúa constantemente falacias como el *hombre de paja* (deformar el argumento contrario) o *ad hominem*.`;
     }
 
     if (promptLower.includes('pitágoras') || promptLower.includes('matemática') || promptLower.includes('triángulo') || promptLower.includes('fórmula')) {
       return `📐 **Teorema de Pitágoras & Matemáticas ICFES:**
 
-La fórmula fundamental para todo triángulo rectángulo es:
+La ecuación central para triángulos rectángulos es:
 $$\\mathbf{c^2 = a^2 + b^2}$$
 
-donde **c** es la hipotenusa (el lado más largo opuesto al ángulo de 90°) y **a, b** son los catetos.
+donde **c** es la hipotenusa (el lado más largo) y **a, b** son los catetos.
 
-**Triángulos notables muy frecuentes en el ICFES:**
-- **3 - 4 - 5**: Si los catetos miden 3 y 4, la hipotenusa mide 5.
-- **5 - 12 - 13**: Si los catetos miden 5 y 12, la hipotenusa mide 13.
-- **45° - 45° - 90°**: Los catetos son iguales ($a = b$) y la hipotenusa es $a\\sqrt{2}$.
+**Triángulos Notables más Evaluados:**
+- **3 - 4 - 5**: Si los catetos son 3 y 4, la hipotenusa es 5.
+- **5 - 12 - 13**: Si los catetos son 5 y 12, la hipotenusa es 13.
+- **Isósceles Rectángulo (45°)**: Hipotenusa = $a\\sqrt{2}$.
 
-💡 *Tip ICFES:* No gastes tiempo haciendo cálculos complejos si puedes usar los triángulos notables para descartar opciones rápidamente.`;
+💡 *Tip SinPanic0:* Usar triángulos notables te ahorrará valiosos minutos de cálculo durante el examen.`;
     }
 
     if (promptLower.includes('biología') || promptLower.includes('selección') || promptLower.includes('ciencia') || promptLower.includes('célula')) {
       return `🔬 **Ciencias Naturales - Concepto Clave:**
 
-La **Selección Natural** es el mecanismo fundamental de la evolución propuesto por Charles Darwin:
+La **Selección Natural** explica cómo cambian las poblaciones en el tiempo:
 
-1. **Variabilidad:** En toda población existen mutaciones genéticas aleatorias.
-2. **Presión Ambiental:** Los recursos son limitados (alimentos, depredadores, clima).
-3. **Supervivencia Diferencial:** Aquellos individuos con características más ventajosas sobreviven y se reproducen heredando esos genes.
+1. **Variabilidad Genética:** Los individuos nacen con diferencias heredables.
+2. **Presión de Selección:** El ambiente (clima, depredadores, recursos) limita la supervivencia.
+3. **Reproducción Diferencial:** Los mejor adaptados dejan más descendencia.
 
-💡 *Pregunta típica ICFES:* Recuerda que los antibióticos NO crean bacterias resistentes de la nada; el antibiótico elimina las débiles y la naturaleza "selecciona" a las que ya tenían la mutación resistente.`;
+💡 *Ojo para el ICFES:* Los antibióticos NO provocan las mutaciones en las bacterias; las bacterias resistentes ya existían y el antibiótico elimina a las débiles, permitiendo que las resistentes dominen.`;
     }
 
     if (promptLower.includes('tutela') || promptLower.includes('sociales') || promptLower.includes('constitución') || promptLower.includes('derecho')) {
       return `🏛️ **Sociales y Ciudadanas - Acción de Tutela:**
 
-La **Acción de Tutela** (Art. 86 Constitución de 1991) es el mecanismo preferido en las pruebas ICFES:
+La **Acción de Tutela** (Art. 86 de la Constitución de 1991) es un tema fijo en el ICFES:
 
-- **Propósito:** Proteger de forma preferente e inmediata los **Derechos Fundamentales** (Vida, Salud, Salud Digna, Debido Proceso, Educación).
-- **¿Cuándo se usa?:** Cuando un derecho fundamental sea vulnerado o amenazado por una autoridad pública o particular, y no exista otro medio judicial rápido.
-- **Plazo de respuesta:** El juez tiene **10 días hábiles** para fallar.
+- **Objetivo:** Proteger de manera rápida e inmediata tus **Derechos Fundamentales** (Salud, Vida, Debido Proceso, Educación).
+- **Características:** No requiere abogado, es preferente y el juez debe responder en máximo **10 días hábiles**.
 
-💡 *Diferencia clave:* La Tutela es para *Derechos Fundamentales Individuales*, mientras que la **Acción Popular** es para *Derechos Colectivos* (ej: medio ambiente sano).`;
+💡 *Diferencia clave:* La Tutela protege *derechos individuales*, mientras que la **Acción Popular** defiende *derechos colectivos* (como el medio ambiente o la moralidad administrativa).`;
     }
 
-    if (promptLower.includes('inglés') || promptLower.includes('english') || promptLower.includes('tip') || promptLower.includes('vocavulario')) {
-      return `🇬🇧 **Tips para Dominar el Módulo de Inglés:**
+    if (promptLower.includes('inglés') || promptLower.includes('english') || promptLower.includes('tip') || promptLower.includes('vocabulario')) {
+      return `🇬🇧 **Estrategias para la Prueba de Inglés:**
 
-1. **Parte 1 (Avisos/Carteles):** Asocia palabras clave. Si ves *"Unattended luggage"*, piensa en *Airport*. Si ves *"Quiet please"*, piensa en *Library*.
-2. **Parte 4 (Gramática y Tiempos):**
-   - **Present Perfect:** $Subject + have/has + Participle$ (Acciones que empezaron en el pasado y continúan o importan hoy).
-   - **Conditionals:**
-     - 1st: *If it rains, I will stay home.*
-     - 2nd: *If I were you, I would study.*
-3. **Lectura Extensa:** Lee primero las 5 preguntas antes de leer el texto largo. Así sabrás qué buscar específicamente.`;
+1. **Parte 1 (Carteles y Avisos):** Busca palabras clave. Si lees *"Unattended luggage"*, la respuesta es *Airport*. Si dice *"Silence in the reading room"*, es *Library*.
+2. **Conditionals:**
+   - **First Conditional:** *If I study, I will pass.*
+   - **Second Conditional:** *If I studied, I would pass.*
+3. **Comprensión:** Lee primero las preguntas y luego escanea el texto buscando los sustantivos y verbos clave.`;
     }
 
     if (promptLower.includes('hola') || promptLower.includes('buenos') || promptLower.includes('buenas')) {
-      return `¡Hola! 👋 Qué gusto saludarte. Estoy listo para ayudarte con cualquier tema de Lectura Crítica, Matemáticas, Ciencias Naturales, Sociales o Inglés. ¿Qué duda quieres resolver hoy?`;
+      return `¡Hola! 👋 Qué gusto saludarte. Estoy listo para resolver cualquier duda que tengas sobre Lectura Crítica, Matemáticas, Sociales, Ciencias Naturales o Inglés. ¿Por dónde empezamos?`;
     }
 
     if (promptLower.includes('gracias') || promptLower.includes('excelente') || promptLower.includes('genial')) {
-      return `¡Con todo el gusto! 🌟 Recuerda que la constancia es la clave del éxito en el ICFES. ¡Sigue repasando y practicando en SinPanic0! 💪`;
+      return `¡Con todo el gusto! 🌟 La disciplina vence al talento. Sigue estudiando con SinPanic0 y lograrás el mejor puntaje. 💪`;
     }
 
-    // Respuesta generativa adaptativa predeterminada
     return `💡 **Explicación Pedagógica:**
 
-Sobre **"${userPrompt}"**:
+Respecto a **"${userPrompt}"**:
 
-1. **Concepto Clave:** En las pruebas ICFES, este tema requiere analizar las causas, consecuencias y la lógica detrás del enunciado más que memorizar fechas o fórmulas de memoria.
-2. **Recomendación de Estudio:**
-   - Realiza un mapa conceptual de los términos principales.
-   - Practica la **Recuperación Activa**: intenta explicar este tema con tus propias palabras antes de mirar las opciones.
-3. **Aplicación Práctica:** Resuelve 5 preguntas de este tema en los exámenes de práctica de SinPanic0 para reforzar tu memoria a largo plazo.
+1. **Enfoque ICFES:** Este tema requiere razonar la relación de causa y efecto más que memorizar datos aislados.
+2. **Consejo de Estudio:**
+   - Escribe un resumen de 3 líneas con tus propias palabras.
+   - Aplica el **Método de Recuperación Activa**: pon a prueba tu memoria antes de revisar la teoría.
+3. **Práctica recomendada:** Realiza los exámenes de práctica en la sección de materias para afianzar este concepto.
 
-¿Te gustaría que profundicemos en algún aspecto específico de esta materia?`;
+¿Deseas profundizar en algún punto en particular?`;
   };
 
   const handleSendMessage = async (textToSend = inputText) => {
@@ -190,15 +185,15 @@ Sobre **"${userPrompt}"**:
 
   return (
     <>
-      {/* Botón Flotante de Activación de IA */}
+      {/* Botón Flotante de Activación de IA (Estilo Paleta SinPanic0: Navy #2F4156 + Teal #567C8D) */}
       <div className="fixed bottom-6 right-6 z-50">
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-xl shadow-purple-500/30 hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white/40"
-            title="Abrir Tutor IA Gemini"
+            className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#2F4156] via-[#3A5A78] to-[#567C8D] text-white shadow-xl shadow-navy/30 hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white/80"
+            title="Abrir Tutor IA SinPanic0"
           >
-            <Sparkles size={24} className="animate-pulse" />
+            <Sparkles size={24} className="animate-pulse text-sky-blue" />
             <span className="absolute -top-1 -right-1 flex h-4 w-4">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border border-white text-[9px] font-black text-white items-center justify-center">IA</span>
@@ -207,21 +202,21 @@ Sobre **"${userPrompt}"**:
         )}
       </div>
 
-      {/* Ventana Desplegable del Chat IA */}
+      {/* Ventana Desplegable del Chat IA (Integrada con paleta Navy, Teal, Sky-Blue y Beige) */}
       {isOpen && (
-        <div className="fixed bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px] h-[580px] max-h-[85vh] bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-purple-100 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px] h-[580px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-sky-blue/30 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
           
-          {/* Header del Chat */}
-          <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-4 text-white flex items-center justify-between shadow-md">
+          {/* Header del Chat con degradado Navy / Teal */}
+          <div className="bg-gradient-to-r from-[#2F4156] via-[#3A5A78] to-[#567C8D] p-4 text-white flex items-center justify-between shadow-md">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 text-white shadow-inner">
+              <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 text-white shadow-inner">
                 <Bot size={22} />
               </div>
               <div>
                 <h3 className="font-black text-sm flex items-center gap-1.5 leading-tight">
-                  Tutor IA SinPanic0 <Sparkles size={14} className="text-yellow-300" />
+                  Tutor IA SinPanic0 <Sparkles size={14} className="text-amber-300" />
                 </h3>
-                <span className="text-[10px] text-purple-100/90 font-bold flex items-center gap-1 mt-0.5">
+                <span className="text-[10px] text-sky-blue/90 font-bold flex items-center gap-1 mt-0.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   Gemini Mode • En línea
                 </span>
@@ -236,8 +231,8 @@ Sobre **"${userPrompt}"**:
             </button>
           </div>
 
-          {/* Área de Mensajes */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/50">
+          {/* Área de Mensajes en fondo Beige cálido (#F5EFEB) */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#F5EFEB]/50">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -246,8 +241,8 @@ Sobre **"${userPrompt}"**:
                 <div
                   className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold ${
                     msg.sender === 'user' 
-                      ? 'bg-indigo-600 text-white' 
-                      : 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-sm'
+                      ? 'bg-[#2F4156] text-white shadow-sm' 
+                      : 'bg-gradient-to-br from-[#2F4156] to-[#567C8D] text-white shadow-sm'
                   }`}
                 >
                   {msg.sender === 'user' ? <User size={14} /> : <Bot size={14} />}
@@ -256,8 +251,8 @@ Sobre **"${userPrompt}"**:
                 <div
                   className={`max-w-[82%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
                     msg.sender === 'user'
-                      ? 'bg-indigo-600 text-white rounded-tr-none font-medium'
-                      : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none font-normal'
+                      ? 'bg-[#2F4156] text-white rounded-tr-none font-medium'
+                      : 'bg-white border border-sky-blue/30 text-[#2F4156] rounded-tl-none font-normal'
                   }`}
                 >
                   <div className="whitespace-pre-line">
@@ -269,28 +264,28 @@ Sobre **"${userPrompt}"**:
 
             {isTyping && (
               <div className="flex items-start gap-2.5">
-                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shrink-0 text-xs">
+                <div className="w-7 h-7 rounded-xl bg-[#2F4156] text-white flex items-center justify-center shrink-0 text-xs">
                   <Bot size={14} />
                 </div>
-                <div className="bg-white border border-slate-100 p-3.5 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce"></div>
-                  <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce [animation-delay:0.2s]"></div>
-                  <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce [animation-delay:0.4s]"></div>
-                  <span className="text-[10px] text-slate-400 font-bold ml-1">Escribiendo...</span>
+                <div className="bg-white border border-sky-blue/30 p-3.5 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-[#567C8D] animate-bounce"></div>
+                  <div className="w-2 h-2 rounded-full bg-[#567C8D] animate-bounce [animation-delay:0.2s]"></div>
+                  <div className="w-2 h-2 rounded-full bg-[#567C8D] animate-bounce [animation-delay:0.4s]"></div>
+                  <span className="text-[10px] text-[#567C8D] font-bold ml-1">Escribiendo...</span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Sugerencias Rápidas */}
+          {/* Sugerencias Rápidas con estilo SinPanic0 (Sky-blue & Navy) */}
           {messages.length < 5 && (
-            <div className="p-2 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto scrollbar-none">
+            <div className="p-2 bg-white border-t border-sky-blue/20 flex gap-1.5 overflow-x-auto scrollbar-none">
               {quickQuestions.map((q, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(q)}
-                  className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-full text-[11px] font-bold whitespace-nowrap border border-purple-100 transition-colors shrink-0"
+                  className="px-3 py-1.5 bg-[#C8D9E6]/30 hover:bg-[#C8D9E6]/60 text-[#2F4156] rounded-full text-[11px] font-bold whitespace-nowrap border border-[#C8D9E6] transition-colors shrink-0"
                 >
                   {q}
                 </button>
@@ -299,19 +294,19 @@ Sobre **"${userPrompt}"**:
           )}
 
           {/* Caja de Entrada de Texto */}
-          <div className="p-3 bg-white border-t border-slate-100 flex items-center gap-2">
+          <div className="p-3 bg-white border-t border-sky-blue/20 flex items-center gap-2">
             <input
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Haz tu pregunta a la IA..."
-              className="flex-1 px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-2xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+              className="flex-1 px-4 py-2.5 bg-[#F5EFEB] border border-sky-blue/30 rounded-2xl text-xs font-medium text-[#2F4156] focus:outline-none focus:ring-2 focus:ring-[#2F4156] focus:bg-white transition-all"
             />
             <button
               disabled={!inputText.trim() || isTyping}
               onClick={() => handleSendMessage()}
-              className="w-10 h-10 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-200 disabled:opacity-40 active:scale-95 transition-all"
+              className="w-10 h-10 rounded-2xl bg-[#2F4156] text-white flex items-center justify-center shrink-0 shadow-md hover:bg-[#2F4156]/90 disabled:opacity-40 active:scale-95 transition-all"
             >
               <Send size={16} />
             </button>
