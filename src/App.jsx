@@ -1495,8 +1495,9 @@ const App = () => {
           <p className="text-xs font-semibold text-teal/80 mt-1">Pruebas realizadas</p>
         </div>
       </div>
-      <h3 className="font-black text-navy text-xl mb-4">Exámenes</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <h3 className="font-black text-navy text-xl mb-4">Exámenes Principales</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {!diagnosticCompleted[selectedSubject?.id]?.completedToday && (
           <div className="bg-white p-5 rounded-2xl border border-sky-blue/20 shadow-sm flex flex-col justify-between">
             <div>
@@ -1515,7 +1516,7 @@ const App = () => {
 
         {(() => {
           const todayStr = getTodayString();
-          const todayProgress = practiceProgress[todayStr]?.[selectedSubject?.id] || { practice_1: false, practice_2: false };
+          const todayProgress = practiceProgress[todayStr]?.[selectedSubject?.id] || { practice_1: false, practice_2: false, practice_3: false, practice_4: false, practice_5: false };
           const isDiagDoneToday = diagnosticCompleted[selectedSubject?.id]?.completedToday;
 
           return (
@@ -1570,6 +1571,62 @@ const App = () => {
         })()}
       </div>
 
+      {/* SECCIÓN EXTRAS DE REFUERZO DE ERRORES */}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-black text-navy text-xl flex items-center gap-2">
+          🎯 Refuerzo de Errores Extra
+        </h3>
+        <span className="text-xs font-bold text-teal bg-sky-blue/20 px-3 py-1 rounded-full">3 Exámenes Exclusivos</span>
+      </div>
+
+      {(() => {
+        const todayStr = getTodayString();
+        const todayProgress = practiceProgress[todayStr]?.[selectedSubject?.id] || { 
+          practice_1: false, practice_2: false, practice_3: false, practice_4: false, practice_5: false 
+        };
+        const isUnlocked = todayProgress.practice_1 && todayProgress.practice_2;
+
+        const extraExams = [
+          { id: 'practice_3', num: 1, title: 'Refuerzo de Errores #1 - Puntos Débiles', desc: '10 preguntas enfocadas exclusivamente en los errores cometidos en tus prácticas previas.' },
+          { id: 'practice_4', num: 2, title: 'Refuerzo de Errores #2 - Corrección de Fallos', desc: 'Segundo set de 10 preguntas para corregir vacíos conceptuales y afirmaciones dudosas.' },
+          { id: 'practice_5', num: 3, title: 'Refuerzo de Errores #3 - Maestría Final', desc: 'Evaluación de control final para garantizar el 100% de dominio en esta materia.' }
+        ];
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {extraExams.map((exam) => {
+              const isCompleted = todayProgress[exam.id];
+              return (
+                <div key={exam.id} className={`bg-white p-5 rounded-2xl border flex flex-col justify-between ${isUnlocked ? 'border-purple-300 shadow-md' : 'border-sky-blue/20 opacity-60'} transition-all`}>
+                  <div>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className={`text-[10px] font-black uppercase tracking-widest ${isUnlocked ? 'text-purple-600' : 'text-teal/40'}`}>Refuerzo de Errores</span>
+                      <span className="text-xs font-bold text-navy flex items-center gap-1"><Clock size={12} /> 10 min</span>
+                    </div>
+                    <h4 className="text-base font-black text-navy mb-1 flex items-center gap-2">
+                      {exam.title} {!isUnlocked && <Lock size={16} className="text-teal/50" />}
+                    </h4>
+                    <p className="text-xs text-teal/80 leading-relaxed mb-4">{exam.desc}</p>
+                  </div>
+                  {isCompleted ? (
+                    <div className="w-full py-3 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl font-bold text-center text-sm">
+                      ✓ Completado
+                    </div>
+                  ) : (
+                    <button
+                      disabled={!isUnlocked}
+                      onClick={() => startExam(selectedSubject, 'practice', exam.id)}
+                      className={`w-full py-3 rounded-xl font-bold transition-all ${isUnlocked ? 'bg-purple-600 text-white shadow-md active:scale-95 hover:bg-purple-700' : 'bg-sky-blue/10 text-teal/50 cursor-not-allowed border border-sky-blue/10'}`}
+                    >
+                      {isUnlocked ? `Iniciar Refuerzo #${exam.num}` : '🔒 Bloqueado (Completa Prácticas 1 y 2)'}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
     </div>
   );
 
