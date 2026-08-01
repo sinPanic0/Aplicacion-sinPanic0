@@ -2295,8 +2295,8 @@ const App = () => {
       {/* Bottom Navigation for Mobile */}
       {isMobile && showNav && <BottomNav />}
 
-      {/* Tutor IA Flotante (Gemini AI Assistant) */}
-      <AiTutorWidget />
+      {/* Tutor IA Flotante (Solo visible para usuarios registrados / que iniciaron sesión) */}
+      {!['welcome', 'auth_login', 'auth_signup', 'onboarding'].includes(screen) && <AiTutorWidget />}
     </div>
   );
 };
