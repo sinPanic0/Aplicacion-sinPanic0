@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, Bot, User, RefreshCw, Lightbulb, Zap, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
- * @description Widget Flotante de Tutor IA (Motor Generativo Inteligente & Sincronización de Modo Oscuro/Claro)
- * Responde dinámicamente a CUALQUIER pregunta y cambia de color al instante al alternar el modo oscuro/claro.
+ * @description Widget Flotante de Tutor IA (Respuestas Concisas, Directas e Inteligentes)
+ * Respuestas cortas, al grano y sin rodeos ni textos de relleno.
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,7 +11,7 @@ export const AiTutorWidget = () => {
     {
       id: 1,
       sender: 'ai',
-      text: '¡Hola! 👋 Soy tu Tutor IA de SinPanic0. Puedo ayudarte con cualquier tema, pregunta o fórmula del ICFES y tus estudios. ¿Qué te gustaría aprender o consultar hoy?'
+      text: '¡Hola! 👋 Soy tu Tutor IA de SinPanic0. Pregúntame lo que necesites y te responderé de forma clara, directa y concisa.'
     }
   ]);
   const [inputText, setInputText] = useState('');
@@ -35,8 +35,8 @@ export const AiTutorWidget = () => {
     "🔬 ¿Qué es la selección natural?",
     "🏛️ ¿Qué es la Acción de Tutela?",
     "🇬🇧 Tips para el componente de Inglés",
+    "🎥 Canales de YouTube recomendados",
     "⚡ ¿Cómo calcular velocidad en Física?",
-    "🧪 Tabla Periódica & Enlaces Químicos",
     "📊 ¿Cómo interpretar gráficas ICFES?"
   ];
 
@@ -47,13 +47,13 @@ export const AiTutorWidget = () => {
     }
   };
 
-  // Motor Inteligente y Dinámico de Inteligencia Artificial
+  // Motor Inteligente Conciso y Directo de IA
   const generateAiResponse = async (userPrompt) => {
     const promptTrim = userPrompt.trim();
     const promptLower = promptTrim.toLowerCase();
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-    // 1. Conexión en vivo con la API de Google Gemini (si está configurada la clave)
+    // 1. Conexión en vivo con la API de Google Gemini (Prompt conciso y directo)
     if (apiKey) {
       try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
@@ -62,7 +62,7 @@ export const AiTutorWidget = () => {
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `Eres el Tutor IA oficial de SinPanic0, la plataforma de preparación ICFES. Responde de forma inteligente, estructurada, amable y muy pedagógica en español. Explica conceptos claramente, con ejemplos si aplica y viñetas para fácil lectura. Pregunta del usuario: ${promptTrim}`
+                text: `Eres el Tutor IA de SinPanic0. Responde de forma MUY CONCISA, DIRECTA y al grano (máximo 2 a 4 viñetas breves o párrafos de 2 líneas). Evita saludos repetitivos, introducciones largas o texto de relleno. Si te piden videos, enlaces, canales o fórmulas, da la lista exacta directamente. Pregunta: ${promptTrim}`
               }]
             }]
           })
@@ -71,122 +71,89 @@ export const AiTutorWidget = () => {
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) return text;
       } catch (err) {
-        console.warn("Fallback a motor generativo local inteligente por error de API key:", err);
+        console.warn("Fallback a motor conciso local:", err);
       }
     }
 
-    // 2. Motor Generativo Local Inteligente (Sin respuestas estáticas fijas)
-    await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 400));
+    // 2. Motor Conciso Local
+    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 300));
 
-    // A. Lectura Crítica y Español
-    if (promptLower.includes('lectura') || promptLower.includes('crítica') || promptLower.includes('texto') || promptLower.includes('autor') || promptLower.includes('tesis')) {
-      return `📚 **Estrategia de Análisis de Texto (Lectura Crítica):**
+    // A. Solicitudes de Videos / YouTube / Canales
+    if (promptLower.includes('youtube') || promptLower.includes('video') || promptLower.includes('canal') || promptLower.includes('canales') || promptLower.includes('link') || promptLower.includes('enlace')) {
+      return `🎥 **Top Canales de YouTube Recomendados:**
 
-Para la pregunta sobre *"**${promptTrim}**"*:
+• **Profe Alex** – *Explicaciones breves desde cero y ejercicios resueltos.*
+• **JulioProfe** – *Álgebra, geometría, trigonometría y cálculo paso a paso.*
+• **Daniel Carreón** – *Trucos rápidos de matemáticas y agilidad mental.*
+• **Saber 11 ICFES / Puntaje Nacional** – *Simulacros reales explicados en video.*
 
-1. **Estructura del Argumento:** Todo texto argumentativo tiene:
-   - **Tesis:** La idea que el autor defiende.
-   - **Premisas:** Las razones o evidencias que aporta.
-   - **Conclusión:** La síntesis lógica.
-2. **Tipos de Preguntas ICFES:**
-   - *Literal:* Lo que dice explícitamente el texto.
-   - *Inferencial:* Lo que se deduce entre líneas.
-   - *Crítica:* Evaluar la validez de los argumentos o la intención del autor.
-3. **Consejo Practico:** Subraya los conectores lógicos (*sin embargo, por lo tanto, no obstante*) ya que marcan el cambio de dirección argumentativa.`;
+💡 *Tip:* Mira los videos a 1.25x y resuelve el ejercicio en papel antes de ver la respuesta.`;
     }
 
-    // B. Matemáticas y Geometría
-    if (promptLower.includes('pitágoras') || promptLower.includes('matemática') || promptLower.includes('triángulo') || promptLower.includes('porcentaje') || promptLower.includes('ecuación') || promptLower.includes('probabilidad') || promptLower.includes('función')) {
-      return `📐 **Análisis Matemático:**
+    // B. Lectura Crítica
+    if (promptLower.includes('lectura') || promptLower.includes('crítica') || promptLower.includes('texto') || promptLower.includes('tesis')) {
+      return `📚 **Lectura Crítica ICFES:**
 
-En relación a *"**${promptTrim}**"*:
-
-- **Fundamento Teórico:** Las Matemáticas en el ICFES premian el razonamiento cuantitativo sobre la memorización.
-- **Fórmulas Clave:**
-  - *Teorema de Pitágoras:* $c^2 = a^2 + b^2$ (Triángulos rectángulos).
-  - *Regla de Tres / Porcentajes:* $X = \\frac{A \\times B}{100}$.
-  - *Probabilidad:* $P(A) = \\frac{\\text{casos favorables}}{\\text{casos posibles}}$.
-- **Paso a Paso para Resolver:**
-  1. Identifica qué datos te da el problema.
-  2. Define qué te están preguntando exactamente.
-  3. Simplifica cálculos trabajando con fracciones o números aproximados.`;
+1. **Identifica la Tesis:** Lee el primer y último párrafo para hallar la idea central.
+2. **Hecho vs Opinión:** Los hechos son datos objetivos; las opiniones son posturas del autor.
+3. **Conectores Lógicos:** Palabras como *"sin embargo"* o *"por lo tanto"* señalan cambios de argumento clave.`;
     }
 
-    // C. Ciencias Naturales (Biología, Física, Química)
-    if (promptLower.includes('biología') || promptLower.includes('física') || promptLower.includes('química') || promptLower.includes('célula') || promptLower.includes('fuerza') || promptLower.includes('energía') || promptLower.includes('átomo') || promptLower.includes('reacción')) {
-      return `🔬 **Explicación Científica:**
+    // C. Matemáticas y Pitágoras
+    if (promptLower.includes('pitágoras') || promptLower.includes('matemática') || promptLower.includes('triángulo') || promptLower.includes('fórmula')) {
+      return `📐 **Teorema de Pitágoras:**
 
-Analizando *"**${promptTrim}**"*:
+Fórmula: **$c^2 = a^2 + b^2$** *(c es la hipotenusa)*
 
-1. **Principio Científico:** En Ciencias Naturales se evalúa el uso comprensivo del conocimiento científico y la indagación.
-2. **Conceptos Esenciales:**
-   - *Biología:* Flujo de energía en ecosistemas, genética y evolución por selección natural.
-   - *Física:* Leyes de Newton ($F = m \\cdot a$), conservación de energía ($E_p + E_k = \\text{Constante}$).
-   - *Química:* Ley de conservación de la materia, balanceo de ecuaciones y propiedades del pH.
-3. **Tip ICFES:** Siempre verifica que las unidades coincidan antes de realizar cualquier cálculo de física o química.`;
+• **Triángulos Notables Frecuentes:**
+  - Catetos 3 y 4 ➔ Hipotenusa **5**
+  - Catetos 5 y 12 ➔ Hipotenusa **13**
+
+💡 *Ahorro de tiempo:* Memorizar los triángulos 3-4-5 y 5-12-13 te evitará hacer cálculos en el examen.`;
     }
 
-    // D. Sociales y Ciudadanas
-    if (promptLower.includes('tutela') || promptLower.includes('sociales') || promptLower.includes('constitución') || promptLower.includes('gobierno') || promptLower.includes('derecho') || promptLower.includes('historia')) {
-      return `🏛️ **Sociales & Competencias Ciudadanas:**
+    // D. Ciencias Naturales
+    if (promptLower.includes('biología') || promptLower.includes('física') || promptLower.includes('química') || promptLower.includes('selección') || promptLower.includes('fuerza')) {
+      return `🔬 **Ciencias Naturales:**
 
-Sobre *"**${promptTrim}**"*:
-
-- **Marco Institucional:** La Constitución de 1991 establece un Estado Social de Derecho.
-- **Mecanismos de Protección:**
-  - *Acción de Tutela:* Para derechos fundamentales (vida, salud, educación). Plazo de respuesta: 10 días.
-  - *Habeas Corpus:* Para libertad personal privada ilegalmente. Plazo: 36 horas.
-  - *Acción Popular:* Para derechos colectivos (medio ambiente, patrimonio).
-- **Enfoque de Análisis:** Evalúa los conflictos considerando los intereses de todas las partes involucradas sin juzgar morales individuales.`;
+• **Selección Natural:** Los individuos mejor adaptados al ambiente sobreviven y dejan más descendencia.
+• **Física ($F = m \\cdot a$):** La fuerza depende de la masa y la aceleración.
+• **Química:** Enlace iónico (Metal + No Metal) vs Covalente (No Metal + No Metal).`;
     }
 
-    // E. Inglés
-    if (promptLower.includes('inglés') || promptLower.includes('english') || promptLower.includes('grammar') || promptLower.includes('vocabulario') || promptLower.includes('verb')) {
-      return `🇬🇧 **English Guidance & Strategy:**
+    // E. Sociales y Tutela
+    if (promptLower.includes('tutela') || promptLower.includes('sociales') || promptLower.includes('constitución') || promptLower.includes('derecho')) {
+      return `🏛️ **Acción de Tutela:**
 
-Regarding *"**${promptTrim}**"*:
-
-1. **Key Grammar Rules:**
-   - *Present Perfect:* Have/Has + Past Participle (Actions with relevance now).
-   - *Modal Verbs:* Should (advice), Must (obligation), Can (ability).
-2. **ICFES Reading Method:**
-   - Scan for keywords in the question first.
-   - Match synonyms between the text and option choices.
-3. **Pro Tip:** Don't translate word for word; look for context clues around unfamiliar words!`;
+• **Objetivo:** Proteger **Derechos Fundamentales** (Vida, Salud, Educación).
+• **Plazo:** El juez debe responder en **10 días hábiles**.
+• **Diferencia:** La Tutela es individual; la *Acción Popular* protege derechos colectivos (medio ambiente).`;
     }
 
-    // F. Saludos e Interacción Amigable
-    if (promptLower.includes('hola') || promptLower.includes('buenos días') || promptLower.includes('buenas tardes') || promptLower.includes('buenas noches') || promptLower.includes('que tal')) {
-      return `¡Hola! 👋 Qué alegría saludarte. Estoy listo para explicarte cualquier tema de Matemáticas, Lectura Crítica, Ciencias, Sociales o Inglés. ¿Qué duda quieres resolver hoy?`;
+    // F. Inglés
+    if (promptLower.includes('inglés') || promptLower.includes('english') || promptLower.includes('grammar') || promptLower.includes('tip')) {
+      return `🇬🇧 **Tips para Inglés ICFES:**
+
+• **Partes 1 y 2 (Carteles):** Identifica el lugar clave (*Library, Airport, Hospital*).
+• **Lectura:** Lee primero las preguntas y luego escanea el texto buscando palabras clave.
+• **Conditionals:** *If I study, I will pass* (1st Conditional).`;
     }
 
-    if (promptLower.includes('gracias') || promptLower.includes('genial') || promptLower.includes('excelente') || promptLower.includes('chevere')) {
-      return `¡Con todo el gusto! 🌟 Recuerda que practicar constantemente es el secreto para lograr más de 400 puntos en el ICFES. ¡Sigue así! 💪`;
+    // G. Saludos y Cierres
+    if (promptLower.includes('hola') || promptLower.includes('buenos') || promptLower.includes('buenas')) {
+      return `¡Hola! 👋 ¿En qué tema específico te puedo ayudar hoy?`;
     }
 
-    // G. Algoritmo Generativo Dinámico Universal para CUALQUIER otra pregunta
-    const words = promptTrim.split(' ').filter(w => w.length > 3);
-    const mainTopic = words.slice(0, 3).join(' ') || promptTrim;
+    if (promptLower.includes('gracias') || promptLower.includes('genial') || promptLower.includes('excelente')) {
+      return `¡Con gusto! 🌟 ¡Sigue practicando en SinPanic0 para subir tu puntaje! 💪`;
+    }
 
-    return `💡 **Explicación del Tema: "${promptTrim}"**
+    // H. Respuesta Concisa Universal para Cualquier Otra Pregunta
+    return `💡 **${promptTrim}:**
 
-Para comprender a fondo **${mainTopic}**:
-
-1. **Concepto Clave:** 
-   El tema **${mainTopic}** se centra en comprender cómo interactúan sus componentes principales y su impacto práctico en la resolución de problemas.
-
-2. **Desglose en Pasos:**
-   - **Paso 1 (Contexto):** Identifica las variables o factores iniciales.
-   - **Paso 2 (Análisis):** Evalúa la relación causa-efecto o el método matemático/lógico a aplicar.
-   - **Paso 3 (Conclusión):** Verifica que la solución sea coherente con la pregunta planteada.
-
-3. **Cómo lo evalúa el ICFES:**
-   En el examen no te pedirán memorizar definiciones exactas, sino **aplicar este conocimiento** ante situaciones de la vida real o experimentos hipotéticos.
-
-4. **Recomendación de Estudio:**
-   Trata de explicarle este concepto a otra persona con tus propias palabras o realiza un mapa mental sencillo para consolidarlo en tu memoria a largo plazo.
-
-¿Te gustaría un ejemplo práctico o resolver un ejercicio relacionado?`;
+• **Resumen Directo:** Este tema evalúa la relación causa-efecto y la aplicación práctica de conceptos.
+• **Clave de Respuesta:** Identifica las variables principales y descarta las opciones que contradigan la lógica del problema.
+• **Recomendación:** Practica preguntas de esta materia en la sección de Exámenes para afianzar el conocimiento.`;
   };
 
   const handleSendMessage = async (textToSend = inputText) => {
@@ -245,7 +212,7 @@ Para comprender a fondo **${mainTopic}**:
         )}
       </div>
 
-      {/* Ventana Desplegable del Chat IA (Adaptable a Modo Oscuro/Claro al instante) */}
+      {/* Ventana Desplegable del Chat IA */}
       {isOpen && (
         <div className="fixed bottom-20 right-3 left-3 sm:left-auto sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[400px] h-[520px] max-h-[75vh] bg-white dark:bg-[#162130] text-[#2F4156] dark:text-[#F0F6FC] rounded-3xl shadow-2xl border border-sky-blue/30 dark:border-slate-700 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
           
