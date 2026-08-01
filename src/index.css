@@ -261,3 +261,39 @@ html, body {
 .dark .ai-chat-bubble-ai div {
   color: #F0F6FC !important;
 }
+
+/* ── AI Tutor Bottom Components (Light & Dark Mode) ── */
+.ai-chip-btn {
+  background-color: rgba(200, 217, 230, 0.35) !important;
+  color: #2F4156 !important;
+  border: 1px solid #C8D9E6 !important;
+}
+.ai-chip-btn:hover {
+  background-color: rgba(200, 217, 230, 0.7) !important;
+}
+.dark .ai-chip-btn {
+  background-color: #27394D !important;
+  color: #FFFFFF !important;
+  border: 1px solid #3E546E !important;
+}
+.dark .ai-chip-btn:hover {
+  background-color: #374E66 !important;
+  color: #FFFFFF !important;
+}
+
+.ai-chat-input {
+  background-color: #F5EFEB !important;
+  color: #2F4156 !important;
+  border: 1px solid rgba(200, 217, 230, 0.5) !important;
+}
+.ai-chat-input::placeholder {
+  color: #567C8D !important;
+}
+.dark .ai-chat-input {
+  background-color: #0E1620 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #2D3F53 !important;
+}
+.dark .ai-chat-input::placeholder {
+  color: #94A3B8 !important;
+}

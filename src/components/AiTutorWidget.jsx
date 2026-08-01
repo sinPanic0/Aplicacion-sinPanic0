@@ -284,7 +284,7 @@ Respecto a **"${userPrompt}"**:
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(q)}
-                  className="px-3 py-1.5 bg-[#C8D9E6]/30 dark:bg-slate-800 hover:bg-[#C8D9E6]/60 dark:hover:bg-slate-700 text-[#2F4156] dark:text-[#E2EEF8] rounded-full text-[11px] font-bold whitespace-nowrap border border-[#C8D9E6] dark:border-slate-700 transition-colors shrink-0"
+                  className="ai-chip-btn px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors shrink-0"
                 >
                   {q}
                 </button>
@@ -300,7 +300,7 @@ Respecto a **"${userPrompt}"**:
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Haz tu pregunta a la IA..."
-              className="flex-1 px-4 py-2.5 bg-[#F5EFEB] dark:bg-[#0E1620] border border-sky-blue/30 dark:border-slate-700 rounded-2xl text-xs font-medium text-[#2F4156] dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2F4156] dark:focus:ring-sky-blue focus:bg-white dark:focus:bg-[#0E1620] transition-all"
+              className="ai-chat-input flex-1 px-4 py-2.5 rounded-2xl text-xs font-medium focus:outline-none transition-all"
             />
             <button
               disabled={!inputText.trim() || isTyping}
