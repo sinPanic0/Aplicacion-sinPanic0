@@ -535,17 +535,27 @@ const App = () => {
     return TRANSLATIONS[language]?.[key] || TRANSLATIONS['es']?.[key] || key;
   };
 
-  // Track active time per day
+  // Track active time per day & sync with Supabase per user
   const [activeTimeMinutes, setActiveTimeMinutes] = useLocalStorage(`sinpanico_activeTime_${getTodayString()}`, 0);
-
 
   useEffect(() => {
     if (screen === 'welcome' || screen === 'auth_login' || screen === 'auth_signup') return;
     const interval = setInterval(() => {
-      setActiveTimeMinutes(prev => prev + 1);
+      setActiveTimeMinutes(prev => {
+        const nextVal = prev + 1;
+        const todayStr = getTodayString();
+        window.localStorage.setItem(`sinpanico_activeTime_${todayStr}`, nextVal);
+        if (userId) {
+          supabase.from('user_profiles').update({
+            daily_active_minutes: nextVal,
+            last_active_date: todayStr
+          }).eq('user_id', userId).then(() => {}).catch(e => console.error("Error updating active time in Supabase:", e));
+        }
+        return nextVal;
+      });
     }, 60000); // 1 minute
     return () => clearInterval(interval);
-  }, [screen]);
+  }, [screen, userId]);
 
   useEffect(() => {
     if (userId) {
@@ -690,6 +700,23 @@ const App = () => {
             setDarkMode(profile.dark_mode);
             window.localStorage.setItem('sinpanico_darkmode_global', profile.dark_mode);
             window.localStorage.setItem(`sinpanico_darkmode_${userId}`, profile.dark_mode);
+          }
+
+          // Synchronize Daily Active Study Time across devices & reset on new day
+          if (profile.last_active_date === todayStr) {
+            const cloudMins = Number(profile.daily_active_minutes) || 0;
+            const localMins = Number(window.localStorage.getItem(`sinpanico_activeTime_${todayStr}`)) || 0;
+            const syncedMins = Math.max(cloudMins, localMins);
+            setActiveTimeMinutes(syncedMins);
+            window.localStorage.setItem(`sinpanico_activeTime_${todayStr}`, syncedMins);
+          } else {
+            // New calendar day! Reset daily active study minutes to 0
+            setActiveTimeMinutes(0);
+            window.localStorage.setItem(`sinpanico_activeTime_${todayStr}`, 0);
+            supabase.from('user_profiles').update({
+              daily_active_minutes: 0,
+              last_active_date: todayStr
+            }).eq('user_id', userId).then(() => {}).catch(e => console.error("Error resetting daily active minutes:", e));
           }
 
           setUserProfile(prev => {
