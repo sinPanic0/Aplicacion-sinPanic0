@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, Bot, User, RefreshCw, Lightbulb, Zap, BookOpen } from 'lucide-react';
 
 /**
- * @description Widget Flotante de Tutor IA (Estilo SinPanic0)
- * Ubicado en bottom-20 en móviles para NO tapar la barra de navegación inferior (Progreso/Perfil).
+ * @description Widget Flotante de Tutor IA (Compatible 100% con Modo Claro y Oscuro)
+ * Garantiza alto contraste y legibilidad perfecta de letras en modo oscuro.
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -183,12 +183,12 @@ Respecto a **"${userPrompt}"**:
 
   return (
     <>
-      {/* Botón Flotante Prolijo en bottom-20 en móviles para NO tapar la barra inferior */}
+      {/* Botón Flotante Prolijo */}
       <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50">
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="group flex items-center gap-2.5 px-4 py-3 rounded-full bg-[#2F4156] text-white shadow-xl shadow-navy/20 hover:shadow-2xl hover:bg-[#3A5A78] hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20"
+            className="group flex items-center gap-2.5 px-4 py-3 rounded-full bg-[#2F4156] dark:bg-[#1E3A52] text-white shadow-xl hover:shadow-2xl hover:bg-[#3A5A78] hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20"
             title="Abrir Tutor IA SinPanic0"
           >
             <span className="relative flex h-2.5 w-2.5">
@@ -201,9 +201,9 @@ Respecto a **"${userPrompt}"**:
         )}
       </div>
 
-      {/* Ventana Desplegable del Chat IA (Desplegada por encima del menú inferior) */}
+      {/* Ventana Desplegable del Chat IA */}
       {isOpen && (
-        <div className="fixed bottom-20 right-3 left-3 sm:left-auto sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[400px] h-[520px] max-h-[75vh] bg-white rounded-3xl shadow-2xl border border-sky-blue/30 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed bottom-20 right-3 left-3 sm:left-auto sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[400px] h-[520px] max-h-[75vh] bg-white dark:bg-[#162130] rounded-3xl shadow-2xl border border-sky-blue/30 dark:border-slate-700 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
           
           {/* Header del Chat */}
           <div className="bg-gradient-to-r from-[#2F4156] via-[#3A5A78] to-[#567C8D] p-4 text-white flex items-center justify-between shadow-md">
@@ -212,7 +212,7 @@ Respecto a **"${userPrompt}"**:
                 <Bot size={22} />
               </div>
               <div>
-                <h3 className="font-black text-sm flex items-center gap-1.5 leading-tight">
+                <h3 className="font-black text-sm flex items-center gap-1.5 leading-tight text-white">
                   Tutor IA SinPanic0 <Sparkles size={14} className="text-amber-300" />
                 </h3>
                 <span className="text-[10px] text-sky-blue/90 font-bold flex items-center gap-1 mt-0.5">
@@ -230,8 +230,8 @@ Respecto a **"${userPrompt}"**:
             </button>
           </div>
 
-          {/* Área de Mensajes en fondo Beige cálido (#F5EFEB) */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#F5EFEB]/50">
+          {/* Área de Mensajes */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#F5EFEB]/50 dark:bg-[#0E1620]">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -240,8 +240,8 @@ Respecto a **"${userPrompt}"**:
                 <div
                   className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold ${
                     msg.sender === 'user' 
-                      ? 'bg-[#2F4156] text-white shadow-sm' 
-                      : 'bg-gradient-to-br from-[#2F4156] to-[#567C8D] text-white shadow-sm'
+                      ? 'bg-[#2F4156] dark:bg-emerald-600 text-white shadow-sm' 
+                      : 'bg-gradient-to-br from-[#2F4156] to-[#567C8D] dark:from-slate-700 dark:to-slate-800 text-white shadow-sm'
                   }`}
                 >
                   {msg.sender === 'user' ? <User size={14} /> : <Bot size={14} />}
@@ -250,11 +250,11 @@ Respecto a **"${userPrompt}"**:
                 <div
                   className={`max-w-[82%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
                     msg.sender === 'user'
-                      ? 'bg-[#2F4156] text-white rounded-tr-none font-medium'
-                      : 'bg-white border border-sky-blue/30 text-[#2F4156] rounded-tl-none font-normal'
+                      ? 'bg-[#2F4156] dark:bg-emerald-600 text-white rounded-tr-none font-medium'
+                      : 'ai-chat-bubble-ai bg-white dark:bg-[#1E293B] border border-sky-blue/30 dark:border-slate-700 text-[#2F4156] dark:text-[#F1F5F9] rounded-tl-none font-normal'
                   }`}
                 >
-                  <div className="whitespace-pre-line">
+                  <div className="whitespace-pre-line text-slate-800 dark:text-slate-100">
                     {msg.text}
                   </div>
                 </div>
@@ -263,14 +263,14 @@ Respecto a **"${userPrompt}"**:
 
             {isTyping && (
               <div className="flex items-start gap-2.5">
-                <div className="w-7 h-7 rounded-xl bg-[#2F4156] text-white flex items-center justify-center shrink-0 text-xs">
+                <div className="w-7 h-7 rounded-xl bg-[#2F4156] dark:bg-slate-700 text-white flex items-center justify-center shrink-0 text-xs">
                   <Bot size={14} />
                 </div>
-                <div className="bg-white border border-sky-blue/30 p-3.5 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-[#567C8D] animate-bounce"></div>
-                  <div className="w-2 h-2 rounded-full bg-[#567C8D] animate-bounce [animation-delay:0.2s]"></div>
-                  <div className="w-2 h-2 rounded-full bg-[#567C8D] animate-bounce [animation-delay:0.4s]"></div>
-                  <span className="text-[10px] text-[#567C8D] font-bold ml-1">Escribiendo...</span>
+                <div className="bg-white dark:bg-[#1E293B] border border-sky-blue/30 dark:border-slate-700 p-3.5 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce"></div>
+                  <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce [animation-delay:0.2s]"></div>
+                  <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce [animation-delay:0.4s]"></div>
+                  <span className="text-[10px] text-[#567C8D] dark:text-sky-blue font-bold ml-1">Escribiendo...</span>
                 </div>
               </div>
             )}
@@ -279,12 +279,12 @@ Respecto a **"${userPrompt}"**:
 
           {/* Sugerencias Rápidas */}
           {messages.length < 5 && (
-            <div className="p-2 bg-white border-t border-sky-blue/20 flex gap-1.5 overflow-x-auto scrollbar-none">
+            <div className="p-2 bg-white dark:bg-[#162130] border-t border-sky-blue/20 dark:border-slate-800 flex gap-1.5 overflow-x-auto scrollbar-none">
               {quickQuestions.map((q, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(q)}
-                  className="px-3 py-1.5 bg-[#C8D9E6]/30 hover:bg-[#C8D9E6]/60 text-[#2F4156] rounded-full text-[11px] font-bold whitespace-nowrap border border-[#C8D9E6] transition-colors shrink-0"
+                  className="px-3 py-1.5 bg-[#C8D9E6]/30 dark:bg-slate-800 hover:bg-[#C8D9E6]/60 dark:hover:bg-slate-700 text-[#2F4156] dark:text-[#E2EEF8] rounded-full text-[11px] font-bold whitespace-nowrap border border-[#C8D9E6] dark:border-slate-700 transition-colors shrink-0"
                 >
                   {q}
                 </button>
@@ -293,19 +293,19 @@ Respecto a **"${userPrompt}"**:
           )}
 
           {/* Caja de Entrada de Texto */}
-          <div className="p-3 bg-white border-t border-sky-blue/20 flex items-center gap-2">
+          <div className="p-3 bg-white dark:bg-[#162130] border-t border-sky-blue/20 dark:border-slate-800 flex items-center gap-2">
             <input
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Haz tu pregunta a la IA..."
-              className="flex-1 px-4 py-2.5 bg-[#F5EFEB] border border-sky-blue/30 rounded-2xl text-xs font-medium text-[#2F4156] focus:outline-none focus:ring-2 focus:ring-[#2F4156] focus:bg-white transition-all"
+              className="flex-1 px-4 py-2.5 bg-[#F5EFEB] dark:bg-[#0E1620] border border-sky-blue/30 dark:border-slate-700 rounded-2xl text-xs font-medium text-[#2F4156] dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2F4156] dark:focus:ring-sky-blue focus:bg-white dark:focus:bg-[#0E1620] transition-all"
             />
             <button
               disabled={!inputText.trim() || isTyping}
               onClick={() => handleSendMessage()}
-              className="w-10 h-10 rounded-2xl bg-[#2F4156] text-white flex items-center justify-center shrink-0 shadow-md hover:bg-[#2F4156]/90 disabled:opacity-40 active:scale-95 transition-all"
+              className="w-10 h-10 rounded-2xl bg-[#2F4156] dark:bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md hover:bg-[#2F4156]/90 disabled:opacity-40 active:scale-95 transition-all"
             >
               <Send size={16} />
             </button>

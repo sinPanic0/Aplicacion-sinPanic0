@@ -251,3 +251,13 @@ html, body {
 .dark .shadow-navy\/10 {
   box-shadow: 0 2px 8px rgba(42,74,98,0.2) !important;
 }
+
+/* ── AI Tutor Dark Mode Overrides ── */
+.dark .ai-chat-bubble-ai {
+  background-color: #1E2B3C !important;
+  color: #F0F6FC !important;
+  border-color: #2D3F53 !important;
+}
+.dark .ai-chat-bubble-ai div {
+  color: #F0F6FC !important;
+}
