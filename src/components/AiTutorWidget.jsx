@@ -285,11 +285,11 @@ Respecto a **"${userPrompt}"**:
                 <div
                   className={`max-w-[82%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
                     msg.sender === 'user'
-                      ? 'bg-[#2F4156] dark:bg-emerald-600 text-white rounded-tr-none font-medium'
-                      : 'ai-chat-bubble-ai bg-white dark:bg-[#1E293B] border border-sky-blue/30 dark:border-slate-700 text-[#2F4156] dark:text-[#F1F5F9] rounded-tl-none font-normal'
+                      ? 'ai-chat-bubble-user bg-[#2F4156] dark:bg-[#2A4A62] text-white rounded-tr-none font-medium'
+                      : 'ai-chat-bubble-ai bg-white dark:bg-[#1E293B] border border-sky-blue/30 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-tl-none font-normal'
                   }`}
                 >
-                  <div className="whitespace-pre-line text-slate-800 dark:text-slate-100">
+                  <div className={`whitespace-pre-line ${msg.sender === 'user' ? 'text-white font-medium' : 'text-slate-800 dark:text-slate-100'}`}>
                     {msg.text}
                   </div>
                 </div>

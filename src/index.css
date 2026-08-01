@@ -262,6 +262,26 @@ html, body {
   color: #F0F6FC !important;
 }
 
+/* ── AI Tutor User Bubble (Pure white text) ── */
+.ai-chat-bubble-user {
+  background-color: #2F4156 !important;
+  color: #FFFFFF !important;
+}
+.ai-chat-bubble-user div,
+.ai-chat-bubble-user p,
+.ai-chat-bubble-user span {
+  color: #FFFFFF !important;
+}
+.dark .ai-chat-bubble-user {
+  background-color: #2A4A62 !important;
+  color: #FFFFFF !important;
+}
+.dark .ai-chat-bubble-user div,
+.dark .ai-chat-bubble-user p,
+.dark .ai-chat-bubble-user span {
+  color: #FFFFFF !important;
+}
+
 /* ── AI Tutor Bottom Components (Light & Dark Mode) ── */
 .ai-chip-btn {
   background-color: rgba(200, 217, 230, 0.35) !important;
