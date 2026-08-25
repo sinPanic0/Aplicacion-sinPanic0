@@ -2051,6 +2051,11 @@ const App = () => {
   const ProfileScreen = () => {
     const [showSettings, setShowSettings] = useState(false);
     const [showLanguageModal, setShowLanguageModal] = useState(false);
+    const [localPetName, setLocalPetName] = useState(capybaraName);
+
+    useEffect(() => {
+      setLocalPetName(capybaraName);
+    }, [capybaraName]);
 
     // Cropper States
     const [cropImageSrc, setCropImageSrc] = useState(null);
@@ -2234,13 +2239,13 @@ const App = () => {
               <div className="flex items-center gap-2 mt-3 justify-center sm:justify-start">
                 <input
                   type="text"
-                  value={editingCapyName}
-                  onChange={(e) => setEditingCapyName(e.target.value)}
+                  value={localPetName}
+                  onChange={(e) => setLocalPetName(e.target.value)}
                   placeholder="Nombre de tu mascota"
                   className="px-3 py-1.5 bg-[#FAF4EE] dark:bg-[#18110C] border border-[#EADBC8] dark:border-[#3A2A1E] rounded-xl text-xs font-bold text-navy focus:outline-none focus:ring-2 focus:ring-[#C85A28] w-36"
                 />
                 <button
-                  onClick={() => handleUpdateCapybaraName(editingCapyName)}
+                  onClick={() => handleUpdateCapybaraName(localPetName)}
                   className="px-3 py-1.5 bg-[#C85A28] text-white text-[11px] font-black rounded-xl hover:bg-[#B04A1F] transition-all shadow-sm active:scale-95 shrink-0"
                 >
                   Guardar Nombre
