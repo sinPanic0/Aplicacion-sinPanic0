@@ -69,9 +69,11 @@ html, body {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Hardcoded beige cards in dark mode → subtle dark variant */
-.dark [class*="bg-\[#F5EFEB\]"] {
-  background-color: #1A2B3C !important;
+/* Hardcoded beige/cream cards in dark mode → subtle dark warm variant */
+.dark [class*="bg-\[#F5EFEB\]"],
+.dark [class*="bg-\[#FAF4EE\]"],
+.dark [class*="bg-\[#f8fafc\]"] {
+  background-color: #241A12 !important;
 }
 
 /* ══════════════════════════════════════════════════
@@ -82,7 +84,7 @@ html, body {
   background-color: var(--color-brand-white-val) !important;
 }
 .dark .bg-white\/85, .dark .bg-white\/90 {
-  background-color: rgba(22, 33, 48, 0.92) !important;
+  background-color: rgba(36, 26, 18, 0.92) !important;
 }
 .dark .bg-beige {
   background-color: var(--color-beige-val) !important;
@@ -141,14 +143,14 @@ html, body {
   background-color: var(--color-icon-box-bg) !important;
 }
 .dark .bg-sky-blue\/10 {
-  background-color: rgba(28, 46, 62, 0.4) !important;
+  background-color: rgba(224, 122, 95, 0.15) !important;
   color: var(--color-teal-val) !important;
 }
 .dark .bg-sky-blue\/15 {
-  background-color: rgba(42, 74, 98, 0.3) !important;
+  background-color: rgba(224, 122, 95, 0.2) !important;
 }
 .dark .bg-sky-blue\/5 {
-  background-color: rgba(28, 46, 62, 0.25) !important;
+  background-color: rgba(224, 122, 95, 0.1) !important;
 }
 
 /* ── bg-navy global fix en dark mode ── */

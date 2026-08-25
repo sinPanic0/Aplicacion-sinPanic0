@@ -42,7 +42,6 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
       setHasChecked(false);
     } else {
       setIsQuizCompleted(true);
-      // Sumar 15 Puntos de Conocimiento KP al perfil por completar la prueba de 10 preguntas
       if (setUserProfile) {
         setUserProfile(prev => ({
           ...prev,
@@ -54,14 +53,14 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
 
   // RENDER EVALUACIÓN PRÁCTICA DE 10 PREGUNTAS (TIEMPO INFINITO)
   if (activeTopicQuiz) {
-    const questions = activeTopicQuiz.questions; // Siempre 10 preguntas
+    const questions = activeTopicQuiz.questions;
     const currentQ = questions[currentQIndex];
 
     if (isQuizCompleted) {
       const percentage = Math.round((quizScore / questions.length) * 100);
       return (
-        <div className="min-h-screen bg-[#FAF4EE] dark:bg-[#18110C] p-6 flex flex-col items-center justify-center text-center animate-fade-in font-sans">
-          <div className="bg-white dark:bg-[#241A12] border border-[#EADBC8] dark:border-[#3A2A1E] rounded-3xl p-8 max-w-md w-full shadow-xl ios-shadow">
+        <div className="min-h-screen bg-beige p-6 flex flex-col items-center justify-center text-center animate-fade-in font-sans">
+          <div className="bg-white border border-sky-blue/30 rounded-3xl p-8 max-w-md w-full shadow-xl ios-shadow">
             <div className="w-20 h-20 mx-auto bg-[#D9531E]/10 text-[#D9531E] rounded-full flex items-center justify-center mb-6">
               <Award size={44} />
             </div>
@@ -69,18 +68,18 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
             <span className="text-xs font-black text-[#D9531E] uppercase tracking-widest block mb-1">
               Evaluación Práctica (10 Preguntas)
             </span>
-            <h2 className="text-2xl font-black text-[#3C2415] dark:text-[#F5EBE1] mb-2">
+            <h2 className="text-2xl font-black text-navy mb-2">
               {activeTopicQuiz.name}
             </h2>
 
-            <div className="my-6 p-4 bg-[#FAF4EE] dark:bg-[#18110C] rounded-2xl border border-[#EADBC8] dark:border-[#3A2A1E]">
+            <div className="my-6 p-4 bg-beige rounded-2xl border border-sky-blue/20">
               <p className="text-4xl font-black text-[#D9531E] mb-1">{percentage}%</p>
-              <p className="text-xs font-bold text-[#7C5E47] dark:text-[#D2B49A]">
+              <p className="text-xs font-bold text-teal">
                 Acertaste {quizScore} de 10 preguntas (+15 KP ganados)
               </p>
             </div>
 
-            <p className="text-xs text-[#7C5E47] dark:text-[#D2B49A] mb-6 font-medium leading-relaxed">
+            <p className="text-xs text-teal mb-6 font-medium leading-relaxed">
               {percentage >= 80 
                 ? '¡Excelente dominio! Has demostrado compresión sólida sobre este tema del temario.' 
                 : 'Buen intento de práctica sin presión. Puedes repetir esta prueba las veces que quieras para alcanzar el 100%.'}
@@ -95,7 +94,7 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
               </button>
               <button
                 onClick={() => setActiveTopicQuiz(null)}
-                className="w-full py-3.5 border border-[#EADBC8] dark:border-[#3A2A1E] text-[#3C2415] dark:text-[#F5EBE1] font-bold rounded-2xl active:scale-95 transition-all text-sm bg-white dark:bg-[#241A12]"
+                className="w-full py-3.5 border border-sky-blue/30 text-navy font-bold rounded-2xl active:scale-95 transition-all text-sm bg-white"
               >
                 Volver al Temario
               </button>
@@ -106,18 +105,18 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
     }
 
     return (
-      <div className="min-h-screen bg-[#FAF4EE] dark:bg-[#18110C] flex flex-col p-6 font-sans animate-fade-in pb-24">
+      <div className="min-h-screen bg-beige flex flex-col p-6 font-sans animate-fade-in pb-24">
         {/* Header Quiz */}
         <header className="flex justify-between items-center mb-6 max-w-2xl mx-auto w-full">
           <button 
             onClick={() => setActiveTopicQuiz(null)} 
-            className="p-2.5 text-[#3C2415] dark:text-[#F5EBE1] bg-white dark:bg-[#241A12] border border-[#EADBC8] dark:border-[#3A2A1E] rounded-full shadow-sm"
+            className="p-2.5 text-navy bg-white border border-sky-blue/30 rounded-full shadow-sm"
           >
             <ChevronLeft size={22} />
           </button>
           <div className="text-center">
             <span className="text-[10px] font-black text-[#D9531E] uppercase tracking-widest">TIEMPO INFINITO • SIN LIMITES</span>
-            <h1 className="text-sm font-black text-[#3C2415] dark:text-[#F5EBE1] line-clamp-1">{activeTopicQuiz.name}</h1>
+            <h1 className="text-sm font-black text-navy line-clamp-1">{activeTopicQuiz.name}</h1>
           </div>
           <div className="px-3.5 py-1.5 bg-[#D9531E] text-white rounded-full text-xs font-black shadow-sm">
             Pregunta {currentQIndex + 1} de 10
@@ -126,29 +125,29 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
 
         {/* Card de Pregunta */}
         <div className="max-w-2xl mx-auto w-full flex-1 flex flex-col justify-between">
-          <div className="bg-white dark:bg-[#241A12] p-6 rounded-3xl border border-[#EADBC8] dark:border-[#3A2A1E] shadow-sm mb-6 ios-shadow">
+          <div className="bg-white p-6 rounded-3xl border border-sky-blue/30 shadow-sm mb-6 ios-shadow">
             <div className="flex justify-between items-center mb-3">
               <span className="text-[10px] font-black text-[#D9531E] uppercase tracking-widest">Pregunta {currentQIndex + 1} de 10</span>
-              <span className="text-[10px] font-bold text-[#7C5E47] dark:text-[#D2B49A]">Sin límite de tiempo</span>
+              <span className="text-[10px] font-bold text-teal">Sin límite de tiempo</span>
             </div>
             
-            <h3 className="text-base md:text-lg font-bold text-[#3C2415] dark:text-[#F5EBE1] leading-snug mb-6">
+            <h3 className="text-base md:text-lg font-bold text-navy leading-snug mb-6">
               {currentQ.q}
             </h3>
 
             <div className="space-y-3">
               {currentQ.options.map((opt, idx) => {
                 const isSelected = selectedOption === idx;
-                let btnStyle = 'border-[#EADBC8] dark:border-[#3A2A1E] bg-white dark:bg-[#241A12] text-[#3C2415] dark:text-[#F5EBE1] hover:border-[#D9531E]';
+                let btnStyle = 'border-sky-blue/40 bg-white text-navy hover:border-[#D9531E]';
 
                 if (hasChecked) {
                   if (idx === currentQ.correct) {
-                    btnStyle = 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold';
+                    btnStyle = 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-bold';
                   } else if (isSelected && idx !== currentQ.correct) {
-                    btnStyle = 'border-rose-400 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300';
+                    btnStyle = 'border-rose-400 bg-rose-500/15 text-rose-800 dark:text-rose-300';
                   }
                 } else if (isSelected) {
-                  btnStyle = 'border-[#D9531E] bg-[#D9531E]/10 text-[#D9531E] dark:text-[#F4A261] font-bold ring-2 ring-[#D9531E]/30';
+                  btnStyle = 'border-[#D9531E] bg-[#D9531E]/15 text-[#D9531E] dark:text-[#F4A261] font-bold ring-2 ring-[#D9531E]/30';
                 }
 
                 return (
@@ -168,11 +167,11 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
             </div>
 
             {hasChecked && (
-              <div className="mt-6 p-4 rounded-2xl bg-[#FAF4EE] dark:bg-[#18110C] border border-[#EADBC8] dark:border-[#3A2A1E]">
+              <div className="mt-6 p-4 rounded-2xl bg-beige border border-sky-blue/20">
                 <p className="text-xs font-black text-[#D9531E] uppercase tracking-widest mb-1 flex items-center gap-1">
                   <HelpCircle size={14} /> Explicación:
                 </p>
-                <p className="text-xs text-[#7C5E47] dark:text-[#D2B49A] font-semibold leading-relaxed">
+                <p className="text-xs text-teal font-semibold leading-relaxed">
                   {currentQ.explanation}
                 </p>
               </div>
@@ -205,15 +204,15 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
 
   // MAIN SYLLABUS SCREEN (Vista General de Temarios)
   return (
-    <div className="p-5 pb-28 bg-[#FAF4EE] dark:bg-[#18110C] min-h-screen animate-fade-in font-sans">
+    <div className="p-5 pb-28 bg-beige min-h-screen animate-fade-in font-sans">
       <header className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-[#D9531E] text-white rounded-xl flex items-center justify-center shadow-md">
             <ListChecks size={22} />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-[#3C2415] dark:text-[#F5EBE1] leading-none">Temarios ICFES</h2>
-            <span className="text-[10px] font-bold text-[#7C5E47] dark:text-[#D2B49A] tracking-wide">EVALUACIONES DE 10 PREGUNTAS SIN TIEMPO</span>
+            <h2 className="text-2xl font-black text-navy leading-none">Temarios ICFES</h2>
+            <span className="text-[10px] font-bold text-teal tracking-wide">EVALUACIONES DE 10 PREGUNTAS SIN TIEMPO</span>
           </div>
         </div>
       </header>
@@ -247,7 +246,7 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
               className={`px-4 py-2.5 rounded-2xl font-black text-xs whitespace-nowrap transition-all flex items-center gap-2 border ${
                 isSelected
                   ? 'bg-[#D9531E] text-white border-[#D9531E] shadow-md scale-102'
-                  : 'bg-white dark:bg-[#241A12] text-[#3C2415] dark:text-[#F5EBE1] border-[#EADBC8] dark:border-[#3A2A1E] hover:border-[#D9531E]'
+                  : 'bg-white text-navy border-sky-blue/30 hover:border-[#D9531E]'
               }`}
             >
               <span>{subj.name}</span>
@@ -257,19 +256,19 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
       </div>
 
       {/* Detalle de la Materia Seleccionada */}
-      <div className="bg-white dark:bg-[#241A12] p-5 rounded-3xl border border-[#EADBC8] dark:border-[#3A2A1E] shadow-sm mb-6 ios-shadow">
+      <div className="bg-white p-5 rounded-3xl border border-sky-blue/30 shadow-sm mb-6 ios-shadow">
         <div className="flex justify-between items-center mb-2">
           <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-white bg-[#D9531E]">
             {currentSubjectData.badge}
           </span>
-          <span className="text-xs font-bold text-[#7C5E47] dark:text-[#D2B49A]">
+          <span className="text-xs font-bold text-teal">
             {currentSubjectData.parts.reduce((acc, p) => acc + p.topics.length, 0)} Temas con 10 Preguntas c/u
           </span>
         </div>
-        <h3 className="text-xl font-black text-[#3C2415] dark:text-[#F5EBE1] mb-1">
+        <h3 className="text-xl font-black text-navy mb-1">
           Temario de {currentSubjectData.name}
         </h3>
-        <p className="text-xs text-[#7C5E47] dark:text-[#D2B49A] font-semibold leading-relaxed">
+        <p className="text-xs text-teal font-semibold leading-relaxed">
           {currentSubjectData.description}
         </p>
       </div>
@@ -278,7 +277,7 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
       <div className="space-y-6">
         {currentSubjectData.parts.map((part) => (
           <div key={part.id} className="space-y-3">
-            <h4 className="text-sm font-black text-[#3C2415] dark:text-[#F5EBE1] uppercase tracking-wider flex items-center gap-2 px-1">
+            <h4 className="text-sm font-black text-navy uppercase tracking-wider flex items-center gap-2 px-1">
               <span className="text-lg">{part.icon}</span> {part.title}
             </h4>
 
@@ -286,11 +285,11 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
               {part.topics.map((topic) => (
                 <div
                   key={topic.id}
-                  className="bg-white dark:bg-[#241A12] p-4 rounded-2xl border border-[#EADBC8] dark:border-[#3A2A1E] shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+                  className="bg-white p-4 rounded-2xl border border-sky-blue/30 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h5 className="font-black text-[#3C2415] dark:text-[#F5EBE1] text-sm">
+                      <h5 className="font-black text-navy text-sm">
                         {topic.name}
                       </h5>
                       {topic.keyTopic && (
@@ -299,7 +298,7 @@ export const SyllabusScreen = ({ setScreen, userProfile, setUserProfile }) => {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#7C5E47] dark:text-[#D2B49A] font-medium leading-relaxed line-clamp-2">
+                    <p className="text-xs text-teal font-medium leading-relaxed line-clamp-2">
                       {topic.desc}
                     </p>
                   </div>
