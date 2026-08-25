@@ -3,7 +3,26 @@ import { VERSES } from '../utils/constants';
 import { EXAM_QUESTIONS, PRACTICE_QUESTIONS } from '../utils/questions';
 import { supabase } from '../lib/supabaseClient';
 
-export const AppContext = createContext();
+export const AppContext = createContext({
+  screen: 'home',
+  setScreen: () => {},
+  selectedMethod: 'active',
+  setSelectedMethod: () => {},
+  dailyVerse: { text: '"Todo lo puedo en Cristo que me fortalece"', ref: 'Filipenses 4:13' },
+  selectedSubject: null,
+  setSelectedSubject: () => {},
+  userProfile: { fullName: '', grade: '11° Grado', streak: 0, knowledgePoints: 0, totalHoursStudied: 0 },
+  setUserProfile: () => {},
+  diagnosticCompleted: {},
+  setDiagnosticCompleted: () => {},
+  practiceProgress: {},
+  setPracticeProgress: () => {},
+  diagnosticScores: {},
+  failedCategories: {},
+  currentQuestions: [],
+  startExam: () => {},
+  finishExam: () => {}
+});
 
 export const AppProvider = ({ children }) => {
   // --- NAVEGACIÓN Y CONFIGURACIÓN ---
@@ -41,6 +60,7 @@ export const AppProvider = ({ children }) => {
   const [practiceProgress, setPracticeProgress] = useState({});
   const [selectedCalendarDay, setSelectedCalendarDay] = useState(null);
   const [diagnosticCompleted, setDiagnosticCompleted] = useState({});
+  const [diagnosticScores, setDiagnosticScores] = useState({});
   
   // --- MÉTODOS DE ESTUDIO INTERACTIVOS ---
   const [methodInteraction, setMethodInteraction] = useState(null);
