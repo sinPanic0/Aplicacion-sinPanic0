@@ -4,7 +4,7 @@
 -- ==========================================
 
 -- 1. Tabla de Perfiles de Usuario
-CREATE TABLE user_profiles (
+CREATE TABLE IF NOT EXISTS user_profiles (
   user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   full_name TEXT,
   grade TEXT NOT NULL DEFAULT '11° Grado',
@@ -16,11 +16,16 @@ CREATE TABLE user_profiles (
   streak INTEGER DEFAULT 0,
   language TEXT NOT NULL DEFAULT 'es',
   dark_mode BOOLEAN NOT NULL DEFAULT false,
+  knowledge_points NUMERIC DEFAULT 0,
+  daily_points NUMERIC DEFAULT 0,
+  last_points_date TEXT,
+  daily_active_minutes INTEGER DEFAULT 0,
+  last_active_date TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
 -- 2. Tabla de Progreso de Diagnósticos
-CREATE TABLE user_diagnostics (
+CREATE TABLE IF NOT EXISTS user_diagnostics (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES user_profiles(user_id) ON DELETE CASCADE,
   subject_id INTEGER NOT NULL,
@@ -32,7 +37,7 @@ CREATE TABLE user_diagnostics (
 );
 
 -- 3. Tabla de Prácticas Diarias (Calendario)
-CREATE TABLE practice_logs (
+CREATE TABLE IF NOT EXISTS practice_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES user_profiles(user_id) ON DELETE CASCADE,
   practice_date DATE NOT NULL,
@@ -52,13 +57,23 @@ ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_diagnostics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE practice_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Permitir todo a anónimos en user_profiles" ON user_profiles;
 CREATE POLICY "Permitir todo a anónimos en user_profiles" ON user_profiles FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Permitir todo a anónimos en user_diagnostics" ON user_diagnostics;
 CREATE POLICY "Permitir todo a anónimos en user_diagnostics" ON user_diagnostics FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Permitir todo a anónimos en practice_logs" ON practice_logs;
 CREATE POLICY "Permitir todo a anónimos en practice_logs" ON practice_logs FOR ALL USING (true);
 
 -- ==========================================
 -- MIGRACIÓN DE ACTUALIZACIÓN:
 -- Ejecuta estas líneas en tu SQL Editor de Supabase si ya tienes las tablas creadas
 -- ==========================================
--- ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS language TEXT NOT NULL DEFAULT 'es';
--- ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS dark_mode BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS language TEXT NOT NULL DEFAULT 'es';
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS dark_mode BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS knowledge_points NUMERIC DEFAULT 0;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS daily_points NUMERIC DEFAULT 0;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS last_points_date TEXT;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS daily_active_minutes INTEGER DEFAULT 0;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS last_active_date TEXT;

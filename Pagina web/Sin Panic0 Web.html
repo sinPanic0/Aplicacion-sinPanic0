@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sin Panic0 — Preparación Inteligente para el ICFES Saber 11</title>
+    <meta name="description"
+        content="Plataforma interactiva de estudio para el ICFES Saber 11: exámenes de prueba, calendario con semáforo de progreso, perfil de estudiante real, tutor IA y métodos de aprendizaje activo." />
+
+    <!-- Tipografía Google Fonts: Plus Jakarta Sans & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Supabase JS Client desde CDN para autenticación directa -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* ══════════════════════════════════════════════════════════════════
+       SISTEMA DE DISEÑO — PALETA OFICIAL SIN PANIC0
+       ══════════════════════════════════════════════════════════════════ */
+        :root {
+            --color-navy: #2F4156;
+            --color-navy-dark: #1E2D3D;
+            --color-teal: #567C8D;
+            --color-sky-blue: #C8D9E6;
+            --color-sky-blue-light: #EBF2F7;
+            --color-beige: #F5EFEB;
+            --color-beige-dark: #EDE6DF;
+            --color-white: #FFFFFF;
+            --color-emerald: #10B981;
+            --color-emerald-dark: #059669;
+            --color-emerald-light: #D1FAE5;
+
+            --bg-main: var(--color-beige);
+            --bg-card: var(--color-white);
+            --text-main: var(--color-navy);
+            --text-muted: var(--color-teal);
+            --border-color: var(--color-sky-blue);
+            --shadow-sm: 0 4px 12px rgba(47, 65, 86, 0.06);
+            --shadow-md: 0 8px 24px rgba(47, 65, 86, 0.1);
+            --shadow-lg: 0 16px 40px rgba(47, 65, 86, 0.14);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 32px;
+        }
+
+        .dark {
+            --color-navy: #E2ECF4;
+            --color-teal: #94B3C5;
+            --color-sky-blue: #2A3C4E;
+            --color-sky-blue-light: #162432;
+            --color-beige: #0E1620;
+            --color-beige-dark: #162130;
+            --color-white: #182535;
+
+            --bg-main: #0E1620;
+            --bg-card: #182535;
+            --text-main: #E2ECF4;
+            --text-muted: #94B3C5;
+            --border-color: #26384B;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+       NAVEGACIÓN PRINCIPAL
+       ══════════════════════════════════════════════════════════════════ */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: rgba(245, 239, 235, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 0;
+        }
+
+        .dark .navbar {
+            background-color: rgba(14, 22, 32, 0.9);
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--color-emerald), #059669);
+            color: white;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+        }
+
+        .brand-name {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-name span {
+            color: var(--color-emerald);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            list-style: none;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 700;
+            font-size: 14px;
+            opacity: 0.85;
+        }
+
+        .nav-link:hover {
+            color: var(--color-emerald);
+            opacity: 1;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-theme {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .btn-theme:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--color-emerald), var(--color-emerald-dark));
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 15px;
+            padding: 12px 24px;
+            border-radius: 16px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.45);
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+       HERO SECTION
+       ══════════════════════════════════════════════════════════════════ */
+        .hero {
+            padding: 70px 0 90px;
+            position: relative;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--color-emerald-dark);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .dark .hero-badge {
+            color: #34D399;
+        }
+
+        .hero-title {
+            font-size: 52px;
+            font-weight: 900;
+            line-height: 1.12;
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, var(--color-emerald), #0284C7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+            font-weight: 500;
+            max-width: 540px;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--color-emerald);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .hero-preview {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .preview-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .preview-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #CBD5E1;
+        }
+
+        .preview-dot.red {
+            background: #EF4444;
+        }
+
+        .preview-dot.yellow {
+            background: #F59E0B;
+        }
+
+        .preview-dot.green {
+            background: #10B981;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+       SECCIONES DE CARACTERÍSTICAS
+       ══════════════════════════════════════════════════════════════════ */
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-title-wrap {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 60px;
+        }
+
+        .section-tag {
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--color-emerald);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .section-title {
+            font-size: 38px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            font-size: 16px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 32px;
+        }
+
+        .card-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 36px;
+            align-items: center;
+        }
+
+        .badge-pill {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .badge-emerald {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--color-emerald-dark);
+        }
+
+        .badge-blue {
+            background: rgba(2, 132, 199, 0.15);
+            color: #0284C7;
+        }
+
+        .badge-purple {
+            background: rgba(147, 51, 234, 0.15);
+            color: #9333EA;
+        }
+
+        .item-list {
+            list-style: none;
+            margin-top: 24px;
+        }
+
+        .item-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .item-list li i {
+            color: var(--color-emerald);
+            font-size: 18px;
+            margin-top: 3px;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+       SECCIÓN 1: EXÁMENES DE PRUEBA
+       ══════════════════════════════════════════════════════════════════ */
+        .subject-pill-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .subject-pill {
+            background: var(--bg-main);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .subject-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .demo-quiz-box {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+        }
+
+        .quiz-question {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .quiz-option {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--color-emerald);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--color-emerald);
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--color-emerald-dark);
+        }
+
+        .quiz-option.incorrect {
+            border-color: #EF4444;
+            background: rgba(239, 68, 68, 0.1);
+            color: #DC2626;
+        }
+
+        .quiz-explanation {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--color-emerald);
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+       SECCIÓN 2: CALENDARIO SEMÁFORO
+       ══════════════════════════════════════════════════════════════════ */
+        .calendar-traffic-legend {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .traffic-card {
+            padding: 16px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        .traffic-red {
+            background: rgba(239, 68, 68, 0.15);
+            color: #DC2626;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .traffic-yellow {
+            background: rgba(245, 158, 11, 0.15);
+            color: #D97706;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .traffic-green {
+            background: rgba(16, 185, 129, 0.15);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-calendar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: 900;
+            font-size: 18px;
+        }
+
+        .cal-days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+
+        .cal-day-name {
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .cal-cell {
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .cal-cell.red {
+            background: #EF4444;
+            color: white;
+        }
+
+        .cal-cell.yellow {
+            background: #F59E0B;
+            color: white;
+        }
+
+        .cal-cell.green {
+            background: #10B981;
+            color: white;
+        }
+
+        .cal-cell.empty {
+            background: var(--bg-main);
+            color: var(--text-muted);
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+       SECCIÓN 3: PERFIL Y SESIÓN REAL DE USUARIO
+       ══════════════════════════════════════════════════════════════════ */
+        .profile-items-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .profile-item-box {
+            background: var(--bg-main);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .profile-item-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .profile-val {
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .profile-lbl {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .real-session-card {
+            background: var(--bg-main);
+            padding: 28px;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-color);
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+       SECCIÓN 4: REGISTRO Y LOGIN (AUTH)
+       ══════════════════════════════════════════════════════════════════ */
+        .auth-steps-timeline {
+            position: relative;
+            padding-left: 32px;
+            border-left: 3px solid var(--color-emerald);
+        }
+
+        .auth-step-item {
+            position: relative;
+            margin-bottom: 32px;
+        }
+
+        .auth-step-item::before {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-emerald);
+            border: 4px solid var(--bg-card);
+        }
+
+        .auth-step-num {
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--color-emerald);
+            text-transform: uppercase;
+        }
+
+        .auth-step-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin: 4px 0 8px;
+        }
+
+        .auth-step-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+       VERSÍCULO MOTIVACIONAL Y FOOTER
+       ══════════════════════════════════════════════════════════════════ */
+        .verse-card {
+            background: linear-gradient(135deg, var(--color-emerald), #0284C7);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.25);
+        }
+
+        .verse-quote {
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        .verse-ref {
+            font-size: 16px;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        .footer {
+            background: var(--color-navy);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 80px;
+        }
+
+        .dark .footer {
+            background: #080D14;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 16px;
+            font-size: 14px;
+            max-width: 300px;
+        }
+
+        .footer-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: var(--color-emerald);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 24px;
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 992px) {
+
+            .hero-grid,
+            .card-grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-title {
+                font-size: 40px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       NAVEGACIÓN PRINCIPAL
+       ══════════════════════════════════════════════════════════════════ -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="brand-logo">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div class="brand-name">Sin<span>Panic0</span></div>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="#examenes" class="nav-link">Exámenes</a></li>
+                <li><a href="#calendario" class="nav-link">Calendario</a></li>
+                <li><a href="#perfil" class="nav-link">Perfil</a></li>
+                <li><a href="#autenticacion" class="nav-link">Registro & Login</a></li>
+                <li><a href="#metodos" class="nav-link">Métodos & IA</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button id="themeToggleBtn" class="btn-theme" title="Alternar Modo Oscuro">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <!-- Enlace directo a Vercel con Icono de Ingreso -->
+                <a href="https://aplicacion-sin-panic0.vercel.app" target="_blank" class="btn-primary">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Ingresar a la Aplicación
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       HERO SECTION
+       ══════════════════════════════════════════════════════════════════ -->
+    <section class="hero">
+        <div class="container hero-grid">
+            <div>
+                <div class="hero-badge">
+                    <i class="fa-solid fa-sparkles"></i> Plataforma Interactiva ICFES Saber 11
+                </div>
+                <h1 class="hero-title">
+                    Estudia para el ICFES <span>Sin Pánico</span> y logra tu meta
+                </h1>
+                <p class="hero-subtitle">
+                    Sistema integral de preparación con exámenes de prueba diarios, seguimiento con semáforo de hábitos,
+                    perfil personalizado con tu cuenta real y tutor IA 24/7.
+                </p>
+
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <a href="https://aplicacion-sin-panic0.vercel.app" target="_blank" class="btn-primary">
+                        <i class="fa-solid fa-right-to-bracket"></i> Abrir Aplicación en Línea
+                    </a>
+                    <a href="#calendario" class="tab-btn">
+                        <i class="fa-solid fa-calendar-days"></i> Ver Calendario
+                    </a>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">450+</div>
+                        <div class="stat-label">Meta de Puntaje</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">10</div>
+                        <div class="stat-label">Prácticas Diarias</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Materias Evaluadas</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-preview">
+                <div class="preview-header">
+                    <div class="preview-dots">
+                        <div class="preview-dot red"></div>
+                        <div class="preview-dot yellow"></div>
+                        <div class="preview-dot green"></div>
+                    </div>
+                    <span style="font-size: 12px; font-weight: 800; opacity: 0.7;">SinPanic0 Web App (Vercel)</span>
+                </div>
+
+                <div
+                    style="background: var(--bg-main); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center;">
+                    <div
+                        style="width: 54px; height: 54px; border-radius: 16px; background: var(--color-emerald); color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 14px; box-shadow: 0 6px 16px rgba(16,185,129,0.3);">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 900; margin-bottom: 8px;">Aplicación Oficial en Línea</h3>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+                        Accede a tus exámenes, materias, racha de estudio y tutor inteligente alojado en la nube.
+                    </p>
+                    <a href="https://aplicacion-sin-panic0.vercel.app" target="_blank" class="btn-primary"
+                        style="width: 100%; justify-content: center;">
+                        <i class="fa-solid fa-globe"></i> Ir a aplicacion-sin-panic0.vercel.app
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECCIÓN 1: EXÁMENES DE PRUEBA Y BANCO ICFES
+       ══════════════════════════════════════════════════════════════════ -->
+    <section id="examenes" class="section" style="background: var(--bg-card);">
+        <div class="container">
+            <div class="section-title-wrap">
+                <span class="section-tag">Entrenamiento Intensivo</span>
+                <h2 class="section-title">Exámenes de Prueba para Reforzar Conocimientos</h2>
+                <p class="section-desc">
+                    La aplicación ofrece un sistema estructurado de simulacros basados en el banco real del ICFES
+                    (2020-2025) con retroalimentación instantánea.
+                </p>
+            </div>
+
+            <div class="card-grid-2">
+                <div>
+                    <span class="badge-pill badge-emerald">5 Materias Evaluadas</span>
+                    <h3 style="font-size: 28px; font-weight: 900; margin-bottom: 16px;">
+                        2 Prácticas Diarias por Materia = 10 Ítems Diarios
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 15px;">
+                        Cada materia del examen ICFES está categorizada con lecciones completas y 2 exámenes de práctica
+                        diarios para medir y consolidar la retención de datos.
+                    </p>
+
+                    <ul class="item-list">
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <div>
+                                <strong>Banco Oficial ICFES 2020-2025:</strong> Preguntas reales de opciones múltiples
+                                clasificadas por nivel de dificultad.
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <div>
+                                <strong>Retroalimentación Inmediata:</strong> Explicación didáctica detallada de la
+                                opción correcta en cada ítem.
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <div>
+                                <strong>Puntuación en Tiempo Real:</strong> Seguimiento automático de aciertos, promedio
+                                y puntaje estimado (ej. 380 - 440 pts).
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="subject-pill-grid">
+                        <div class="subject-pill">
+                            <div class="subject-icon-box" style="background: #E0F2FE; color: #0284C7;"><i
+                                    class="fa-solid fa-book"></i></div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 13px;">Lectura Crítica</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">12 Lecciones</div>
+                            </div>
+                        </div>
+
+                        <div class="subject-pill">
+                            <div class="subject-icon-box" style="background: #DCFCE7; color: #15803D;"><i
+                                    class="fa-solid fa-calculator"></i></div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 13px;">Matemáticas</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">15 Lecciones</div>
+                            </div>
+                        </div>
+
+                        <div class="subject-pill">
+                            <div class="subject-icon-box" style="background: #FEF3C7; color: #B45309;"><i
+                                    class="fa-solid fa-globe"></i></div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 13px;">Sociales</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">10 Lecciones</div>
+                            </div>
+                        </div>
+
+                        <div class="subject-pill">
+                            <div class="subject-icon-box" style="background: #F3E8FF; color: #6B21A8;"><i
+                                    class="fa-solid fa-flask"></i></div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 13px;">Ciencias Nat.</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">18 Lecciones</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="demo-quiz-box">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <span
+                                style="font-size: 12px; font-weight: 900; color: var(--color-emerald); text-transform: uppercase;">
+                                <i class="fa-solid fa-vial"></i> Demostración de Pregunta
+                            </span>
+                            <span
+                                style="font-size: 11px; font-weight: 700; background: var(--bg-card); padding: 4px 10px; border-radius: 12px;">Matemáticas
+                                — Práctica 1</span>
+                        </div>
+
+                        <div class="quiz-question">
+                            ¿Cuál es la probabilidad de obtener un número par al lanzar un dado no cargado de 6 caras?
+                        </div>
+
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">
+                            <span>A)</span> 1/6 (16.6%)
+                        </div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">
+                            <span>B)</span> 3/6 = 1/2 (50%)
+                        </div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">
+                            <span>C)</span> 2/6 (33.3%)
+                        </div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">
+                            <span>D)</span> 4/6 (66.6%)
+                        </div>
+
+                        <div id="quizFeedback" class="quiz-explanation">
+                            <strong><i class="fa-solid fa-lightbulb"></i> Explicación didáctica:</strong> Un dado tiene
+                            6 caras posibles {1,2,3,4,5,6}. Los números pares son 3 en total {2,4,6}. Por lo tanto, P =
+                            3/6 = 1/2 (50%). ¡Excelente deducción!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECCIÓN 2: CALENDARIO DE PROGRESO Y CÓDIGO SEMÁFORO
+       ══════════════════════════════════════════════════════════════════ -->
+    <section id="calendario" class="section">
+        <div class="container">
+            <div class="section-title-wrap">
+                <span class="section-tag">Constancia de Estudio</span>
+                <h2 class="section-title">Calendario de Progreso con Código de Colores Semáforo</h2>
+                <p class="section-desc">
+                    Lleva un registro visual exacto de tus días de estudio. El sistema evalúa cuántas prácticas
+                    completas realizaste al día para mantener una disciplina ininterrumpida.
+                </p>
+            </div>
+
+            <div class="card-grid-2">
+                <div class="demo-calendar">
+                    <div class="cal-header">
+                        <span>Agosto 2026</span>
+                        <div style="font-size: 13px; color: var(--color-emerald); font-weight: 800;">
+                            <i class="fa-solid fa-fire"></i> Control Diario
+                        </div>
+                    </div>
+
+                    <div class="cal-days-grid">
+                        <div class="cal-day-name">Dom</div>
+                        <div class="cal-day-name">Lun</div>
+                        <div class="cal-day-name">Mar</div>
+                        <div class="cal-day-name">Mié</div>
+                        <div class="cal-day-name">Jue</div>
+                        <div class="cal-day-name">Vie</div>
+                        <div class="cal-day-name">Sáb</div>
+
+                        <div class="cal-cell empty">27</div>
+                        <div class="cal-cell empty">28</div>
+                        <div class="cal-cell empty">29</div>
+                        <div class="cal-cell empty">30</div>
+                        <div class="cal-cell empty">31</div>
+                        <div class="cal-cell green" onclick="showCalDetail(1, 'green')">1</div>
+                        <div class="cal-cell green" onclick="showCalDetail(2, 'green')">2</div>
+
+                        <div class="cal-cell green" onclick="showCalDetail(3, 'green')">3</div>
+                        <div class="cal-cell yellow" onclick="showCalDetail(4, 'yellow')">4</div>
+                        <div class="cal-cell green" onclick="showCalDetail(5, 'green')">5</div>
+                        <div class="cal-cell red" onclick="showCalDetail(6, 'red')">6</div>
+                        <div class="cal-cell green" onclick="showCalDetail(7, 'green')">7</div>
+                        <div class="cal-cell green" onclick="showCalDetail(8, 'green')">8</div>
+                        <div class="cal-cell yellow" onclick="showCalDetail(9, 'yellow')">9</div>
+
+                        <div class="cal-cell green" onclick="showCalDetail(10, 'green')">10</div>
+                        <div class="cal-cell green" onclick="showCalDetail(11, 'green')">11</div>
+                        <div class="cal-cell green" onclick="showCalDetail(12, 'green')">12</div>
+                        <div class="cal-cell empty">13</div>
+                        <div class="cal-cell empty">14</div>
+                        <div class="cal-cell empty">15</div>
+                        <div class="cal-cell empty">16</div>
+                    </div>
+
+                    <div id="calDayInfo"
+                        style="margin-top: 20px; padding: 14px; background: var(--bg-main); border-radius: 12px; font-size: 13px; font-weight: 700; text-align: center;">
+                        Haz clic en un día del calendario para examinar el desglose de prácticas realizadas.
+                    </div>
+                </div>
+
+                <div>
+                    <span class="badge-pill badge-blue">Evaluación Diaria Automatizada</span>
+                    <h3 style="font-size: 28px; font-weight: 900; margin-bottom: 16px;">
+                        Explicación del Sistema de Colores
+                    </h3>
+                    <p style="color: var(--text-muted); margin-bottom: 24px;">
+                        El calendario calcula dinámicamente cuántas pruebas de las 10 posibles realizas en cada jornada
+                        y clasifica la celda automáticamente:
+                    </p>
+
+                    <div class="calendar-traffic-legend">
+                        <div class="traffic-card traffic-red">
+                            <i class="fa-solid fa-circle-xmark"
+                                style="font-size: 20px; display: block; margin-bottom: 6px;"></i>
+                            ROJO (0 - 4 Prácticas)
+                            <div style="font-size: 11px; font-weight: 600; margin-top: 4px; opacity: 0.9;">Alerta de
+                                Falta de Constancia</div>
+                        </div>
+
+                        <div class="traffic-card traffic-yellow">
+                            <i class="fa-solid fa-triangle-exclamation"
+                                style="font-size: 20px; display: block; margin-bottom: 6px;"></i>
+                            AMARILLO (5 - 9 Prácticas)
+                            <div style="font-size: 11px; font-weight: 600; margin-top: 4px; opacity: 0.9;">Avance
+                                Parcial Aceptable</div>
+                        </div>
+
+                        <div class="traffic-card traffic-green">
+                            <i class="fa-solid fa-circle-check"
+                                style="font-size: 20px; display: block; margin-bottom: 6px;"></i>
+                            VERDE (10/10 Prácticas)
+                            <div style="font-size: 11px; font-weight: 600; margin-top: 4px; opacity: 0.9;">Día
+                                Completado al 100%</div>
+                        </div>
+                    </div>
+
+                    <ul class="item-list">
+                        <li>
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <div><strong>Navegación Mensual:</strong> Cambia de mes libremente para monitorear tu
+                                historial académico acumulado.</div>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-fire-flame-curved"></i>
+                            <div><strong>Protección de Racha:</strong> Revisa cuántos días ininterrumpidos llevas
+                                respondiendo exámenes.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECCIÓN 3: PERFIL DEL ESTUDIANTE Y ACCESO A TU CUENTA REAL
+       ══════════════════════════════════════════════════════════════════ -->
+    <section id="perfil" class="section" style="background: var(--bg-card);">
+        <div class="container">
+            <div class="section-title-wrap">
+                <span class="section-tag">Tu Cuenta de Usuario</span>
+                <h2 class="section-title">Consulta tus Avances y Perfil Real</h2>
+                <p class="section-desc">
+                    Inicia sesión con tu cuenta de Sin Panic0 para visualizar tu nombre de usuario, racha actual, meta
+                    de puntaje y materias completadas.
+                </p>
+            </div>
+
+            <div style="max-width: 800px; margin: 0 auto;">
+                <div id="realUserContainer" class="real-session-card">
+                    <!-- Si NO ha iniciado sesión -->
+                    <div id="loggedOutState">
+                        <div style="text-align: center; margin-bottom: 24px;">
+                            <div
+                                style="width: 60px; height: 60px; border-radius: 50%; background: #E0F2FE; color: #0284C7; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 12px;">
+                                <i class="fa-solid fa-user-lock"></i>
+                            </div>
+                            <h3 style="font-size: 22px; font-weight: 900; margin-bottom: 6px;">Inicia Sesión para ver
+                                tus Avances</h3>
+                            <p style="font-size: 14px; color: var(--text-muted);">
+                                Ingresa con tu correo y contraseña registrados en la aplicación para cargar tu
+                                información real.
+                            </p>
+                        </div>
+
+                        <div id="authErrorBanner"
+                            style="display: none; background: #FEF2F2; color: #DC2626; padding: 12px; border-radius: 12px; border: 1px solid #FCA5A5; text-align: center; font-size: 13px; font-weight: 700; margin-bottom: 16px;">
+                        </div>
+
+                        <form id="inlineLoginForm" onsubmit="handleInlineLogin(event)">
+                            <div style="margin-bottom: 16px;">
+                                <label
+                                    style="font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;">Correo
+                                    Electrónico</label>
+                                <input type="email" id="loginEmail" placeholder="tu@correo.com" required
+                                    style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-weight: 600;" />
+                            </div>
+
+                            <div style="margin-bottom: 20px;">
+                                <label
+                                    style="font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;">Contraseña</label>
+                                <input type="password" id="loginPassword" placeholder="••••••••" required
+                                    style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-weight: 600;" />
+                            </div>
+
+                            <button type="submit" id="btnLoginSubmit" class="btn-primary"
+                                style="width: 100%; justify-content: center; padding: 14px;">
+                                <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión y Cargar mi Perfil
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Si SÍ ha iniciado sesión (Estado activo) -->
+                    <div id="loggedInState" style="display: none;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div
+                                    style="width: 64px; height: 64px; border-radius: 50%; background: #DCFCE7; color: #10B981; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 3px solid white; box-shadow: var(--shadow-sm);">
+                                    <i class="fa-solid fa-user-check"></i>
+                                </div>
+                                <div>
+                                    <h3 id="displayUserName" style="font-size: 22px; font-weight: 900;">Usuario
+                                        Conectado</h3>
+                                    <p id="displayUserEmail"
+                                        style="font-size: 13px; color: var(--text-muted); font-weight: 600;">
+                                        correo@ejemplo.com</p>
+                                </div>
+                            </div>
+
+                            <button onclick="handleLogout()"
+                                style="background: rgba(239, 68, 68, 0.1); color: #DC2626; border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px 18px; border-radius: 12px; font-weight: 800; cursor: pointer;">
+                                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                            </button>
+                        </div>
+
+                        <div class="profile-items-grid" style="margin-bottom: 24px;">
+                            <div class="profile-item-box">
+                                <div class="profile-item-icon" style="color: #F97316;"><i class="fa-solid fa-fire"></i>
+                                </div>
+                                <div id="userStreakVal" class="profile-val">1 Día</div>
+                                <div class="profile-lbl">Tu Racha Activa</div>
+                            </div>
+
+                            <div class="profile-item-box">
+                                <div class="profile-item-icon" style="color: #10B981;"><i
+                                        class="fa-solid fa-bullseye"></i></div>
+                                <div id="userGoalVal" class="profile-val">450+ pts</div>
+                                <div class="profile-lbl">Meta de Puntaje</div>
+                            </div>
+
+                            <div class="profile-item-box">
+                                <div class="profile-item-icon" style="color: #0284C7;"><i class="fa-solid fa-clock"></i>
+                                </div>
+                                <div id="userTimeVal" class="profile-val">Activo</div>
+                                <div class="profile-lbl">Estado de Estudio</div>
+                            </div>
+
+                            <div class="profile-item-box">
+                                <div class="profile-item-icon" style="color: #8B5CF6;"><i
+                                        class="fa-solid fa-graduation-cap"></i></div>
+                                <div id="userGradeVal" class="profile-val">Grado 11°</div>
+                                <div class="profile-lbl">Nivel Escolar</div>
+                            </div>
+                        </div>
+
+                        <a href="https://aplicacion-sin-panic0.vercel.app" target="_blank" class="btn-primary"
+                            style="width: 100%; justify-content: center; padding: 14px;">
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i> Abrir Aplicación SinPanic0
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECCIÓN 4: PROCESO DE REGISTRO E INICIO DE SESIÓN
+       ══════════════════════════════════════════════════════════════════ -->
+    <section id="autenticacion" class="section">
+        <div class="container">
+            <div class="section-title-wrap">
+                <span class="section-tag">Acceso y Autenticación</span>
+                <h2 class="section-title">Flujo Completo de Registro e Inicio de Sesión</h2>
+                <p class="section-desc">
+                    Aprende cómo funciona el proceso técnico y de usuario para crear tu cuenta, configurar tus metas
+                    iniciales y resguardar tu avance.
+                </p>
+            </div>
+
+            <div class="card-grid-2">
+                <div class="auth-steps-timeline">
+                    <div class="auth-step-item">
+                        <span class="auth-step-num">Paso 01</span>
+                        <h4 class="auth-step-title">Creación de Cuenta con Supabase Auth</h4>
+                        <p class="auth-step-desc">
+                            Ingresas tu correo electrónico corporativo o personal y defines una contraseña segura
+                            (mínimo 6 caracteres). Se genera una petición de autenticación cifrada.
+                        </p>
+                    </div>
+
+                    <div class="auth-step-item">
+                        <span class="auth-step-num">Paso 02</span>
+                        <h4 class="auth-step-title">Generación del Perfil en Base de Datos</h4>
+                        <p class="auth-step-desc">
+                            El sistema vincula automáticamente el UID único de usuario con la tabla
+                            <code>user_profiles</code> en Supabase para registrar rachas, preferencias y tiempo.
+                        </p>
+                    </div>
+
+                    <div class="auth-step-item">
+                        <span class="auth-step-num">Paso 03</span>
+                        <h4 class="auth-step-title">Pantalla de Onboarding Inicial</h4>
+                        <p class="auth-step-desc">
+                            Seleccionas tu grado actual (10°, 11° o Egresado), tu meta de puntaje (ej. 400 - 500 puntos)
+                            y tu método de estudio favorito.
+                        </p>
+                    </div>
+
+                    <div class="auth-step-item">
+                        <span class="auth-step-num">Paso 04</span>
+                        <h4 class="auth-step-title">Inicio de Sesión y Persistencia Local</h4>
+                        <p class="auth-step-desc">
+                            El inicio de sesión almacena de manera transparente el ID de sesión en
+                            <code>localStorage</code> (<code>sinpanico_user_id</code>) para evitar reingresar datos
+                            diariamente.
+                        </p>
+                    </div>
+                </div>
+
+                <div
+                    style="background: var(--bg-card); padding: 36px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-md); text-align: center;">
+                    <div
+                        style="width: 54px; height: 54px; border-radius: 16px; background: rgba(16, 185, 129, 0.15); color: var(--color-emerald-dark); display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 16px;">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <h3 style="font-size: 22px; font-weight: 900; margin-bottom: 12px;">¿Aún no tienes cuenta?</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">
+                        Crea tu cuenta en segundos en la aplicación oficial para guardar tu racha de estudio y guardar
+                        tus respuestas.
+                    </p>
+                    <a href="https://aplicacion-sin-panic0.vercel.app" target="_blank" class="btn-primary"
+                        style="width: 100%; justify-content: center; padding: 14px;">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Registrarme e Ingresar a Sin Panic0
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECCIÓN 5: TUTOR IA & MÉTODOS DE ESTUDIO
+       ══════════════════════════════════════════════════════════════════ -->
+    <section id="metodos" class="section" style="background: var(--bg-card);">
+        <div class="container">
+            <div class="section-title-wrap">
+                <span class="section-tag">Aprendizaje de Alto Rendimiento</span>
+                <h2 class="section-title">Tutor IA Integrado y Métodos Adaptativos</h2>
+                <p class="section-desc">
+                    Resuelve dudas complejas en tiempo real y personaliza tu técnica de memorización según tus objetivos
+                    personales.
+                </p>
+            </div>
+
+            <div class="card-grid-2">
+                <div>
+                    <span class="badge-pill badge-emerald"><i class="fa-solid fa-robot"></i> Asistente 24/7</span>
+                    <h3 style="font-size: 28px; font-weight: 900; margin-bottom: 16px;">
+                        Tutor Virtual con Inteligencia Artificial (AiTutorWidget)
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 15px;">
+                        ¿Tienes dudas con la justificación de una pregunta de Física o Filosofía? El widget de Tutor IA
+                        analiza el texto de la pregunta y te responde paso a paso sin rodeos.
+                    </p>
+
+                    <ul class="item-list">
+                        <li><i class="fa-solid fa-wand-magic-sparkles"></i> <strong>Respuestas Claras:</strong> Desglose
+                            simplificado de términos difíciles del ICFES.</li>
+                        <li><i class="fa-solid fa-lightbulb"></i> <strong>Estrategias de Descarte:</strong> Te enseña
+                            cómo identificar la trampa en opciones incorrectas.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div
+                        style="background: var(--bg-main); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <h4 style="font-size: 18px; font-weight: 900; margin-bottom: 16px; color: var(--color-navy);">
+                            <i class="fa-solid fa-brain" style="color: var(--color-emerald);"></i> 3 Métodos de Estudio
+                            Disponibles
+                        </h4>
+
+                        <div
+                            style="margin-bottom: 14px; padding: 14px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color);">
+                            <strong style="color: var(--color-emerald-dark); font-size: 14px;">1. Recuperación Activa
+                                (Active Recall)</strong>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">El método #1
+                                recomendado. Entrena la memoria a largo plazo respondiendo pruebas constantemente.</p>
+                        </div>
+
+                        <div
+                            style="margin-bottom: 14px; padding: 14px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color);">
+                            <strong style="color: #0284C7; font-size: 14px;">2. Repetición Espaciada (Spaced
+                                Repetition)</strong>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Repasa materias en
+                                intervalos calculados antes de que tu cerebro olvide los conceptos claves.</p>
+                        </div>
+
+                        <div
+                            style="padding: 14px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color);">
+                            <strong style="color: #8B5CF6; font-size: 14px;">3. Método Feynman</strong>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Explica conceptos
+                                complejos con palabras sencillas para detectar vacíos de aprendizaje.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECCIÓN: VERSÍCULO MOTIVACIONAL DIARIO
+       ══════════════════════════════════════════════════════════════════ -->
+    <section class="section">
+        <div class="container">
+            <div class="verse-card">
+                <div
+                    style="font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; margin-bottom: 12px;">
+                    <i class="fa-solid fa-quote-left"></i> Versículo Motivacional del Día
+                </div>
+                <div id="verseText" class="verse-quote">
+                    "Todo lo puedo en Cristo que me fortalece"
+                </div>
+                <div id="verseRef" class="verse-ref">
+                    — Filipenses 4:13
+                </div>
+
+                <button onclick="rotateVerse()"
+                    style="margin-top: 24px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 10px 20px; border-radius: 30px; font-weight: 800; cursor: pointer; backdrop-filter: blur(10px);">
+                    <i class="fa-solid fa-arrows-rotate"></i> Cambiar Versículo Inspirador
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════════════════════ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="brand-logo" style="color: white;">
+                        <div class="brand-icon">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <div class="brand-name">Sin<span>Panic0</span></div>
+                    </div>
+                    <p>
+                        Tu plataforma definitiva para dominar el ICFES Saber 11 con confianza, constancia y respaldo
+                        inteligente.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Funcionalidades</h4>
+                    <ul class="footer-links">
+                        <li><a href="#examenes">Banco de Preguntas</a></li>
+                        <li><a href="#calendario">Calendario Semáforo</a></li>
+                        <li><a href="#perfil">Tu Cuenta Real</a></li>
+                        <li><a href="#autenticacion">Flujo de Login</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Métodos</h4>
+                    <ul class="footer-links">
+                        <li><a href="#metodos">Recuperación Activa</a></li>
+                        <li><a href="#metodos">Repetición Espaciada</a></li>
+                        <li><a href="#metodos">Método Feynman</a></li>
+                        <li><a href="#metodos">Tutor IA 24/7</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Plataforma</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://aplicacion-sin-panic0.vercel.app" target="_blank">Entrar a la App</a></li>
+                        <li><a href="#">Términos de Uso</a></li>
+                        <li><a href="#">Privacidad de Datos</a></li>
+                        <li><a href="#">Versión 2.0 (2026)</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Sin Panic0. Todos los derechos reservados. Diseñado para potenciar el éxito académico en
+                    Colombia.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       JAVASCRIPT LÓGICA E INTERACTIVIDAD
+       ══════════════════════════════════════════════════════════════════ -->
+    <script>
+        // Enlace oficial de Vercel para abrir la aplicación en línea
+        const VERCEL_APP_URL = "https://aplicacion-sin-panic0.vercel.app";
+
+        function goToApp(event) {
+            if (event && event.preventDefault) event.preventDefault();
+            window.open(VERCEL_APP_URL, '_blank');
+        }
+
+        // Supabase Client
+        const SUPABASE_URL = "https://jggucbcnvxdpkbhcfoqk.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_Tl0k-5cS3J_lz_MfStfsnQ_PUtisFWR";
+        let supabaseClient = null;
+
+        if (window.supabase) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        // Toggle Modo Oscuro / Claro
+        const themeBtn = document.getElementById('themeToggleBtn');
+        themeBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            themeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        });
+
+        // Comprobar sesión de usuario real
+        document.addEventListener('DOMContentLoaded', checkUserSession);
+
+        async function checkUserSession() {
+            const loggedOutState = document.getElementById('loggedOutState');
+            const loggedInState = document.getElementById('loggedInState');
+            const localUserId = localStorage.getItem('sinpanico_user_id');
+
+            if (supabaseClient) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    renderUserProfile(session.user);
+                    return;
+                }
+            }
+
+            if (localUserId) {
+                renderUserProfile({ id: localUserId, email: 'Sesión activa en la app' });
+                return;
+            }
+
+            loggedOutState.style.display = 'block';
+            loggedInState.style.display = 'none';
+        }
+
+        async function renderUserProfile(user) {
+            document.getElementById('loggedOutState').style.display = 'none';
+            document.getElementById('loggedInState').style.display = 'block';
+
+            document.getElementById('displayUserEmail').innerText = user.email || 'Usuario registrado';
+
+            let userName = user.email ? user.email.split('@')[0] : 'Estudiante';
+            let userStreak = 1;
+            let userGoal = '450+ pts';
+            let userGrade = 'Grado 11°';
+
+            if (supabaseClient && user.id) {
+                try {
+                    const { data } = await supabaseClient.from('user_profiles').select('*').eq('user_id', user.id).single();
+                    if (data) {
+                        if (data.full_name) userName = data.full_name;
+                        if (data.streak) userStreak = data.streak;
+                        if (data.grade) userGrade = data.grade;
+                    }
+                } catch (e) {
+                    console.log("Cargando datos locales de usuario");
+                }
+            }
+
+            document.getElementById('displayUserName').innerText = userName.charAt(0).toUpperCase() + userName.slice(1);
+            document.getElementById('userStreakVal').innerText = userStreak + ' Día' + (userStreak > 1 ? 's' : '');
+            document.getElementById('userGoalVal').innerText = userGoal;
+            document.getElementById('userGradeVal').innerText = userGrade;
+        }
+
+        async function handleInlineLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('btnLoginSubmit');
+            const errBanner = document.getElementById('authErrorBanner');
+
+            errBanner.style.display = 'none';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando credenciales...';
+
+            try {
+                if (supabaseClient) {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+
+                    if (data.user) {
+                        localStorage.setItem('sinpanico_user_id', data.user.id);
+                        renderUserProfile(data.user);
+                        return;
+                    }
+                }
+
+                localStorage.setItem('sinpanico_user_id', 'usr_' + Date.now());
+                renderUserProfile({ email: email });
+            } catch (err) {
+                errBanner.innerText = err.message === 'Invalid login credentials' ? 'Correo o contraseña incorrectos.' : err.message;
+                errBanner.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión y Cargar mi Perfil';
+            }
+        }
+
+        async function handleLogout() {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+            }
+            localStorage.removeItem('sinpanico_user_id');
+            document.getElementById('loggedOutState').style.display = 'block';
+            document.getElementById('loggedInState').style.display = 'none';
+        }
+
+        function checkAnswer(element, isCorrect) {
+            const parent = element.parentElement;
+            const options = parent.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById('quizFeedback');
+
+            options.forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+            feedback.style.display = 'block';
+        }
+
+        function showCalDetail(day, status) {
+            const infoBox = document.getElementById('calDayInfo');
+            let statusText = '';
+            if (status === 'green') {
+                statusText = '🟢 VERDE — 10 de 10 prácticas realizadas (Completado).';
+            } else if (status === 'yellow') {
+                statusText = '🟡 AMARILLO — 6 de 10 prácticas realizadas (Incompleto parcial).';
+            } else {
+                statusText = '🔴 ROJO — 2 de 10 prácticas realizadas (Alerta de Falta de Constancia).';
+            }
+            infoBox.innerHTML = `<strong>Día ${day} de Agosto:</strong> ${statusText}`;
+        }
+
+        const verses = [
+            { text: '"Todo lo puedo en Cristo que me fortalece"', ref: '— Filipenses 4:13' },
+            { text: '"Mira que te mando que te esfuerces y seas valiente; no temas ni desmayes..."', ref: '— Josué 1:9' },
+            { text: '"Fíate de Jehová de todo tu corazón, Y no te apoyes en tu propia prudencia."', ref: '— Proverbios 3:5' },
+            { text: '"No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo..."', ref: '— Isaías 41:10' },
+            { text: '"Porque yo sé los pensamientos que tengo acerca de vosotros, dice Jehová, pensamientos de paz..."', ref: '— Jeremías 29:11' }
+        ];
+        let verseIndex = 0;
+
+        function rotateVerse() {
+            verseIndex = (verseIndex + 1) % verses.length;
+            document.getElementById('verseText').innerText = verses[verseIndex].text;
+            document.getElementById('verseRef').innerText = verses[verseIndex].ref;
+        }
+    </script>
+</body>
+
+</html>

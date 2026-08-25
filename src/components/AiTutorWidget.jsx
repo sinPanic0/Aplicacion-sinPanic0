@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, Bot, User, Key, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User, Key, Check, ChevronLeft, ChevronRight, HeartHandshake, BookOpen, Heart } from 'lucide-react';
 
 /**
  * @description Widget Flotante de Tutor IA powered by Google Gemini Style
- * Respuestas fluidas, naturales, bien estructuradas y con ejercicios reales.
- * Se adapta estrictamente al modo (Claro/Oscuro) activo en la app, ignorando
- * la preferencia del sistema operativo móvil para evitar que se vea oscuro en Modo Claro.
+ * Soporta dos modos: "📚 Académico" y "💚 Apoyo Emocional (Psicólogo Escolar)".
+ * Brinda contención asertiva, escucha activa y estrategias anti-estrés para el ICFES.
  */
 export const AiTutorWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showKeyModal, setShowKeyModal] = useState(false);
+  const [chatMode, setChatMode] = useState('academic'); // 'academic' | 'emotional'
   const [customApiKey, setCustomApiKey] = useState(() => localStorage.getItem('sinpanic0_gemini_key') || '');
   const [tempApiKey, setTempApiKey] = useState('');
   
@@ -17,7 +17,7 @@ export const AiTutorWidget = () => {
     {
       id: 1,
       sender: 'ai',
-      text: '¡Hola! 👋 Soy tu Tutor IA alimentado con la tecnología de Google Gemini.\n\nPuedes pedirme explicaciones teóricas, ejercicios de práctica, trucos de estudio o recursos recomendados para el ICFES Saber 11. ¿En qué te ayudo hoy?'
+      text: '¡Hola! 👋 Soy tu Tutor IA y Acompañante Emocional de SinPanic0.\n\nPuedes pedirme explicaciones teóricas de cualquier materia o cambiar al modo 💚 **Apoyo Emocional** para contarme cómo te sientes, recibir consejos de manejo de ansiedad y motivación para tus pruebas. ¿Cómo te sientes hoy?'
     }
   ]);
   const [inputText, setInputText] = useState('');
@@ -35,7 +35,8 @@ export const AiTutorWidget = () => {
     }
   }, [messages, isOpen, isTyping]);
 
-  const quickQuestions = [
+  // Preguntas sugeridas según el modo activo
+  const academicQuestions = [
     "📝 Dame ejercicios de práctica de Matemáticas",
     "🎥 Canales de YouTube para Matemáticas",
     "📐 Explicación del Teorema de Pitágoras",
@@ -45,6 +46,18 @@ export const AiTutorWidget = () => {
     "🇬🇧 Consejos para la prueba de Inglés",
     "📊 ¿Cómo analizar tablas y gráficas?"
   ];
+
+  const emotionalQuestions = [
+    "🧘‍♂️ Me siento muy estresado por el examen ICFES",
+    "😟 Tengo miedo de no sacar el puntaje que necesito",
+    "🧠 ¿Cómo puedo controlar la ansiedad antes de estudiar?",
+    "💤 Me cuesta concentrarme y siento agobio",
+    "❤️ ¿Cómo mantener la calma durante el día de la prueba?",
+    "💬 Siento mucha presión familiar por los resultados",
+    "🌱 ¿Qué ejercicio de respiración puedo hacer ahora?"
+  ];
+
+  const currentQuestions = chatMode === 'emotional' ? emotionalQuestions : academicQuestions;
 
   const scrollChips = (direction) => {
     if (chipsContainerRef.current) {
@@ -65,32 +78,40 @@ export const AiTutorWidget = () => {
     setShowKeyModal(false);
   };
 
-  // Motor Oficial Google Gemini + Fallback Gemini-Style Auténtico
+  // Detectar intención emocional implícita en el prompt
+  const isEmotionalPrompt = (promptLower) => {
+    const emotionalKeywords = [
+      'estres', 'estresado', 'estresada', 'ansiedad', 'ansioso', 'ansiosa',
+      'miedo', 'temor', 'agobio', 'agobiado', 'agobiada', 'triste', 'deprimido',
+      'frustrado', 'frustrada', 'presion', 'llorar', 'no puedo', 'siento mal',
+      'psicologo', 'consejo emocional', 'como me siento', 'emocion', 'calma', 'respirar'
+    ];
+    return emotionalKeywords.some(k => promptLower.includes(k));
+  };
+
+  // Motor Oficial Google Gemini + Fallback Asertivo Estilo Psicólogo Escolar
   const generateAiResponse = async (userPrompt) => {
     const promptTrim = userPrompt.trim();
     const promptLower = promptTrim.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    
-    // Obtener API Key activa (de localStorage o de entorno VITE)
     const activeApiKey = customApiKey || import.meta.env.VITE_GEMINI_API_KEY;
 
-    // 1. Conexión en vivo a la API de Google Gemini (Gemini 1.5 Flash)
+    const isEmotional = chatMode === 'emotional' || isEmotionalPrompt(promptLower);
+
+    // 1. Llamada a la API Oficial de Google Gemini
     if (activeApiKey) {
       try {
+        const systemInstruction = isEmotional 
+          ? `Eres un Psicólogo Escolar y Coach Emocional cálido, empático, asertivo y humano en SinPanic0 (plataforma de preparación ICFES en Colombia).
+Tu objetivo es escuchar activamente al estudiante, validar sus emociones con mucho afecto, preguntarle amablemente cómo se siente y brindarle herramientas concretas de regulación emocional (respiración 4-7-8, reestructuración de pensamientos catastrofistas, manejo del estrés y la presión). Usa un tono afectuoso, tranquilizador, con emojis amables y estructurado en párrafos cortos.`
+          : `Eres Google Gemini, actuando como el Tutor IA Oficial de SinPanic0 (plataforma de preparación para el examen ICFES Saber 11 en Colombia).
+Responde con un estilo claro, riguroso, motivador y estructurado con negritas y viñetas. Si piden ejercicios, da preguntas tipo ICFES reales con soluciones explicadas.`;
+
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeApiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{
-              parts: [{
-                text: `Eres Google Gemini, actuando como el Tutor IA Oficial de SinPanic0 (plataforma de preparación para el examen ICFES Saber 11 en Colombia).
-Responde exactamente con el estilo natural, fluido, motivador y estructurado característico de Gemini:
-- Inicia con una breve frase introductoria clara y empática.
-- Usa títulos limpios en negrita o subtítulos numerados para estructurar la información.
-- Si el usuario pide ejercicios o preguntas de práctica, dale ejercicios reales tipo ICFES con sus opciones y respuestas explicadas paso a paso.
-- Si pide recomendaciones de videos o canales, dale la lista exacta de canales reales con su descripción.
-- Mantén una excelente ortografía y explicaciones rigurosas pero fáciles de entender.
-Pregunta del usuario: ${promptTrim}`
-              }]
+              parts: [{ text: `${systemInstruction}\n\nMensaje del estudiante: ${promptTrim}` }]
             }]
           })
         });
@@ -99,23 +120,69 @@ Pregunta del usuario: ${promptTrim}`
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) return text;
       } catch (err) {
-        console.warn("Fallo temporal en la API de Gemini, cambiando a motor Gemini-Style local:", err);
+        console.warn("Fallo temporal en la API de Gemini, cambiando a motor local asertivo:", err);
       }
     }
 
-    // 2. Motor Local Estilo Gemini (Responde igual que Gemini sin frases robóticas)
+    // 2. Motor Local Estilo Psicólogo / Tutor
     await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 400));
 
-    // A. Pedidos de Ejercicios Prácticos (Matemáticas, Física, etc.)
-    if (promptLower.includes('ejercicio') || promptLower.includes('ejercicios') || promptLower.includes('practica') || promptLower.includes('problema') || promptLower.includes('pregunta')) {
-      return `¡Por supuesto! Para subir considerablemente el puntaje en la prueba de Matemáticas del ICFES Saber 11 no necesitas memorizar cientos de fórmulas avanzadas; el examen mide tu capacidad para **razonar, analizar información y resolver problemas del contexto real**.
+    // A. Apoyo Emocional / Estrés / Ansiedad
+    if (isEmotional) {
+      if (promptLower.includes('estres') || promptLower.includes('agobio') || promptLower.includes('ansiedad') || promptLower.includes('miedo')) {
+        return `💚 **Te escucho y te abrazo a la distancia.** 
 
-Aquí tienes 2 ejercicios prácticos tipo ICFES para poner a prueba tus habilidades:
+Es completamente normal y válido que sientas estrés o ansiedad frente al examen ICFES Saber 11. Recuerda que este examen mide conocimientos de una jornada, **pero NO define tu valor como persona ni tu inteligencia**.
 
----
+Aquí tienes 3 pasos asertivos para calmar tu mente en este momento:
 
-### 📝 **Ejercicio 1: Razonamiento Cuantitativo (Porcentajes)**
-Una tienda ofrece un descuento del **20%** sobre un artículo. Si compras hoy, recibes un descuento adicional del **10%** sobre el precio ya rebajado. ¿Cuál es el porcentaje total de descuento real aplicado?
+1. 🫁 **Técnica de Respiración 4-7-8:**
+   - Inhala suavemente por la nariz contando **4 segundos**.
+   - Mantén el aire en tus pulmones durante **7 segundos**.
+   - Exhala despacio por la boca durante **8 segundos**. *(Repítelo 3 veces).*
+
+2. 🧠 **Reencuadra tus pensamientos:**
+   - En lugar de pensar: *"Si me va mal se acaba todo"*, recuerda: *"Estoy preparándome paso a paso, y tengo múltiples oportunidades y caminos hacia mis metas"*.
+
+3. 🌿 **Da un paso a la vez:**
+   - No intentes estudiar todo en un día. Divide tu estudio en bloques cortos de 25 minutos con 5 de descanso (Técnica Pomodoro).
+
+¿Cómo te sientes en este momento? ¿Quieres hablar de algo más que te tenga preocupado/a? Estoy aquí para apoyarte.`;
+      }
+
+      if (promptLower.includes('concentrar') || promptLower.includes('cansado') || promptLower.includes('agobiado')) {
+        return `💚 **Tómate una pausa sin culpa.**
+
+Cuando el cerebro se siente saturado o cansado, seguir forzándolo genera frustración. 
+
+💡 **Recomendación del Psicólogo Escolar:**
+- **Cierra tus libros por 15 minutos.**
+- Toma un vaso de agua fresca y estira tus brazos y espalda.
+- Da una caminata corta o escucha una canción que te tranquilice.
+
+Recuerda: **El descanso también es parte fundamental del aprendizaje.** Cuando regreses, verás las cosas con mayor claridad. 
+
+¿Te gustaría que hagamos un ejercicio breve de relajación?`;
+      }
+
+      return `💚 **Gracias por compartir cómo te sientes conmigo.**
+
+Como tu acompañante emocional, quiero recordarte que el proceso de preparación académica es un camino donde es natural tener días con mucha energía y otros días donde sentimos dudas o cansancio.
+
+Lo importante es escuchar a tu cuerpo y a tu mente:
+- No te compares con el ritmo de otros estudiantes.
+- Celebra cada pequeño avance diario (cada test completado es una victoria).
+- Mantén hábitos saludables de sueño (dormir 7-8 horas es clave para fijar la memoria).
+
+¿Cómo te sientes hoy? Cuéntame qué está pasando por tu mente y con gusto te daré el mejor consejo para superarlo juntos.`;
+    }
+
+    // B. Respuestas Académicas (Fallback original)
+    if (promptLower.includes('ejercicio') || promptLower.includes('practica')) {
+      return `¡Por supuesto! Para subir considerablemente el puntaje en el ICFES Saber 11 no necesitas memorizar cientos de fórmulas avanzadas; el examen mide tu capacidad para **razonar y resolver problemas reales**.
+
+### 📝 **Ejercicio Práctico: Razonamiento Cuantitativo**
+Una tienda ofrece un descuento del **20%** sobre un artículo. Si compras hoy, recibes un descuento adicional del **10%** sobre el precio ya rebajado. ¿Cuál es el porcentaje total de descuento aplicado?
 
 A) 30%  
 B) 28%  
@@ -124,141 +191,26 @@ D) 20%
 
 💡 **Solución Explicada:**
 1. Supón un valor inicial de **$100**.
-2. Con el primer descuento (20%), el valor baja a **$80**.
-3. El segundo descuento (10%) se calcula sobre los $80 ➔ $80 \\times 0.10 = $8.
+2. Con el 20%, el valor baja a **$80**.
+3. El 10% adicional se calcula sobre $80 ➔ $80 × 0.10 = $8.
 4. Precio final = $80 - $8 = **$72**.
-5. Descuento total = $100 - $72 = **28%**. *(Respuesta correcta: **B**)*
-
----
-
-### 📝 **Ejercicio 2: Geometría (Teorema de Pitágoras)**
-Un poste de luz de 12 metros de altura está sujeto por un cable de acero anclado al suelo a 5 metros de la base del poste. ¿Cuál es la longitud del cable?
-
-A) 17 metros  
-B) 15 metros  
-C) 13 metros  
-D) 10 metros  
-
-💡 **Solución Explicada:**
-1. Los catetos del triángulo rectángulo son $a = 12$ y $b = 5$.
-2. Aplicando la fórmula $c^2 = a^2 + b^2$:
-   $c^2 = 12^2 + 5^2 = 144 + 25 = 169$.
-3. La raíz cuadrada de 169 es **13 metros**. *(Respuesta correcta: **C**)*
-
-¡Dime si deseas resolver más ejercicios o si tienes dudas en algún paso!`;
+5. Descuento total = $100 - $72 = **28%**. *(Respuesta correcta: **B**)*`;
     }
 
-    // B. Recomendación de Videos / YouTube / Canales
-    if (promptLower.includes('youtube') || promptLower.includes('video') || promptLower.includes('canal') || promptLower.includes('canales') || promptLower.includes('link') || promptLower.includes('enlace')) {
-      return `Para preparar la prueba de Matemáticas del ICFES con recursos audiovisuales de calidad, existen canales altamente especializados que explican desde la lógica básica hasta simulacros completos.
+    return `¡Hola! Como tu Tutor IA de SinPanic0, puedo ayudarte tanto en lo **Académico** (resolviendo dudas, explicando temas del temario y dando ejercicios) como en lo **Emocional** (dándote apoyo con el estrés y la ansiedad del ICFES).
 
-Aquí tienes los 4 mejores canales recomendados:
-
-1. **Profe Alex:**  
-   Es ideal para reforzar bases de álgebra, aritmética y geometría desde cero. Sus videos son breves, conceptuales y muy ilustrativos.
-
-2. **JulioProfe:**  
-   Es la referencia principal para comprender procedimientos paso a paso en trigonometría, ecuaciones y cálculo.
-
-3. **Daniel Carreón:**  
-   Ofrece explicaciones muy dinámicas con trucos de agilidad mental y cálculo rápido, perfectos para ahorrar tiempo durante el examen.
-
-4. **Saber 11 ICFES / Puntaje Nacional Colombia:**  
-   Publican transmisiones en vivo resolviendo simulacros oficiales con análisis de opciones distractores.
-
-💡 **Consejo de Estudio:** Intenta pausar el video en el enunciado de la pregunta, resuelve el problema en papel y luego comprueba el procedimiento presentado.`;
-    }
-
-    // C. Explicación Teórica de Matemáticas / Pitágoras
-    if (promptLower.includes('pitagoras') || promptLower.includes('matematica') || promptLower.includes('triangulo') || promptLower.includes('formula')) {
-      return `El **Teorema de Pitágoras** es uno de los pilares más evaluados en el componente de Geometría y Razonamiento Cuantitativo del ICFES.
-
-### 📐 **Fundamento del Teorema**
-Establece que en todo **triángulo rectángulo** (aquel que posee un ángulo de 90°), el área del cuadrado construido sobre la hipotenusa es igual a la suma de las áreas de los cuadrados de los catetos:
-
-$$\\mathbf{c^2 = a^2 + b^2}$$
-
-Donde:
-- **$c$** es la hipotenusa (el lado más largo, opuesto al ángulo recto).
-- **$a$** y **$b$** son los catetos.
-
-### ⚡ **Triángulos Notables Frecuentes en el ICFES**
-Conocer las ternas pitagóricas te ahorrará realizar cálculos largos durante el examen:
-- **3 - 4 - 5:** Si los catetos son 3 y 4, la hipotenusa siempre vale **5**.
-- **5 - 12 - 13:** Si los catetos son 5 y 12, la hipotenusa siempre vale **13**.
-
-¿Te gustaría practicar un problema real aplicado a este tema?`;
-    }
-
-    // D. Lectura Crítica
-    if (promptLower.includes('lectura') || promptLower.includes('critica') || promptLower.includes('texto') || promptLower.includes('tesis')) {
-      return `La prueba de **Lectura Crítica** no mide qué tan rápido lees, sino tu capacidad para **comprender, interpretar y evaluar la validez de un texto**.
-
-Aquí tienes una estrategia concreta estructurada en 3 niveles de análisis:
-
-1. **Nivel Literal (Lo que el texto dice explícitamente):**
-   Identifica datos concretos, nombres, fechas o afirmaciones directas del autor.
-
-2. **Nivel Inferencial (Lo que se deduce entre líneas):**
-   Comprende la intención del autor, la relación entre párrafos y el significado de conectores lógicos como *sin embargo*, *por consiguiente* o *no obstante*.
-
-3. **Nivel Crítico (Evaluación del contenido):**
-   Diferencia una **tesis** (postura del autor) de las **premisas** (evidencias). Evalúa si los argumentos son sólidos o presentan falacias.`;
-    }
-
-    // E. Ciencias Naturales (Física, Química, Biología)
-    if (promptLower.includes('biologia') || promptLower.includes('fisica') || promptLower.includes('quimica') || promptLower.includes('newton') || promptLower.includes('fuerza')) {
-      return `En **Ciencias Naturales**, el ICFES evalúa el uso comprensivo del conocimiento científico y la capacidad para indagar fenómenos.
-
-### 🔬 **Conceptos Clave:**
-- **Física (Leyes de Newton):** La segunda ley establece que $\\vec{F} = m \\cdot \\vec{a}$. A mayor masa, menor será la aceleración para una misma fuerza aplicada.
-- **Química (Ley de Conservación):** La masa total de los reactivos debe ser idéntica a la masa de los productos en cualquier reacción química equilibrada.
-- **Biología (Evolución y Genética):** La selección natural actúa sobre la variabilidad genética existente, favoreciendo a los organismos mejor adaptados al entorno.`;
-    }
-
-    // F. Sociales y Tutela
-    if (promptLower.includes('tutela') || promptLower.includes('sociales') || promptLower.includes('constitucion') || promptLower.includes('derecho')) {
-      return `En **Sociales y Competencias Ciudadanas**, la **Acción de Tutela** es una de las herramientas constitucionales más examinadas.
-
-### 🏛️ **Aspectos Fundamentales:**
-- **Origen:** Creada en la Constitución Política de Colombia de 1991 (Artículo 86).
-- **Propósito:** Proteger de forma rápida y preferente los **Derechos Fundamentales** (Salud, Vida, Educación, Debido Proceso).
-- **Plazo de Respuesta:** El juez debe emitir fallo en un plazo máximo de **10 días hábiles**.
-- **Diferencia Clave:** Es un mecanismo individual; la *Acción Popular* protege derechos colectivos como el medio ambiente sano.`;
-    }
-
-    // G. Inglés
-    if (promptLower.includes('ingles') || promptLower.includes('english') || promptLower.includes('grammar')) {
-      return `La prueba de **Inglés** evalúa tu competencia lectora y gramatical dividida en 7 partes.
-
-### 🇬🇧 **Estrategias Efectivas:**
-- **Avisos Públicos (Partes 1 y 2):** Asocia palabras clave del anuncio con lugares comunes (*Airport, Library, Supermarket*).
-- **Conversaciones Cortas (Parte 3):** Identifica el registro adecuado (formal vs informal).
-- **Lectura Comprensiva (Partes 4 a 7):** Lee primero las preguntas para saber exactamente qué información buscar en el texto.`;
-    }
-
-    // H. Saludos
-    if (promptLower.includes('hola') || promptLower.includes('buenas') || promptLower.includes('buenos')) {
-      return `¡Hola! 👋 Qué gusto saludarte. Soy tu Tutor IA alimentado por Google Gemini. 
-
-¿En qué materia o tema te gustaría profundizar hoy? Puedo explicarte conceptos, darte ejercicios de práctica o darte consejos de estudio.`;
-    }
-
-    // I. Respuesta Generativa Abierta Gemini-Style (Para cualquier otro tema)
-    return `Entiendo tu consulta sobre **"${promptTrim}"**.
-
-Para abordar este tema con la profundidad adecuada en tu preparación académica:
-
-1. **Análisis Principal:** Examina las variables fundamentales involucradas y cómo interactúan entre sí dentro de la situación o problema.
-2. **Enfoque ICFES:** Recuerda que la prueba Saber 11 premia la capacidad de analizar situaciones y deducir conclusiones sobre la memorización.
-3. **Estrategia Recomendada:** Revisa las opciones de respuesta eliminando primero aquellas que contradigan las condiciones dadas en el enunciado.
-
-¡Pídeme un ejemplo práctico o ejercicios sobre este tema si deseas profundizar más!`;
+¿Te gustaría practicar algún tema en particular o hablar de cómo te estás sintiendo con tu preparación?`;
   };
 
-  const handleSendMessage = async (textToSend = inputText) => {
-    const trimmed = textToSend.trim();
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    const trimmed = inputText.trim();
     if (!trimmed || isTyping) return;
+
+    // Si el texto del usuario denota emoción, auto-cambiar a modo emocional
+    if (isEmotionalPrompt(trimmed.toLowerCase())) {
+      setChatMode('emotional');
+    }
 
     const userMsg = {
       id: Date.now(),
@@ -271,192 +223,175 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
     setIsTyping(true);
 
     try {
-      const aiReplyText = await generateAiResponse(trimmed);
+      const responseText = await generateAiResponse(trimmed);
       const aiMsg = {
         id: Date.now() + 1,
         sender: 'ai',
-        text: aiReplyText
+        text: responseText
       };
       setMessages(prev => [...prev, aiMsg]);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: 'ai',
+        text: 'Lo siento, tuve un pequeño problema de conexión. Por favor inténtalo de nuevo.'
+      }]);
     } finally {
       setIsTyping(false);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
+  const handleQuickQuestionClick = (qText) => {
+    setInputText(qText);
   };
 
   return (
     <>
-      {/* Botón Flotante Prolijo */}
-      <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50">
-        {!isOpen && (
-          <button
-            onClick={() => setIsOpen(true)}
-            className="group flex items-center gap-2.5 px-4 py-3 rounded-full bg-[#2F4156] dark:bg-[#1E3A52] text-white shadow-xl hover:shadow-2xl hover:bg-[#3A5A78] hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20"
-            title="Abrir Tutor IA Gemini"
-          >
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
-            </span>
-            <Sparkles size={18} className="text-[#C8D9E6] group-hover:rotate-12 transition-transform" />
-            <span className="text-xs font-black tracking-wide pr-0.5">Tutor IA Gemini</span>
-          </button>
-        )}
-      </div>
+      {/* Botón Flotante Principal */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-20 right-5 md:bottom-8 md:right-8 bg-[#D9531E] hover:bg-[#C84B1A] text-white p-4 rounded-full shadow-2xl z-50 flex items-center gap-2 group transition-all transform hover:scale-105 active:scale-95"
+        >
+          <div className="relative">
+            <Sparkles size={24} className="animate-pulse" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full border-2 border-white animate-ping"></span>
+          </div>
+          <span className="font-black text-sm pr-1 hidden group-hover:inline-block transition-all">
+            Asistente & Tutor IA
+          </span>
+        </button>
+      )}
 
-      {/* Ventana Desplegable del Chat IA */}
+      {/* Modal / Ventana del Chat IA */}
       {isOpen && (
-        <div className="ai-tutor-modal fixed bottom-20 right-3 left-3 sm:left-auto sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[400px] h-[520px] max-h-[75vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[420px] md:h-[620px] bg-white dark:bg-[#241A12] border border-[#EADBC8] dark:border-[#3A2A1E] rounded-none md:rounded-3xl shadow-2xl z-50 flex flex-col overflow-hidden animate-scale-up">
           
           {/* Header del Chat */}
-          <div className="ai-tutor-header p-4 flex items-center justify-between shadow-md transition-colors duration-250">
+          <div className="bg-gradient-to-r from-[#D9531E] via-[#E67E22] to-[#C84B1A] p-4 text-white flex justify-between items-center shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 text-white shadow-inner">
-                <Bot size={22} />
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
+                {chatMode === 'emotional' ? <HeartHandshake size={22} /> : <Bot size={22} />}
               </div>
               <div>
-                <h3 className="font-black text-sm flex items-center gap-1.5 leading-tight text-white">
-                  Tutor IA SinPanic0 <Sparkles size={14} className="text-amber-300" />
+                <h3 className="font-black text-base leading-none">
+                  {chatMode === 'emotional' ? 'Psicólogo Escolar IA' : 'Tutor IA SinPanic0'}
                 </h3>
-                <span className="text-[10px] text-sky-blue/90 dark:text-sky-blue/80 font-bold flex items-center gap-1 mt-0.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  {customApiKey ? 'Gemini Key Personal Activa' : 'Google Gemini Engine'}
+                <span className="text-[10px] font-semibold text-white/80">
+                  {chatMode === 'emotional' ? '💚 Apoyo Emocional & Motivación' : '📚 Asistente Académico ICFES'}
                 </span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-1">
               <button
-                onClick={() => {
-                  setTempApiKey(customApiKey);
-                  setShowKeyModal(true);
-                }}
-                className="p-2 hover:bg-white/20 rounded-full transition-colors text-white/80 hover:text-white"
+                onClick={() => setShowKeyModal(true)}
                 title="Configurar Gemini API Key"
+                className="p-2 hover:bg-white/20 rounded-full transition-colors"
               >
-                <Key size={17} />
+                <Key size={18} />
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/20 rounded-full transition-colors text-white/80 hover:text-white"
+                className="p-2 hover:bg-white/20 rounded-full transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
           </div>
 
-          {/* Modal de Configuración de Key Gemini */}
-          {showKeyModal && (
-            <div className="ai-tutor-key-modal p-4 border-b animate-in fade-in duration-150 text-xs">
-              <div className="flex items-center justify-between font-bold mb-1.5">
-                <span className="flex items-center gap-1.5">
-                  <Key size={14} className="text-amber-500" /> Clave de API de Google Gemini:
-                </span>
-                <button onClick={() => setShowKeyModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">
-                  <X size={14} />
-                </button>
-              </div>
-              <p className="text-[11px] mb-2 leading-relaxed opacity-80">
-                Ingresa tu API Key de Google Gemini para vincular la IA directamente con los servidores de Google AI Studio.
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="password"
-                  value={tempApiKey}
-                  onChange={(e) => setTempApiKey(e.target.value)}
-                  placeholder="AIzaSy..."
-                  className="flex-1 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none text-xs font-mono"
-                />
-                <button
-                  onClick={saveCustomKey}
-                  className="px-3 py-1.5 bg-[#2F4156] dark:bg-sky-600 text-white rounded-xl font-bold flex items-center gap-1 hover:opacity-90 active:scale-95 transition-all"
-                >
-                  <Check size={14} /> Guardar
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Selector de Modo: Académico vs Apoyo Emocional */}
+          <div className="bg-[#FAF4EE] dark:bg-[#18110C] p-2 border-b border-[#EADBC8] dark:border-[#3A2A1E] flex gap-2 shrink-0">
+            <button
+              onClick={() => setChatMode('academic')}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                chatMode === 'academic'
+                  ? 'bg-[#D9531E] text-white shadow-sm'
+                  : 'bg-white dark:bg-[#241A12] text-[#7C5E47] dark:text-[#D2B49A] hover:bg-white/80'
+              }`}
+            >
+              <BookOpen size={14} /> 📚 Académico
+            </button>
 
-          {/* Área de Mensajes */}
-          <div className="ai-tutor-body flex-1 p-4 overflow-y-auto space-y-4 transition-colors duration-250">
+            <button
+              onClick={() => setChatMode('emotional')}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                chatMode === 'emotional'
+                  ? 'bg-[#E67E22] text-white shadow-sm'
+                  : 'bg-white dark:bg-[#241A12] text-[#7C5E47] dark:text-[#D2B49A] hover:bg-white/80'
+              }`}
+            >
+              <Heart size={14} /> 💚 Apoyo Emocional
+            </button>
+          </div>
+
+          {/* Mensajes del Chat */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#FAF4EE]/50 dark:bg-[#18110C]/50">
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex items-start gap-2.5 ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}
+                className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div
-                  className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold ${
-                    msg.sender === 'user' 
-                      ? 'bg-[#2F4156] dark:bg-[#2A4A62] text-white shadow-sm' 
-                      : 'bg-gradient-to-br from-[#2F4156] to-[#567C8D] dark:from-slate-700 dark:to-slate-800 text-white shadow-sm'
-                  }`}
-                >
-                  {msg.sender === 'user' ? <User size={14} /> : <Bot size={14} />}
-                </div>
+                {msg.sender === 'ai' && (
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-white shadow-sm ${
+                    chatMode === 'emotional' ? 'bg-[#E67E22]' : 'bg-[#D9531E]'
+                  }`}>
+                    {chatMode === 'emotional' ? <Heart size={16} /> : <Bot size={16} />}
+                  </div>
+                )}
 
                 <div
-                  className={`max-w-[85%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm transition-colors duration-250 ${
+                  className={`max-w-[85%] p-4 rounded-2xl text-xs leading-relaxed font-medium whitespace-pre-wrap ${
                     msg.sender === 'user'
-                      ? 'ai-chat-bubble-user rounded-tr-none font-medium'
-                      : 'ai-chat-bubble-ai rounded-tl-none font-normal'
+                      ? 'bg-[#D9531E] text-white rounded-tr-none shadow-md'
+                      : 'bg-white dark:bg-[#241A12] text-[#3C2415] dark:text-[#F5EBE1] border border-[#EADBC8] dark:border-[#3A2A1E] rounded-tl-none shadow-sm'
                   }`}
                 >
-                  <div className="whitespace-pre-line">
-                    {msg.text}
-                  </div>
+                  {msg.text}
                 </div>
+
+                {msg.sender === 'user' && (
+                  <div className="w-8 h-8 rounded-full bg-[#3C2415] text-white flex items-center justify-center shrink-0 text-xs font-bold">
+                    Tú
+                  </div>
+                )}
               </div>
             ))}
 
             {isTyping && (
-              <div className="flex items-start gap-2.5">
-                <div className="w-7 h-7 rounded-xl bg-[#2F4156] dark:bg-slate-700 text-white flex items-center justify-center shrink-0 text-xs">
-                  <Bot size={14} />
+              <div className="flex gap-3 justify-start items-center">
+                <div className="w-8 h-8 rounded-full bg-[#D9531E] text-white flex items-center justify-center shrink-0">
+                  <Bot size={16} />
                 </div>
-                <div className="ai-chat-bubble-ai p-3.5 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce"></div>
-                  <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce [animation-delay:0.2s]"></div>
-                  <div className="w-2 h-2 rounded-full bg-[#567C8D] dark:bg-sky-blue animate-bounce [animation-delay:0.4s]"></div>
-                  <span className="text-[10px] text-[#567C8D] dark:text-sky-blue font-bold ml-1">Gemini está pensando...</span>
+                <div className="bg-white dark:bg-[#241A12] p-3 rounded-2xl border border-[#EADBC8] dark:border-[#3A2A1E] flex items-center gap-1">
+                  <span className="w-2 h-2 bg-[#D9531E] rounded-full animate-bounce"></span>
+                  <span className="w-2 h-2 bg-[#D9531E] rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                  <span className="w-2 h-2 bg-[#D9531E] rounded-full animate-bounce [animation-delay:0.4s]"></span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Sugerencias Rápidas Deslizables */}
-          {messages.length < 5 && (
-            <div className="ai-tutor-chips-bar relative border-t py-2 px-2.5 flex items-center gap-1 transition-colors duration-250">
+          {/* Chips Preguntas Rápidas */}
+          <div className="bg-white dark:bg-[#241A12] border-t border-[#EADBC8] dark:border-[#3A2A1E] p-2 relative shrink-0">
+            <div className="flex items-center gap-1">
               <button
                 onClick={() => scrollChips('left')}
-                className="w-7 h-7 rounded-full bg-[#C8D9E6]/40 dark:bg-[#27394D] hover:bg-[#C8D9E6]/70 dark:hover:bg-[#374E66] text-[#2F4156] dark:text-white flex items-center justify-center shrink-0 z-10 transition-all border border-[#C8D9E6] dark:border-[#3E546E] active:scale-90 shadow-sm"
-                title="Deslizar a la izquierda"
+                className="p-1 text-[#7C5E47] hover:text-[#3C2415] dark:text-[#D2B49A]"
               >
-                <ChevronLeft size={14} />
+                <ChevronLeft size={16} />
               </button>
 
               <div
                 ref={chipsContainerRef}
-                onWheel={(e) => {
-                  if (e.deltaY !== 0 && chipsContainerRef.current) {
-                    chipsContainerRef.current.scrollLeft += e.deltaY;
-                  }
-                }}
-                className="ai-chips-scroll-area flex gap-2 overflow-x-auto scroll-smooth py-1 px-1 select-none touch-pan-x flex-1"
+                className="flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1 flex-1"
               >
-                {quickQuestions.map((q, idx) => (
+                {currentQuestions.map((q, idx) => (
                   <button
                     key={idx}
-                    onClick={() => handleSendMessage(q)}
-                    className="ai-chip-btn px-3.5 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-transform active:scale-95 shrink-0 cursor-pointer shadow-sm"
+                    onClick={() => handleQuickQuestionClick(q)}
+                    className="px-3 py-1.5 bg-[#FAF4EE] dark:bg-[#18110C] hover:bg-[#D9531E]/10 border border-[#EADBC8] dark:border-[#3A2A1E] rounded-full text-[11px] font-semibold text-[#3C2415] dark:text-[#F5EBE1] whitespace-nowrap transition-colors"
                   >
                     {q}
                   </button>
@@ -465,31 +400,66 @@ Para abordar este tema con la profundidad adecuada en tu preparación académica
 
               <button
                 onClick={() => scrollChips('right')}
-                className="w-7 h-7 rounded-full bg-[#C8D9E6]/40 dark:bg-[#27394D] hover:bg-[#C8D9E6]/70 dark:hover:bg-[#374E66] text-[#2F4156] dark:text-white flex items-center justify-center shrink-0 z-10 transition-all border border-[#C8D9E6] dark:border-[#3E546E] active:scale-90 shadow-sm"
-                title="Deslizar a la derecha"
+                className="p-1 text-[#7C5E47] hover:text-[#3C2415] dark:text-[#D2B49A]"
               >
-                <ChevronRight size={14} />
+                <ChevronRight size={16} />
               </button>
             </div>
-          )}
+          </div>
 
-          {/* Caja de Entrada de Texto */}
-          <div className="ai-tutor-footer p-3 border-t flex items-center gap-2 transition-colors duration-250">
+          {/* Input Form */}
+          <form onSubmit={handleSendMessage} className="p-3 bg-white dark:bg-[#241A12] border-t border-[#EADBC8] dark:border-[#3A2A1E] flex gap-2 shrink-0">
             <input
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder="Pregunta a la IA Gemini..."
-              className="ai-chat-input flex-1 px-4 py-2.5 rounded-2xl text-xs font-medium focus:outline-none transition-all"
+              placeholder={chatMode === 'emotional' ? "¿Cómo te sientes? Cuéntame..." : "Haz una pregunta sobre el ICFES..."}
+              className="flex-1 bg-[#FAF4EE] dark:bg-[#18110C] border border-[#EADBC8] dark:border-[#3A2A1E] p-3 rounded-2xl text-xs font-medium text-[#3C2415] dark:text-[#F5EBE1] focus:outline-none focus:ring-2 focus:ring-[#D9531E]"
             />
             <button
+              type="submit"
               disabled={!inputText.trim() || isTyping}
-              onClick={() => handleSendMessage()}
-              className="w-10 h-10 rounded-2xl bg-[#2F4156] dark:bg-[#2A4A62] text-white flex items-center justify-center shrink-0 shadow-md hover:bg-[#2F4156]/90 disabled:opacity-40 active:scale-95 transition-all"
+              className="w-11 h-11 bg-[#D9531E] hover:bg-[#C84B1A] text-white rounded-2xl flex items-center justify-center disabled:opacity-50 active:scale-95 transition-all shrink-0 shadow-sm"
             >
-              <Send size={16} />
+              <Send size={18} />
             </button>
+          </form>
+        </div>
+      )}
+
+      {/* Modal API Key Gemini */}
+      {showKeyModal && (
+        <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-[#241A12] rounded-3xl p-6 w-full max-w-sm border border-[#EADBC8] dark:border-[#3A2A1E] shadow-2xl">
+            <h3 className="text-lg font-black text-[#3C2415] dark:text-[#F5EBE1] mb-2">
+              API Key de Google Gemini
+            </h3>
+            <p className="text-xs text-[#7C5E47] dark:text-[#D2B49A] mb-4 font-medium">
+              Si posees una API Key personal de Google AI Studio, ingresala aquí para conectar directamente con Gemini 1.5 Flash.
+            </p>
+
+            <input
+              type="password"
+              value={tempApiKey}
+              onChange={(e) => setTempApiKey(e.target.value)}
+              placeholder="AIzaSy..."
+              className="w-full bg-[#FAF4EE] dark:bg-[#18110C] border border-[#EADBC8] dark:border-[#3A2A1E] p-3.5 rounded-2xl text-xs font-mono text-[#3C2415] dark:text-[#F5EBE1] mb-4 focus:outline-none focus:ring-2 focus:ring-[#D9531E]"
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowKeyModal(false)}
+                className="flex-1 py-3 border border-[#EADBC8] dark:border-[#3A2A1E] text-[#3C2415] dark:text-[#F5EBE1] font-bold rounded-xl text-xs"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={saveCustomKey}
+                className="flex-1 py-3 bg-[#D9531E] text-white font-black rounded-xl text-xs shadow-md"
+              >
+                Guardar Key
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -73,6 +73,12 @@ INSERT INTO questions_bank (subject_id, question_text, options, correct_index, e
 -- ACTUALIZACIÓN DE ESQUEMA V2:
 -- Ejecuta estas líneas en tu SQL Editor de Supabase si ya tienes las tablas creadas
 -- ==========================================
--- ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS language TEXT NOT NULL DEFAULT 'es';
--- ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS dark_mode BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS language TEXT NOT NULL DEFAULT 'es';
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS dark_mode BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS knowledge_points NUMERIC DEFAULT 0;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS daily_points NUMERIC DEFAULT 0;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS last_points_date TEXT;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS daily_active_minutes INTEGER DEFAULT 0;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS last_active_date TEXT;
+
 

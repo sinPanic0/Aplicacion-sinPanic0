@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   BookOpen, Calendar as CalendarIcon, BarChart2, User, ChevronLeft, ChevronRight,
   Flame, Lightbulb, Book, Calculator, Globe, FlaskConical, Languages, Clock,
   Settings, LogOut, CheckCircle2, Brain, Timer, Zap, Info, GraduationCap, ArrowRight,
-  Check, X, AlertCircle, Lock, Moon
+  Check, X, AlertCircle, Lock, Moon, ListChecks
 } from 'lucide-react';
 import { EXAM_QUESTIONS, PRACTICE_QUESTIONS } from './utils/questions';
 import { supabase } from './lib/supabaseClient';
 import { AiTutorWidget } from './components/AiTutorWidget';
+import { SyllabusScreen } from './screens/SyllabusScreen';
 
 const SUBJECTS = [
   { id: 1, name: 'Lectura Crítica', completed: 0, total: 21, icon: Book, color: 'emerald', score: 380 },
@@ -69,7 +70,7 @@ function useLocalStorage(key, initialValue) {
       const item = window.localStorage.getItem(key);
       if (!item) return initialValue;
       const parsed = JSON.parse(item);
-      if (key === 'sinpanico_userProfile' && parsed.testDate) {
+      if (key === 'sinpanico_userProfile' && parsed && parsed.testDate) {
         parsed.testDate = new Date(parsed.testDate);
       }
       return parsed;
@@ -79,15 +80,23 @@ function useLocalStorage(key, initialValue) {
     }
   });
 
-  useEffect(() => {
+  const setValue = (value) => {
     try {
-      window.localStorage.setItem(key, JSON.stringify(storedValue));
+      setStoredValue(prev => {
+        const valueToStore = value instanceof Function ? value(prev) : value;
+        try {
+          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        } catch (e) {
+          console.error("Error guardando en localStorage", e);
+        }
+        return valueToStore;
+      });
     } catch (error) {
-      console.error("Error guardando en localStorage", error);
+      console.error("Error en setValue localStorage", error);
     }
-  }, [key, storedValue]);
+  };
 
-  return [storedValue, setStoredValue];
+  return [storedValue, setValue];
 }
 
 const TRANSLATIONS = {
@@ -537,23 +546,35 @@ const App = () => {
 
   // Track active time per day & sync with Supabase per user
   const [activeTimeMinutes, setActiveTimeMinutes] = useLocalStorage(`sinpanico_activeTime_${getTodayString()}`, 0);
+  const lastTickRef = useRef(Date.now());
 
   useEffect(() => {
     if (screen === 'welcome' || screen === 'auth_login' || screen === 'auth_signup') return;
+
     const interval = setInterval(() => {
-      setActiveTimeMinutes(prev => {
-        const nextVal = prev + 1;
-        const todayStr = getTodayString();
-        window.localStorage.setItem(`sinpanico_activeTime_${todayStr}`, nextVal);
-        if (userId) {
-          supabase.from('user_profiles').update({
-            daily_active_minutes: nextVal,
-            last_active_date: todayStr
-          }).eq('user_id', userId).then(() => {}).catch(e => console.error("Error updating active time in Supabase:", e));
-        }
-        return nextVal;
-      });
-    }, 60000); // 1 minute
+      const now = Date.now();
+      const elapsedMs = now - lastTickRef.current;
+
+      if (elapsedMs >= 60000) {
+        const minsToAdd = Math.floor(elapsedMs / 60000);
+        lastTickRef.current += minsToAdd * 60000;
+
+        setActiveTimeMinutes(prev => {
+          const currentMins = Number(prev) || 0;
+          const nextVal = currentMins + minsToAdd;
+          const todayStr = getTodayString();
+
+          if (userId) {
+            supabase.from('user_profiles').update({
+              daily_active_minutes: nextVal,
+              last_active_date: todayStr
+            }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error updating active time in Supabase:", e));
+          }
+          return nextVal;
+        });
+      }
+    }, 1000);
+
     return () => clearInterval(interval);
   }, [screen, userId]);
 
@@ -702,21 +723,18 @@ const App = () => {
             window.localStorage.setItem(`sinpanico_darkmode_${userId}`, profile.dark_mode);
           }
 
-          // Synchronize Daily Active Study Time across devices & reset on new day
-          if (profile.last_active_date === todayStr) {
-            const cloudMins = Number(profile.daily_active_minutes) || 0;
-            const localMins = Number(window.localStorage.getItem(`sinpanico_activeTime_${todayStr}`)) || 0;
-            const syncedMins = Math.max(cloudMins, localMins);
-            setActiveTimeMinutes(syncedMins);
-            window.localStorage.setItem(`sinpanico_activeTime_${todayStr}`, syncedMins);
-          } else {
-            // New calendar day! Reset daily active study minutes to 0
-            setActiveTimeMinutes(0);
-            window.localStorage.setItem(`sinpanico_activeTime_${todayStr}`, 0);
+          // Synchronize Daily Active Study Time across devices
+          const localMins = Number(window.localStorage.getItem(`sinpanico_activeTime_${todayStr}`)) || 0;
+          const cloudMins = (profile.last_active_date === todayStr) ? (Number(profile.daily_active_minutes) || 0) : 0;
+          const syncedMins = Math.max(cloudMins, localMins);
+          setActiveTimeMinutes(syncedMins);
+          window.localStorage.setItem(`sinpanico_activeTime_${todayStr}`, syncedMins);
+
+          if (profile.last_active_date !== todayStr && userId) {
             supabase.from('user_profiles').update({
-              daily_active_minutes: 0,
+              daily_active_minutes: syncedMins,
               last_active_date: todayStr
-            }).eq('user_id', userId).then(() => {}).catch(e => console.error("Error resetting daily active minutes:", e));
+            }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error updating daily active minutes:", e));
           }
 
           // Synchronize Knowledge Points (KP) & Daily Points across devices
@@ -730,7 +748,7 @@ const App = () => {
             const cloudDailyPoints = Number(profile.daily_points) || 0;
             const localDailyKey = `sinpanico_daily_points_${userId}`;
             let localDailyMap = {};
-            try { localDailyMap = JSON.parse(window.localStorage.getItem(localDailyKey) || '{}'); } catch(e){}
+            try { localDailyMap = JSON.parse(window.localStorage.getItem(localDailyKey) || '{}'); } catch (e) { }
             const localDailyPoints = Number(localDailyMap[todayStr]) || 0;
             syncedDailyPoints = Math.max(cloudDailyPoints, localDailyPoints);
           } else {
@@ -739,7 +757,7 @@ const App = () => {
             supabase.from('user_profiles').update({
               daily_points: 0,
               last_points_date: todayStr
-            }).eq('user_id', userId).then(() => {}).catch(e => console.error("Error resetting daily points:", e));
+            }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error resetting daily points:", e));
           }
 
           setDailyPointsMap(prev => ({
@@ -920,10 +938,10 @@ const App = () => {
   };
 
   const SideNav = () => (
-    <aside className="w-64 h-screen fixed left-0 top-0 bg-white border-r border-sky-blue/30 flex flex-col justify-between p-6 z-40 ios-shadow">
+    <aside className="w-64 h-screen fixed left-0 top-0 bg-white dark:bg-[#241A12] border-r border-[#EADBC8] dark:border-[#3A2A1E] flex flex-col justify-between p-6 z-40 ios-shadow">
       <div className="space-y-8">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-10 h-10 bg-navy text-white rounded-xl flex items-center justify-center shadow-lg shadow-navy/10 animate-pulse">
+          <div className="w-10 h-10 bg-[#D9531E] text-white rounded-xl flex items-center justify-center shadow-lg shadow-[#D9531E]/20 animate-pulse">
             <BookOpen size={22} />
           </div>
           <div>
@@ -935,6 +953,7 @@ const App = () => {
         <nav className="space-y-1">
           {[
             { id: 'home', icon: BookOpen, label: t('inicio') },
+            { id: 'temarios', icon: ListChecks, label: 'Temarios' },
             { id: 'calendar', icon: CalendarIcon, label: t('calendario') },
             { id: 'progress', icon: BarChart2, label: t('progreso') },
             { id: 'profile', icon: User, label: t('perfil') },
@@ -944,7 +963,7 @@ const App = () => {
               <button
                 key={item.id}
                 onClick={() => setScreen(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${isActive ? 'bg-navy text-white shadow-md' : 'text-[#567C8D] hover:bg-beige/40 hover:text-navy'}`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${isActive ? 'bg-[#D9531E] text-white shadow-md' : 'text-teal hover:bg-[#FAF4EE]/60 dark:hover:bg-[#18110C]/60 hover:text-navy'}`}
               >
                 <item.icon size={20} className={isActive ? 'text-white' : 'text-teal'} />
                 <span>{item.label}</span>
@@ -954,8 +973,8 @@ const App = () => {
         </nav>
       </div>
 
-      <div className="border-t border-sky-blue/30 pt-4 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-sky-blue/30 border border-sky-blue flex items-center justify-center overflow-hidden relative shrink-0">
+      <div className="border-t border-[#EADBC8] dark:border-[#3A2A1E] pt-4 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-[#FAF4EE] dark:bg-[#18110C] border border-[#EADBC8] dark:border-[#3A2A1E] flex items-center justify-center overflow-hidden relative shrink-0">
           {profilePic ? (
             <img src={profilePic} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
@@ -971,9 +990,10 @@ const App = () => {
   );
 
   const BottomNav = () => (
-    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/85 backdrop-blur-lg border-t border-sky-blue/35 flex justify-around py-3 pb-safe z-40 ios-shadow">
+    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 dark:bg-[#241A12]/90 backdrop-blur-lg border-t border-[#EADBC8] dark:border-[#3A2A1E] flex justify-around py-3 pb-safe z-40 ios-shadow">
       {[
         { id: 'home', icon: BookOpen, label: t('inicio') },
+        { id: 'temarios', icon: ListChecks, label: 'Temarios' },
         { id: 'calendar', icon: CalendarIcon, label: t('calendario') },
         { id: 'progress', icon: BarChart2, label: t('progreso') },
         { id: 'profile', icon: User, label: t('perfil') },
@@ -983,9 +1003,9 @@ const App = () => {
           <button
             key={item.id}
             onClick={() => setScreen(item.id)}
-            className={`flex flex-col items-center gap-1 transition-all ${isActive ? 'text-navy scale-105 font-bold' : 'text-teal/80'}`}
+            className={`flex flex-col items-center gap-1 transition-all ${isActive ? 'text-[#D9531E] scale-105 font-bold' : 'text-teal/80'}`}
           >
-            <item.icon size={22} className={isActive ? 'stroke-[2.5px] text-navy' : 'text-teal'} />
+            <item.icon size={22} className={isActive ? 'stroke-[2.5px] text-[#D9531E]' : 'text-teal'} />
             <span className="text-[10px] font-medium">{item.label}</span>
           </button>
         );
@@ -1452,7 +1472,7 @@ const App = () => {
         </div>
       </header>
 
-      <div className="bg-gradient-to-br from-[#3A5A78] via-[#486E86] to-[#567C8D] rounded-3xl p-7 text-white mb-8 shadow-lg relative overflow-hidden animate-fade-in">
+      <div className="bg-gradient-to-br from-[#D9531E] via-[#E67E22] to-[#C84B1A] rounded-3xl p-7 text-white mb-8 shadow-lg relative overflow-hidden animate-fade-in">
         <div className="relative z-10">
           <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Versículo del día</span>
           <h3 className="text-xl font-bold mt-3 leading-snug opacity-95">{dailyVerse.text}</h3>
@@ -1631,8 +1651,8 @@ const App = () => {
 
       {(() => {
         const todayStr = getTodayString();
-        const todayProgress = practiceProgress[todayStr]?.[selectedSubject?.id] || { 
-          practice_1: false, practice_2: false, practice_3: false, practice_4: false, practice_5: false 
+        const todayProgress = practiceProgress[todayStr]?.[selectedSubject?.id] || {
+          practice_1: false, practice_2: false, practice_3: false, practice_4: false, practice_5: false
         };
         const isUnlocked = todayProgress.practice_1 && todayProgress.practice_2;
 
@@ -2221,8 +2241,8 @@ const App = () => {
                         setShowLanguageModal(false);
                       }}
                       className={`w-full p-4 rounded-xl border flex items-center justify-between text-left transition-all hover:scale-[1.02] ${isSelected
-                          ? 'border-teal bg-sky-blue/20 font-black text-navy shadow-sm'
-                          : 'border-sky-blue/20 bg-white hover:bg-beige/40 text-teal font-semibold'
+                        ? 'border-teal bg-sky-blue/20 font-black text-navy shadow-sm'
+                        : 'border-sky-blue/20 bg-white hover:bg-beige/40 text-teal font-semibold'
                         }`}
                     >
                       <span className="flex items-center gap-3 text-sm">
@@ -2270,6 +2290,13 @@ const App = () => {
               {screen === 'onboarding' && <OnboardingScreen />}
               {screen === 'methods' && <MethodsScreen />}
               {screen === 'home' && <HomeScreen />}
+              {screen === 'temarios' && (
+                <SyllabusScreen
+                  setScreen={setScreen}
+                  userProfile={userProfile}
+                  setUserProfile={setUserProfile}
+                />
+              )}
               {screen === 'subject' && <SubjectScreen />}
               {screen === 'exam' && (
                 <ExamScreen
@@ -2487,16 +2514,19 @@ const ExamScreen = ({
             updated_at: new Date().toISOString()
           }, { onConflict: 'user_id,subject_id' });
 
-          if (dbError) throw dbError;
+          if (dbError) console.error("Error upserting diagnostics:", dbError);
 
-          await supabase.from('user_profiles').update({
+          const { error: profileError } = await supabase.from('user_profiles').update({
             knowledge_points: diagTotalKP,
             daily_points: diagTodayPoints,
             last_points_date: todayStr
           }).eq('user_id', userId);
+
+          if (profileError) {
+            console.warn("Advertencia al actualizar puntos en user_profiles (diagnóstico):", profileError);
+          }
         } catch (e) {
-          console.error(e);
-          setGlobalError('No se pudo guardar el progreso del diagnóstico. Por favor, verifica tu conexión a internet.');
+          console.error("Error guardando diagnóstico en Supabase:", e);
         }
       }
 
@@ -2569,7 +2599,9 @@ const ExamScreen = ({
             practice_2_completed: isSecondPractice ? true : false,
             score: score
           }, { onConflict: 'user_id,practice_date,subject_id' });
-          if (practiceError) throw practiceError;
+          if (practiceError) {
+            console.error('Error guardando registro de práctica en Supabase:', practiceError);
+          }
 
           const { error: profileError } = await supabase.from('user_profiles').update({
             total_hours_studied: updatedProfile.totalHoursStudied,
@@ -2577,11 +2609,17 @@ const ExamScreen = ({
             daily_points: todayPoints,
             last_points_date: todayStr2
           }).eq('user_id', userId);
-          if (profileError) throw profileError;
+
+          if (profileError) {
+            console.warn('Advertencia al actualizar puntos en user_profiles:', profileError);
+            // Fallback: actualizar solo horas estudiadas si faltan columnas en Supabase
+            await supabase.from('user_profiles').update({
+              total_hours_studied: updatedProfile.totalHoursStudied
+            }).eq('user_id', userId).catch(() => {});
+          }
 
         } catch (e) {
-          console.error('Error guardando práctica:', e);
-          setGlobalError('No se pudo guardar el progreso de práctica. Por favor, verifica tu conexión a internet.');
+          console.error('Error guardando práctica en Supabase:', e);
         }
       }
 
@@ -2791,15 +2829,15 @@ const ExamScreen = ({
               Comprobar
             </button>
           ) : (
-        <button
-          onClick={handleNext}
-          className="px-8 py-3 rounded-xl font-black bg-navy text-white shadow-md hover:bg-navy/95 active:scale-95 flex items-center gap-2"
-        >
-          {currentQIndex < questions.length - 1 ? 'Siguiente' : 'Ver Resultados'} <ArrowRight size={18} />
-        </button>
+            <button
+              onClick={handleNext}
+              className="px-8 py-3 rounded-xl font-black bg-navy text-white shadow-md hover:bg-navy/95 active:scale-95 flex items-center gap-2"
+            >
+              {currentQIndex < questions.length - 1 ? 'Siguiente' : 'Ver Resultados'} <ArrowRight size={18} />
+            </button>
           )}
+        </div>
       </div>
-    </div>
     </div >
   );
 };

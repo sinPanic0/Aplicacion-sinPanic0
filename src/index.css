@@ -1,39 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  /* ─── PALETA ORIGINAL — Azul Navy + Beige cálido ─── */
-  --color-navy-val: #2F4156;         /* Navy profundo – textos principales */
-  --color-teal-val: #567C8D;         /* Teal azul-gris – textos secundarios */
-  --color-sky-blue-val: #C8D9E6;     /* Sky blue suave – bordes y acentos */
-  --color-beige-val: #F5EFEB;        /* Beige cálido – fondo principal */
+  /* ─── PALETA CÁLIDA — WARM COLOR PALETTE (Motivadora y energizante) ─── */
+  --color-navy-val: #3C2415;         /* Marrón café profundo – textos principales */
+  --color-teal-val: #7C5E47;         /* Marrón tierra cálido – textos secundarios */
+  --color-sky-blue-val: #EADBC8;     /* Arena / Trigo suave – bordes y divisores */
+  --color-beige-val: #FAF4EE;        /* Crema cálido – fondo principal acogedor */
   --color-brand-white-val: #FFFFFF;  /* Blanco puro – tarjetas */
-  --color-card-hover: #EDE6DF;       /* Beige oscuro para hover */
+  --color-card-hover: #F3E6D7;       /* Crema cálido oscuro para hover */
 
   /* Semantic tokens (light mode) */
-  --color-active-nav-bg: #2F4156;    /* Nav activo – navy */
+  --color-active-nav-bg: #D9531E;    /* Nav y botones activos – Terracota energizante */
   --color-active-nav-text: #FFFFFF;
-  --color-logo-bg: #2F4156;
+  --color-logo-bg: #D9531E;
   --color-logo-icon: #FFFFFF;
-  --color-icon-box-bg: rgba(200, 217, 230, 0.35);
-  --color-icon-box-text: #2F4156;
+  --color-icon-box-bg: rgba(217, 83, 30, 0.12);
+  --color-icon-box-text: #D9531E;
 }
 
 .dark {
-  /* ─── DARK MODE — Azul noche profundo ─── */
-  --color-navy-val: #D4E2EE;         /* Texto principal: azul-blanco suave */
-  --color-teal-val: #7A9BAE;         /* Texto secundario: teal apagado */
-  --color-sky-blue-val: #1C2E3E;     /* Bordes: azul pizarra oscuro */
-  --color-beige-val: #0E1620;        /* Fondo: azul noche profundo */
-  --color-brand-white-val: #162130;  /* Tarjetas: azul oscuro */
-  --color-card-hover: #1C2E3E;       /* Hover: algo más claro */
+  /* ─── DARK MODE CÁLIDO — Noche café profunda ─── */
+  --color-navy-val: #F5EBE1;         /* Texto principal: crema/trigo suave */
+  --color-teal-val: #D2B49A;         /* Texto secundario: arena tibia */
+  --color-sky-blue-val: #3A2A1E;     /* Bordes: marrón café oscuro */
+  --color-beige-val: #18110C;        /* Fondo: noche café profunda */
+  --color-brand-white-val: #241A12;  /* Tarjetas: marrón terroso nocturno */
+  --color-card-hover: #322419;       /* Hover: algo más claro */
 
   /* Semantic tokens (dark mode) */
-  --color-active-nav-bg: #2A4A62;    /* Nav activo: azul pastel profundo */
-  --color-active-nav-text: #C8DCF0;  /* Texto nav: azul cielo suave */
-  --color-logo-bg: #1E3A52;
-  --color-logo-icon: #A0C4DC;
-  --color-icon-box-bg: rgba(42, 74, 98, 0.5);
-  --color-icon-box-text: #A0C4DC;
+  --color-active-nav-bg: #E07A5F;    /* Nav activo: terracota suave */
+  --color-active-nav-text: #FFFFFF;  /* Texto nav */
+  --color-logo-bg: #382216;
+  --color-logo-icon: #F4A261;
+  --color-icon-box-bg: rgba(224, 122, 95, 0.2);
+  --color-icon-box-text: #F4A261;
   color-scheme: dark;
 }
 
@@ -151,15 +151,15 @@ html, body {
   background-color: rgba(28, 46, 62, 0.25) !important;
 }
 
-/* ── bg-navy global fix (en dark, navy-val es claro → bg quedaría blanco) ── */
+/* ── bg-navy global fix en dark mode ── */
 .dark .bg-navy {
-  background-color: #2A4A62 !important;
+  background-color: #E07A5F !important;
 }
 /* ── Sidebar nav activo ── */
 .dark aside button.bg-navy {
   background-color: var(--color-active-nav-bg) !important;
   color: var(--color-active-nav-text) !important;
-  box-shadow: 0 2px 12px rgba(42,74,98,0.4) !important;
+  box-shadow: 0 2px 12px rgba(224,122,95,0.3) !important;
 }
 .dark aside button.bg-navy svg {
   color: var(--color-active-nav-text) !important;
@@ -174,12 +174,12 @@ html, body {
 }
 /* ── Toggle dark mode icon box ── */
 .dark .bg-navy.text-sky-blue {
-  background-color: #1E3A52 !important;
-  color: #A0C4DC !important;
+  background-color: #382216 !important;
+  color: #F4A261 !important;
 }
-/* ── Botones de acción (exam, etc) ── */
+/* ── Botones de acción ── */
 .dark button.bg-navy {
-  background-color: #2A4A62 !important;
+  background-color: #E07A5F !important;
 }
 
 /* ── Bottom nav active ── */
