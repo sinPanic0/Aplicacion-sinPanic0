@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* ─── PALETA CÁLIDA — WARM COLOR PALETTE (Motivadora y energizante) ─── */
+  /* ─── PALETA CÁLIDA Y SUAVE — WARM COLOR PALETTE ─── */
   --color-navy-val: #3C2415;         /* Marrón café profundo – textos principales */
   --color-teal-val: #7C5E47;         /* Marrón tierra cálido – textos secundarios */
   --color-sky-blue-val: #EADBC8;     /* Arena / Trigo suave – bordes y divisores */
@@ -10,12 +10,12 @@
   --color-card-hover: #F3E6D7;       /* Crema cálido oscuro para hover */
 
   /* Semantic tokens (light mode) */
-  --color-active-nav-bg: #D9531E;    /* Nav y botones activos – Terracota energizante */
+  --color-active-nav-bg: #C85A28;    /* Naranja-terracota cálido suave y elegante */
   --color-active-nav-text: #FFFFFF;
-  --color-logo-bg: #D9531E;
+  --color-logo-bg: #C85A28;
   --color-logo-icon: #FFFFFF;
-  --color-icon-box-bg: rgba(217, 83, 30, 0.12);
-  --color-icon-box-text: #D9531E;
+  --color-icon-box-bg: rgba(200, 90, 40, 0.12);
+  --color-icon-box-text: #C85A28;
 }
 
 .dark {
@@ -28,11 +28,11 @@
   --color-card-hover: #322419;       /* Hover: algo más claro */
 
   /* Semantic tokens (dark mode) */
-  --color-active-nav-bg: #E07A5F;    /* Nav activo: terracota suave */
+  --color-active-nav-bg: #D46F4D;    /* Terracota nocturno cálido y suave */
   --color-active-nav-text: #FFFFFF;  /* Texto nav */
   --color-logo-bg: #382216;
   --color-logo-icon: #F4A261;
-  --color-icon-box-bg: rgba(224, 122, 95, 0.2);
+  --color-icon-box-bg: rgba(212, 111, 77, 0.2);
   --color-icon-box-text: #F4A261;
   color-scheme: dark;
 }

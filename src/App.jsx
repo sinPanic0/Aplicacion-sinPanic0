@@ -941,7 +941,7 @@ const App = () => {
     <aside className="w-64 h-screen fixed left-0 top-0 bg-white dark:bg-[#241A12] border-r border-[#EADBC8] dark:border-[#3A2A1E] flex flex-col justify-between p-6 z-40 ios-shadow">
       <div className="space-y-8">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-10 h-10 bg-[#D9531E] text-white rounded-xl flex items-center justify-center shadow-lg shadow-[#D9531E]/20 animate-pulse">
+          <div className="w-10 h-10 bg-[#C85A28] text-white rounded-xl flex items-center justify-center shadow-lg shadow-[#C85A28]/20 animate-pulse">
             <BookOpen size={22} />
           </div>
           <div>
@@ -963,7 +963,7 @@ const App = () => {
               <button
                 key={item.id}
                 onClick={() => setScreen(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${isActive ? 'bg-[#D9531E] text-white shadow-md' : 'text-teal hover:bg-[#FAF4EE]/60 dark:hover:bg-[#18110C]/60 hover:text-navy'}`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${isActive ? 'bg-[#C85A28] text-white shadow-md' : 'text-teal hover:bg-[#FAF4EE]/60 dark:hover:bg-[#18110C]/60 hover:text-navy'}`}
               >
                 <item.icon size={20} className={isActive ? 'text-white' : 'text-teal'} />
                 <span>{item.label}</span>
@@ -1003,9 +1003,9 @@ const App = () => {
           <button
             key={item.id}
             onClick={() => setScreen(item.id)}
-            className={`flex flex-col items-center gap-1 transition-all ${isActive ? 'text-[#D9531E] scale-105 font-bold' : 'text-teal/80'}`}
+            className={`flex flex-col items-center gap-1 transition-all ${isActive ? 'text-[#C85A28] scale-105 font-bold' : 'text-teal/80'}`}
           >
-            <item.icon size={22} className={isActive ? 'stroke-[2.5px] text-[#D9531E]' : 'text-teal'} />
+            <item.icon size={22} className={isActive ? 'stroke-[2.5px] text-[#C85A28]' : 'text-teal'} />
             <span className="text-[10px] font-medium">{item.label}</span>
           </button>
         );
@@ -1472,7 +1472,7 @@ const App = () => {
         </div>
       </header>
 
-      <div className="bg-gradient-to-br from-[#D9531E] via-[#E67E22] to-[#C84B1A] rounded-3xl p-7 text-white mb-8 shadow-lg relative overflow-hidden animate-fade-in">
+      <div className="bg-gradient-to-br from-[#C85A28] via-[#E67E22] to-[#C84B1A] rounded-3xl p-7 text-white mb-8 shadow-lg relative overflow-hidden animate-fade-in">
         <div className="relative z-10">
           <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Versículo del día</span>
           <h3 className="text-xl font-bold mt-3 leading-snug opacity-95">{dailyVerse.text}</h3>

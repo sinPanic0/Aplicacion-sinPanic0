@@ -251,7 +251,7 @@ D) 20%
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-5 md:bottom-8 md:right-8 bg-[#D9531E] hover:bg-[#C84B1A] text-white p-4 rounded-full shadow-2xl z-50 flex items-center gap-2 group transition-all transform hover:scale-105 active:scale-95"
+          className="fixed bottom-20 right-5 md:bottom-8 md:right-8 bg-[#C85A28] hover:bg-[#C84B1A] text-white p-4 rounded-full shadow-2xl z-50 flex items-center gap-2 group transition-all transform hover:scale-105 active:scale-95"
         >
           <div className="relative">
             <Sparkles size={24} className="animate-pulse" />
@@ -268,7 +268,7 @@ D) 20%
         <div className="fixed inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[420px] md:h-[620px] bg-white dark:bg-[#241A12] border border-[#EADBC8] dark:border-[#3A2A1E] rounded-none md:rounded-3xl shadow-2xl z-50 flex flex-col overflow-hidden animate-scale-up">
           
           {/* Header del Chat */}
-          <div className="bg-gradient-to-r from-[#D9531E] via-[#E67E22] to-[#C84B1A] p-4 text-white flex justify-between items-center shrink-0">
+          <div className="bg-gradient-to-r from-[#C85A28] via-[#E67E22] to-[#C84B1A] p-4 text-white flex justify-between items-center shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
                 {chatMode === 'emotional' ? <HeartHandshake size={22} /> : <Bot size={22} />}
