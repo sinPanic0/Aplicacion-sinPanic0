@@ -591,6 +591,42 @@ const App = () => {
     }
   }, [userId]);
 
+  // Sincronizador resiliente de Mascota en Supabase (Intenta guardar en pet_* y usa selected_method como respaldo garantizado si faltan columnas)
+  const savePetStateToSupabase = async (overrideName, overrideEquipped, overridePurchased, overrideMethod) => {
+    if (!userId) return;
+
+    const nameToSave = overrideName !== undefined ? overrideName : capybaraName;
+    const equippedToSave = overrideEquipped !== undefined ? overrideEquipped : equippedItems;
+    const purchasedToSave = overridePurchased !== undefined ? overridePurchased : purchasedItems;
+    const methodToSave = overrideMethod !== undefined ? overrideMethod : selectedMethod;
+
+    const metaPayload = JSON.stringify({
+      method: methodToSave || 'active',
+      petName: nameToSave,
+      equipped: equippedToSave,
+      purchased: purchasedToSave
+    });
+
+    try {
+      const { error } = await supabase.from('user_profiles').upsert({
+        user_id: userId,
+        selected_method: metaPayload,
+        pet_name: nameToSave,
+        pet_equipped: equippedToSave,
+        pet_purchased: purchasedToSave
+      });
+
+      if (error) {
+        await supabase.from('user_profiles').upsert({
+          user_id: userId,
+          selected_method: metaPayload
+        });
+      }
+    } catch (err) {
+      console.error("Error guardando estado de la mascota en Supabase:", err);
+    }
+  };
+
   const handleUpdateCapybaraName = (newName) => {
     const trimmed = newName.trim() || 'Chigüiro Sabio';
     setCapybaraName(trimmed);
@@ -599,12 +635,7 @@ const App = () => {
       const key = userId ? `capybara_name_${userId}` : 'capybara_name_global';
       localStorage.setItem(key, trimmed);
       if (userId) {
-        supabase.from('user_profiles').upsert({
-          user_id: userId,
-          pet_name: trimmed
-        }).then(({ error }) => {
-          if (error) console.error("Error guardando pet_name en DB:", error);
-        }).catch(e => console.error("Error guardando pet_name en DB:", e));
+        savePetStateToSupabase(trimmed);
       }
     } catch (e) { }
   };
@@ -637,12 +668,7 @@ const App = () => {
       const key = userId ? `capybara_equipped_${userId}` : 'capybara_equipped_global';
       localStorage.setItem(key, JSON.stringify(equippedItems));
       if (userId) {
-        supabase.from('user_profiles').upsert({
-          user_id: userId,
-          pet_equipped: equippedItems
-        }).then(({ error }) => {
-          if (error) console.error("Error guardando pet_equipped en DB:", error);
-        }).catch(e => console.error("Error guardando pet_equipped en DB:", e));
+        savePetStateToSupabase(undefined, equippedItems);
       }
     } catch (e) { }
   }, [equippedItems, userId]);
@@ -652,12 +678,7 @@ const App = () => {
       const key = userId ? `capybara_purchased_${userId}` : 'capybara_purchased_global';
       localStorage.setItem(key, JSON.stringify(purchasedItems));
       if (userId) {
-        supabase.from('user_profiles').upsert({
-          user_id: userId,
-          pet_purchased: purchasedItems
-        }).then(({ error }) => {
-          if (error) console.error("Error guardando pet_purchased en DB:", error);
-        }).catch(e => console.error("Error guardando pet_purchased en DB:", e));
+        savePetStateToSupabase(undefined, undefined, purchasedItems);
       }
     } catch (e) { }
   }, [purchasedItems, userId]);
@@ -918,9 +939,24 @@ const App = () => {
             knowledgePoints: syncedTotalKP,
             full_name: profile.full_name || ''
           }));
-          if (profile.selected_method) setSelectedMethod(profile.selected_method);
+          // Sincronizar Mascota (Nombre, Accesorios Equipados y Comprados) de manera exhaustiva y resiliente
+          let cloudName = profile.pet_name;
+          let cloudEquipped = profile.pet_equipped && typeof profile.pet_equipped === 'object' ? profile.pet_equipped : null;
+          let cloudPurchased = Array.isArray(profile.pet_purchased) ? profile.pet_purchased : null;
+          let activeMethod = profile.selected_method || 'active';
 
-          // Sincronizar Mascota (Nombre, Accesorios Equipados y Comprados) de manera exhaustiva
+          // Decodificación de respaldo: si selected_method es un JSON codificado, extraer petName, equipped y purchased
+          if (profile.selected_method && profile.selected_method.startsWith('{')) {
+            try {
+              const meta = JSON.parse(profile.selected_method);
+              if (meta.method) activeMethod = meta.method;
+              if (!cloudName && meta.petName) cloudName = meta.petName;
+              if (!cloudEquipped && meta.equipped) cloudEquipped = meta.equipped;
+              if (!cloudPurchased && meta.purchased) cloudPurchased = meta.purchased;
+            } catch (e) { }
+          }
+          setSelectedMethod(activeMethod);
+
           let legacyPurchased = [];
           let globalPurchased = [];
           let userPurchased = [];
@@ -928,8 +964,8 @@ const App = () => {
           try { globalPurchased = JSON.parse(localStorage.getItem('capybara_purchased_global') || '[]'); } catch (e) { }
           try { userPurchased = JSON.parse(localStorage.getItem(`capybara_purchased_${userId}`) || '[]'); } catch (e) { }
 
-          let cloudPurchased = Array.isArray(profile.pet_purchased) ? profile.pet_purchased : [];
-          const allPurchased = Array.from(new Set(['hat_grad', ...cloudPurchased, ...userPurchased, ...globalPurchased, ...legacyPurchased]));
+          const finalCloudPurchased = Array.isArray(cloudPurchased) ? cloudPurchased : [];
+          const allPurchased = Array.from(new Set(['hat_grad', ...finalCloudPurchased, ...userPurchased, ...globalPurchased, ...legacyPurchased]));
 
           let legacyEquipped = {};
           let globalEquipped = {};
@@ -938,10 +974,9 @@ const App = () => {
           try { globalEquipped = JSON.parse(localStorage.getItem('capybara_equipped_global') || '{}'); } catch (e) { }
           try { userEquipped = JSON.parse(localStorage.getItem(`capybara_equipped_${userId}`) || '{}'); } catch (e) { }
 
-          let cloudEquipped = profile.pet_equipped && typeof profile.pet_equipped === 'object' ? profile.pet_equipped : {};
-          const allEquipped = { hat: 'hat_grad', ...legacyEquipped, ...globalEquipped, ...userEquipped, ...cloudEquipped };
+          const finalCloudEquipped = cloudEquipped || {};
+          const allEquipped = { hat: 'hat_grad', ...legacyEquipped, ...globalEquipped, ...userEquipped, ...finalCloudEquipped };
 
-          let cloudName = profile.pet_name;
           let legacyName = localStorage.getItem(`capybara_name_${userId}`) || localStorage.getItem('capybara_name_global');
           const finalPetName = cloudName || legacyName || 'Chigüiro Sabio';
 
@@ -954,16 +989,9 @@ const App = () => {
           window.localStorage.setItem(`capybara_equipped_${userId}`, JSON.stringify(allEquipped));
           window.localStorage.setItem(`capybara_purchased_${userId}`, JSON.stringify(allPurchased));
 
-          // Guardar consolidadamente en Supabase para asegurar que la nube tenga siempre todos los ítems
+          // Guardar consolidadamente en Supabase (con respaldo automático si la tabla carece de columnas pet_*)
           if (userId) {
-            supabase.from('user_profiles').upsert({
-              user_id: userId,
-              pet_name: finalPetName,
-              pet_equipped: allEquipped,
-              pet_purchased: allPurchased
-            }).then(({ error }) => {
-              if (error) console.error("Error respaldando datos de mascota en Supabase:", error);
-            }).catch(e => console.error("Error respaldando datos de mascota en Supabase:", e));
+            savePetStateToSupabase(finalPetName, allEquipped, allPurchased, activeMethod);
           }
 
           if (profile.profile_pic) {
