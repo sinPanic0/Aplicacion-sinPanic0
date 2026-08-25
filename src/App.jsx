@@ -566,29 +566,9 @@ const App = () => {
 
   const [editingCapyName, setEditingCapyName] = useState(capybaraName);
 
-  // Limpieza y cambio de usuario: previene mezclar datos de distintas cuentas
+  // Limpieza al cerrar sesión: previene mezclar datos entre distintas cuentas
   useEffect(() => {
-    if (userId) {
-      try {
-        const nameKey = `capybara_name_${userId}`;
-        const nameSaved = localStorage.getItem(nameKey);
-        if (nameSaved) {
-          setCapybaraName(nameSaved);
-          setEditingCapyName(nameSaved);
-        } else {
-          setCapybaraName('Chigüiro Sabio');
-          setEditingCapyName('Chigüiro Sabio');
-        }
-
-        const eqKey = `capybara_equipped_${userId}`;
-        const eqSaved = localStorage.getItem(eqKey);
-        if (eqSaved) setEquippedItems(JSON.parse(eqSaved));
-
-        const purKey = `capybara_purchased_${userId}`;
-        const purSaved = localStorage.getItem(purKey);
-        if (purSaved) setPurchasedItems(JSON.parse(purSaved));
-      } catch (e) { }
-    } else {
+    if (!userId) {
       // Usuario cerró sesión: restablecer estados a valores por defecto para no mostrar datos de la sesión anterior
       setCapybaraName('Chigüiro Sabio');
       setEditingCapyName('Chigüiro Sabio');
@@ -940,43 +920,50 @@ const App = () => {
           }));
           if (profile.selected_method) setSelectedMethod(profile.selected_method);
 
-          // Sincronizar Mascota (Nombre y Accesorios) y Foto de Perfil entre dispositivos
-          if (profile.pet_name) {
-            setCapybaraName(profile.pet_name);
-            setEditingCapyName(profile.pet_name);
-            window.localStorage.setItem(`capybara_name_${userId}`, profile.pet_name);
-          }
+          // Sincronizar Mascota (Nombre, Accesorios Equipados y Comprados) de manera exhaustiva
+          let legacyPurchased = [];
+          let globalPurchased = [];
+          let userPurchased = [];
+          try { legacyPurchased = JSON.parse(localStorage.getItem('capybara_purchased') || '[]'); } catch (e) { }
+          try { globalPurchased = JSON.parse(localStorage.getItem('capybara_purchased_global') || '[]'); } catch (e) { }
+          try { userPurchased = JSON.parse(localStorage.getItem(`capybara_purchased_${userId}`) || '[]'); } catch (e) { }
 
-          // Sincronizar Accesorios Equipados (Fusionar Nube + Local)
-          let cloudEquipped = profile.pet_equipped && typeof profile.pet_equipped === 'object' ? profile.pet_equipped : {};
-          let localEquipped = {};
-          try {
-            const savedEq = localStorage.getItem(`capybara_equipped_${userId}`) || localStorage.getItem('capybara_equipped');
-            if (savedEq) localEquipped = JSON.parse(savedEq);
-          } catch (e) { }
-          const mergedEquipped = { ...localEquipped, ...cloudEquipped };
-          if (Object.keys(mergedEquipped).length > 0) {
-            setEquippedItems(mergedEquipped);
-            window.localStorage.setItem(`capybara_equipped_${userId}`, JSON.stringify(mergedEquipped));
-          }
-
-          // Sincronizar Accesorios Comprados (Fusionar Nube + Local para no perder nada comprado en PC)
           let cloudPurchased = Array.isArray(profile.pet_purchased) ? profile.pet_purchased : [];
-          let localPurchased = [];
-          try {
-            const savedPur = localStorage.getItem(`capybara_purchased_${userId}`) || localStorage.getItem('capybara_purchased');
-            if (savedPur) localPurchased = JSON.parse(savedPur);
-          } catch (e) { }
-          const mergedPurchased = Array.from(new Set(['hat_grad', ...cloudPurchased, ...localPurchased]));
-          setPurchasedItems(mergedPurchased);
-          window.localStorage.setItem(`capybara_purchased_${userId}`, JSON.stringify(mergedPurchased));
+          const allPurchased = Array.from(new Set(['hat_grad', ...cloudPurchased, ...userPurchased, ...globalPurchased, ...legacyPurchased]));
 
-          // Auto-respaldar en Supabase si el computador tenía compras locales que aún no estaban en la nube
-          if (userId && (mergedPurchased.length > cloudPurchased.length || Object.keys(mergedEquipped).length > Object.keys(cloudEquipped).length)) {
-            supabase.from('user_profiles').update({
-              pet_purchased: mergedPurchased,
-              pet_equipped: mergedEquipped
-            }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error respaldando compras locales a Supabase:", e));
+          let legacyEquipped = {};
+          let globalEquipped = {};
+          let userEquipped = {};
+          try { legacyEquipped = JSON.parse(localStorage.getItem('capybara_equipped') || '{}'); } catch (e) { }
+          try { globalEquipped = JSON.parse(localStorage.getItem('capybara_equipped_global') || '{}'); } catch (e) { }
+          try { userEquipped = JSON.parse(localStorage.getItem(`capybara_equipped_${userId}`) || '{}'); } catch (e) { }
+
+          let cloudEquipped = profile.pet_equipped && typeof profile.pet_equipped === 'object' ? profile.pet_equipped : {};
+          const allEquipped = { hat: 'hat_grad', ...legacyEquipped, ...globalEquipped, ...userEquipped, ...cloudEquipped };
+
+          let cloudName = profile.pet_name;
+          let legacyName = localStorage.getItem(`capybara_name_${userId}`) || localStorage.getItem('capybara_name_global');
+          const finalPetName = cloudName || legacyName || 'Chigüiro Sabio';
+
+          setCapybaraName(finalPetName);
+          setEditingCapyName(finalPetName);
+          setEquippedItems(allEquipped);
+          setPurchasedItems(allPurchased);
+
+          window.localStorage.setItem(`capybara_name_${userId}`, finalPetName);
+          window.localStorage.setItem(`capybara_equipped_${userId}`, JSON.stringify(allEquipped));
+          window.localStorage.setItem(`capybara_purchased_${userId}`, JSON.stringify(allPurchased));
+
+          // Guardar consolidadamente en Supabase para asegurar que la nube tenga siempre todos los ítems
+          if (userId) {
+            supabase.from('user_profiles').upsert({
+              user_id: userId,
+              pet_name: finalPetName,
+              pet_equipped: allEquipped,
+              pet_purchased: allPurchased
+            }).then(({ error }) => {
+              if (error) console.error("Error respaldando datos de mascota en Supabase:", error);
+            }).catch(e => console.error("Error respaldando datos de mascota en Supabase:", e));
           }
 
           if (profile.profile_pic) {
