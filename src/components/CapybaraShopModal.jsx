@@ -34,7 +34,8 @@ export const CapybaraShopModal = ({
   equippedItems = {},
   setEquippedItems,
   purchasedItems = [],
-  setPurchasedItems
+  setPurchasedItems,
+  customName = 'Chigüiro Sabio'
 }) => {
   const [activeCategory, setActiveCategory] = useState('hat');
 
@@ -87,16 +88,16 @@ export const CapybaraShopModal = ({
         {/* LADO IZQUIERDO: PREVIEW DEL CHIGÜIRO */}
         <div className="bg-white dark:bg-[#241A12] p-6 border-b md:border-b-0 md:border-r border-[#EADBC8] dark:border-[#3A2A1E] flex flex-col items-center justify-between md:w-64 shrink-0">
           <div className="w-full flex justify-between items-center mb-2">
-            <span className="text-[10px] font-black text-[#D9531E] uppercase tracking-widest flex items-center gap-1">
+            <span className="text-[10px] font-black text-[#C85A28] uppercase tracking-widest flex items-center gap-1">
               <Sparkles size={14} /> Tu Mascota
             </span>
-            <div className="flex items-center gap-1 text-xs font-black text-[#D9531E] bg-[#D9531E]/10 px-2.5 py-1 rounded-full">
+            <div className="flex items-center gap-1 text-xs font-black text-[#C85A28] bg-[#C85A28]/10 px-2.5 py-1 rounded-full">
               <Zap size={14} /> {knowledgePoints} KP
             </div>
           </div>
 
           <div className="my-4">
-            <CapybaraMascot equippedItems={equippedItems} size="lg" />
+            <CapybaraMascot equippedItems={equippedItems} customName={customName} size="lg" />
           </div>
 
           <p className="text-[11px] text-[#7C5E47] dark:text-[#D2B49A] text-center font-semibold">
@@ -110,7 +111,7 @@ export const CapybaraShopModal = ({
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="text-xl font-black text-[#3C2415] dark:text-[#F5EBE1] flex items-center gap-2">
-                <ShoppingBag size={22} className="text-[#D9531E]" /> Tienda del Chigüiro
+                <ShoppingBag size={22} className="text-[#C85A28]" /> Tienda del Chigüiro
               </h2>
               <p className="text-xs text-[#7C5E47] dark:text-[#D2B49A] font-semibold">
                 Canjea tus Puntos KP ganados en las pruebas para vestir a tu mascota.
@@ -135,7 +136,7 @@ export const CapybaraShopModal = ({
                   onClick={() => setActiveCategory(cat.id)}
                   className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shrink-0 border ${
                     isSelected
-                      ? 'bg-[#D9531E] text-white border-[#D9531E] shadow-sm'
+                      ? 'bg-[#C85A28] text-white border-[#C85A28] shadow-sm'
                       : 'bg-white dark:bg-[#241A12] text-[#3C2415] dark:text-[#F5EBE1] border-[#EADBC8] dark:border-[#3A2A1E]'
                   }`}
                 >
@@ -157,7 +158,7 @@ export const CapybaraShopModal = ({
                   key={item.id}
                   className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between ${
                     isEquipped
-                      ? 'bg-white dark:bg-[#241A12] border-2 border-[#D9531E] shadow-md'
+                      ? 'bg-white dark:bg-[#241A12] border-2 border-[#C85A28] shadow-md'
                       : 'bg-white dark:bg-[#241A12] border-[#EADBC8] dark:border-[#3A2A1E]'
                   }`}
                 >
@@ -176,7 +177,7 @@ export const CapybaraShopModal = ({
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t border-[#EADBC8]/50 dark:border-[#3A2A1E]/50">
-                    <span className="text-xs font-black text-[#D9531E] flex items-center gap-0.5">
+                    <span className="text-xs font-black text-[#C85A28] flex items-center gap-0.5">
                       <Zap size={12} /> {item.price} KP
                     </span>
 
@@ -197,7 +198,7 @@ export const CapybaraShopModal = ({
                         onClick={() => handleBuyItem(item)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all shadow-sm ${
                           canAfford
-                            ? 'bg-[#D9531E] hover:bg-[#C84B1A] text-white active:scale-95'
+                            ? 'bg-[#C85A28] hover:bg-[#B04A1F] text-white active:scale-95'
                             : 'bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
                         }`}
                       >

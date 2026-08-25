@@ -552,6 +552,64 @@ const App = () => {
 
   const [isCapybaraShopOpen, setIsCapybaraShopOpen] = useState(false);
 
+  // Nombre de la Mascota personalizable por usuario (almacenado localmente por perfil)
+  const [capybaraName, setCapybaraName] = useState(() => {
+    try {
+      const key = userId ? `capybara_name_${userId}` : 'capybara_name_global';
+      return localStorage.getItem(key) || 'Chigüiro Sabio';
+    } catch (e) {
+      return 'Chigüiro Sabio';
+    }
+  });
+
+  const [editingCapyName, setEditingCapyName] = useState(capybaraName);
+
+  useEffect(() => {
+    if (userId) {
+      try {
+        const key = `capybara_name_${userId}`;
+        const saved = localStorage.getItem(key);
+        if (saved) {
+          setCapybaraName(saved);
+          setEditingCapyName(saved);
+        } else {
+          setCapybaraName('Chigüiro Sabio');
+          setEditingCapyName('Chigüiro Sabio');
+        }
+      } catch (e) {}
+    }
+  }, [userId]);
+
+  const handleUpdateCapybaraName = (newName) => {
+    const trimmed = newName.trim() || 'Chigüiro Sabio';
+    setCapybaraName(trimmed);
+    setEditingCapyName(trimmed);
+    try {
+      const key = userId ? `capybara_name_${userId}` : 'capybara_name_global';
+      localStorage.setItem(key, trimmed);
+    } catch (e) {}
+  };
+
+  // Función para descontar o actualizar Puntos KP en tiempo real (Persistente en DB y LocalStorage)
+  const handleUpdateKnowledgePoints = (fnOrValue) => {
+    setUserProfile(prev => {
+      const currentKP = prev.knowledgePoints || 0;
+      const nextKP = Math.max(0, typeof fnOrValue === 'function' ? fnOrValue(currentKP) : fnOrValue);
+
+      if (userId) {
+        window.localStorage.setItem(`sinpanico_points_${userId}`, nextKP);
+        supabase.from('user_profiles').update({
+          knowledge_points: nextKP
+        }).eq('user_id', userId).then(() => {}).catch(e => console.error("Error actualizando KP en DB:", e));
+      }
+
+      return {
+        ...prev,
+        knowledgePoints: nextKP
+      };
+    });
+  };
+
   useEffect(() => {
     try {
       localStorage.setItem('capybara_equipped', JSON.stringify(equippedItems));
@@ -1519,14 +1577,14 @@ const App = () => {
       {/* TARJETA INTERACTIVA DE LA MASCOTA CHIGÜIRO */}
       <div className="bg-white dark:bg-[#241A12] p-5 rounded-3xl border border-[#EADBC8] dark:border-[#3A2A1E] shadow-sm mb-8 flex flex-col sm:flex-row items-center justify-between gap-6 ios-shadow">
         <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-          <CapybaraMascot equippedItems={equippedItems} size="md" />
+          <CapybaraMascot equippedItems={equippedItems} customName={capybaraName} size="md" />
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#C85A28]/10 text-[#C85A28] dark:text-[#F4A261] rounded-full text-[10px] font-black uppercase mb-1">
               <Sparkles size={12} /> Mascota de Estudio
             </div>
-            <h3 className="text-lg font-black text-navy leading-snug">Chigüiro Sabio</h3>
+            <h3 className="text-lg font-black text-navy leading-snug">{capybaraName}</h3>
             <p className="text-xs text-teal mt-1 max-w-xs font-medium leading-relaxed">
-              Toca a tu Chigüiro para escuchar sus consejos. ¡Usa tus puntos KP para comprarle ropa y accesorios!
+              Toca a tu mascota para escuchar sus consejos. ¡Usa tus puntos KP para comprarle ropa y accesorios!
             </p>
           </div>
         </div>
@@ -2162,21 +2220,38 @@ const App = () => {
         {/* MASCOTA CHIGÜIRO Y ARMADURA DE PUNTOS EN PERFIL */}
         <div className="bg-white dark:bg-[#241A12] p-5 rounded-3xl border border-[#EADBC8] dark:border-[#3A2A1E] shadow-sm mb-10 flex flex-col sm:flex-row items-center justify-between gap-5 ios-shadow">
           <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-            <CapybaraMascot equippedItems={equippedItems} size="md" />
+            <CapybaraMascot equippedItems={equippedItems} customName={capybaraName} size="md" />
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#C85A28]/10 text-[#C85A28] dark:text-[#F4A261] rounded-full text-[10px] font-black uppercase mb-1">
                 <Sparkles size={12} /> Tu Mascota
               </div>
-              <h3 className="text-lg font-black text-navy leading-snug">Chigüiro Sabio</h3>
+              <h3 className="text-lg font-black text-navy leading-snug">{capybaraName}</h3>
               <p className="text-xs text-teal font-semibold mt-1">
                 {userProfile.knowledgePoints || 0} Puntos KP acumulados
               </p>
+
+              {/* Formulario para modificar el nombre exclusivo de tu mascota */}
+              <div className="flex items-center gap-2 mt-3 justify-center sm:justify-start">
+                <input
+                  type="text"
+                  value={editingCapyName}
+                  onChange={(e) => setEditingCapyName(e.target.value)}
+                  placeholder="Nombre de tu mascota"
+                  className="px-3 py-1.5 bg-[#FAF4EE] dark:bg-[#18110C] border border-[#EADBC8] dark:border-[#3A2A1E] rounded-xl text-xs font-bold text-navy focus:outline-none focus:ring-2 focus:ring-[#C85A28] w-36"
+                />
+                <button
+                  onClick={() => handleUpdateCapybaraName(editingCapyName)}
+                  className="px-3 py-1.5 bg-[#C85A28] text-white text-[11px] font-black rounded-xl hover:bg-[#B04A1F] transition-all shadow-sm active:scale-95 shrink-0"
+                >
+                  Guardar Nombre
+                </button>
+              </div>
             </div>
           </div>
 
           <button
             onClick={() => setIsCapybaraShopOpen(true)}
-            className="px-5 py-3 bg-[#C85A28] hover:bg-[#B04A1F] text-white font-black rounded-2xl shadow-md active:scale-95 transition-all text-xs flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto"
+            className="px-5 py-3.5 bg-[#C85A28] hover:bg-[#B04A1F] text-white font-black rounded-2xl shadow-md active:scale-95 transition-all text-xs flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto"
           >
             <ShoppingBag size={16} /> Abrir Tienda del Chigüiro
           </button>
@@ -2460,16 +2535,12 @@ const App = () => {
         isOpen={isCapybaraShopOpen}
         onClose={() => setIsCapybaraShopOpen(false)}
         knowledgePoints={userProfile.knowledgePoints || 0}
-        setKnowledgePoints={(fn) => {
-          setUserProfile(prev => ({
-            ...prev,
-            knowledgePoints: typeof fn === 'function' ? fn(prev.knowledgePoints || 0) : fn
-          }));
-        }}
+        setKnowledgePoints={handleUpdateKnowledgePoints}
         equippedItems={equippedItems}
         setEquippedItems={setEquippedItems}
         purchasedItems={purchasedItems}
         setPurchasedItems={setPurchasedItems}
+        customName={capybaraName}
       />
     </div>
   );

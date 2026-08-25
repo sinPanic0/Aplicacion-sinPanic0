@@ -5,12 +5,18 @@ import { Heart, Sparkles, Smile } from 'lucide-react';
  * @description Componente del Chigüiro (Capybara) Mascota Interactivo en SVG.
  * Renderiza el cuerpo base del Chigüiro y capas dinámicas para sombreros, gafas, ropa y accesorios.
  */
-export const CapybaraMascot = ({ equippedItems = {}, size = 'md', onClick, interactive = true }) => {
+export const CapybaraMascot = ({
+  equippedItems = {},
+  size = 'md',
+  onClick,
+  interactive = true,
+  customName = 'Chigüiro Sabio'
+}) => {
   const [isBouncing, setIsBouncing] = useState(false);
   const [bubbleMessage, setBubbleMessage] = useState(null);
 
   const messages = [
-    "¡Sigue estudiando! ¡Vamos por ese 450+ en el ICFES! 🚀",
+    `¡Hola! Soy tu ${customName}. ¡Vamos por ese 450+ en el ICFES! 🚀`,
     "¡Me encanta mi outfit! Gracias por tus puntos KP 🐾",
     "¡Amo el café colombiano por las mañanas! ☕",
     "¡Haz otro simulacro y compramos más accesorios! 🎓",
@@ -39,9 +45,9 @@ export const CapybaraMascot = ({ equippedItems = {}, size = 'md', onClick, inter
     <div className="relative flex flex-col items-center justify-center select-none group">
       {/* Mensaje de diálogo flotante */}
       {bubbleMessage && (
-        <div className="absolute -top-12 z-30 bg-white dark:bg-[#241A12] border-2 border-[#D9531E] px-3.5 py-1.5 rounded-2xl shadow-xl animate-bounce text-[11px] font-black text-[#3C2415] dark:text-[#F5EBE1] whitespace-nowrap">
+        <div className="absolute -top-12 z-30 bg-white dark:bg-[#241A12] border-2 border-[#C85A28] px-3.5 py-1.5 rounded-2xl shadow-xl animate-bounce text-[11px] font-black text-[#3C2415] dark:text-[#F5EBE1] whitespace-nowrap">
           {bubbleMessage}
-          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white dark:bg-[#241A12] border-r-2 border-b-2 border-[#D9531E] transform rotate-45"></div>
+          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white dark:bg-[#241A12] border-r-2 border-b-2 border-[#C85A28] transform rotate-45"></div>
         </div>
       )}
 
@@ -97,7 +103,7 @@ export const CapybaraMascot = ({ equippedItems = {}, size = 'md', onClick, inter
           {equippedItems.outfit === 'outfit_jacket' && (
             /* Chaqueta Universitaria */
             <g>
-              <path d="M 52 135 C 50 160, 150 160, 148 135 L 140 170 L 60 170 Z" fill="#D9531E" />
+              <path d="M 52 135 C 50 160, 150 160, 148 135 L 140 170 L 60 170 Z" fill="#C85A28" />
               <path d="M 90 135 L 100 170 L 110 135" stroke="#FFFFFF" strokeWidth="3" fill="none" />
               <circle cx="76" cy="150" r="4" fill="#FFFFFF" />
             </g>
@@ -205,8 +211,8 @@ export const CapybaraMascot = ({ equippedItems = {}, size = 'md', onClick, inter
           {equippedItems.accessory === 'acc_coffee' && (
             /* Taza de Café Colombiano ☕ */
             <g>
-              <rect x="135" y="130" width="22" height="26" rx="4" fill="#FFFFFF" stroke="#D9531E" strokeWidth="2" />
-              <path d="M 157 136 C 165 136, 165 150, 157 150" stroke="#D9531E" strokeWidth="2.5" fill="none" />
+              <rect x="135" y="130" width="22" height="26" rx="4" fill="#FFFFFF" stroke="#C85A28" strokeWidth="2" />
+              <path d="M 157 136 C 165 136, 165 150, 157 150" stroke="#C85A28" strokeWidth="2.5" fill="none" />
               <path d="M 142 125 Q 140 120 144 116" stroke="#BDC3C7" strokeWidth="2" fill="none" />
               <path d="M 148 125 Q 146 120 150 116" stroke="#BDC3C7" strokeWidth="2" fill="none" />
             </g>
@@ -233,10 +239,10 @@ export const CapybaraMascot = ({ equippedItems = {}, size = 'md', onClick, inter
         </svg>
       </div>
 
-      {/* Etiqueta flotante del Chigüiro */}
+      {/* Etiqueta flotante del Chigüiro con nombre personalizable */}
       <div className="mt-2 flex items-center gap-1.5 bg-white dark:bg-[#241A12] border border-[#EADBC8] dark:border-[#3A2A1E] px-3 py-1 rounded-full shadow-sm">
-        <Sparkles size={14} className="text-[#D9531E]" />
-        <span className="text-xs font-black text-[#3C2415] dark:text-[#F5EBE1]">Chigüiro Sabio</span>
+        <Sparkles size={14} className="text-[#C85A28]" />
+        <span className="text-xs font-black text-[#3C2415] dark:text-[#F5EBE1]">{customName}</span>
       </div>
     </div>
   );
