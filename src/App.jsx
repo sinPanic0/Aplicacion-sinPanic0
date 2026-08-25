@@ -3,7 +3,7 @@ import {
   BookOpen, Calendar as CalendarIcon, BarChart2, User, ChevronLeft, ChevronRight,
   Flame, Lightbulb, Book, Calculator, Globe, FlaskConical, Languages, Clock,
   Settings, LogOut, CheckCircle2, Brain, Timer, Zap, Info, GraduationCap, ArrowRight,
-  Check, X, AlertCircle, Lock, Moon, ListChecks
+  Check, X, AlertCircle, Lock, Moon, ListChecks, Sparkles, Crown
 } from 'lucide-react';
 import { EXAM_QUESTIONS, PRACTICE_QUESTIONS } from './utils/questions';
 import { supabase } from './lib/supabaseClient';
