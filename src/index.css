@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* ─── PALETA CÁLIDA Y SUAVE — WARM COLOR PALETTE ─── */
   --color-navy-val: #3C2415;         /* Marrón café profundo – textos principales */

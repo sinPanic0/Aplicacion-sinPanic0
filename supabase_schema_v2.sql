@@ -80,5 +80,9 @@ ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS daily_points NUMERIC DEFAULT 
 ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS last_points_date TEXT;
 ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS daily_active_minutes INTEGER DEFAULT 0;
 ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS last_active_date TEXT;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS pet_name TEXT DEFAULT 'Chigüiro Sabio';
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS pet_equipped JSONB DEFAULT '{"hat": "hat_grad"}'::jsonb;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS pet_purchased JSONB DEFAULT '["hat_grad"]'::jsonb;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS profile_pic TEXT;
 
 

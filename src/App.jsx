@@ -531,10 +531,11 @@ const App = () => {
   });
   const [diagnosticCompleted, setDiagnosticCompleted] = useLocalStorage('sinpanico_diagnostic', {});
 
-  // Estados de la Mascota Chigüiro y la Tienda de Accesorios
+  // Estados de la Mascota Chigüiro y la Tienda de Accesorios (Aislados individualmente por userId)
   const [equippedItems, setEquippedItems] = useState(() => {
     try {
-      const saved = localStorage.getItem('capybara_equipped');
+      const key = userId ? `capybara_equipped_${userId}` : 'capybara_equipped_global';
+      const saved = localStorage.getItem(key) || localStorage.getItem('capybara_equipped');
       return saved ? JSON.parse(saved) : { hat: 'hat_grad' };
     } catch (e) {
       return { hat: 'hat_grad' };
@@ -543,7 +544,8 @@ const App = () => {
 
   const [purchasedItems, setPurchasedItems] = useState(() => {
     try {
-      const saved = localStorage.getItem('capybara_purchased');
+      const key = userId ? `capybara_purchased_${userId}` : 'capybara_purchased_global';
+      const saved = localStorage.getItem(key) || localStorage.getItem('capybara_purchased');
       return saved ? JSON.parse(saved) : ['hat_grad'];
     } catch (e) {
       return ['hat_grad'];
@@ -564,19 +566,48 @@ const App = () => {
 
   const [editingCapyName, setEditingCapyName] = useState(capybaraName);
 
+  // Limpieza y cambio de usuario: previene mezclar datos de distintas cuentas
   useEffect(() => {
     if (userId) {
       try {
-        const key = `capybara_name_${userId}`;
-        const saved = localStorage.getItem(key);
-        if (saved) {
-          setCapybaraName(saved);
-          setEditingCapyName(saved);
+        const nameKey = `capybara_name_${userId}`;
+        const nameSaved = localStorage.getItem(nameKey);
+        if (nameSaved) {
+          setCapybaraName(nameSaved);
+          setEditingCapyName(nameSaved);
         } else {
           setCapybaraName('Chigüiro Sabio');
           setEditingCapyName('Chigüiro Sabio');
         }
-      } catch (e) {}
+
+        const eqKey = `capybara_equipped_${userId}`;
+        const eqSaved = localStorage.getItem(eqKey);
+        if (eqSaved) setEquippedItems(JSON.parse(eqSaved));
+
+        const purKey = `capybara_purchased_${userId}`;
+        const purSaved = localStorage.getItem(purKey);
+        if (purSaved) setPurchasedItems(JSON.parse(purSaved));
+      } catch (e) { }
+    } else {
+      // Usuario cerró sesión: restablecer estados a valores por defecto para no mostrar datos de la sesión anterior
+      setCapybaraName('Chigüiro Sabio');
+      setEditingCapyName('Chigüiro Sabio');
+      setEquippedItems({ hat: 'hat_grad' });
+      setPurchasedItems(['hat_grad']);
+      setProfilePic(null);
+      setUserProfile({
+        grade: '11° Grado',
+        testDate: null,
+        timeLeftMonths: 3,
+        intensity: 3,
+        totalHoursStudied: 0,
+        streak: 0,
+        knowledgePoints: 0,
+        full_name: ''
+      });
+      setDiagnosticCompleted({});
+      setPracticeProgress({});
+      setDailyPointsMap({});
     }
   }, [userId]);
 
@@ -587,7 +618,12 @@ const App = () => {
     try {
       const key = userId ? `capybara_name_${userId}` : 'capybara_name_global';
       localStorage.setItem(key, trimmed);
-    } catch (e) {}
+      if (userId) {
+        supabase.from('user_profiles').update({
+          pet_name: trimmed
+        }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error guardando pet_name en DB:", e));
+      }
+    } catch (e) { }
   };
 
   // Función para descontar o actualizar Puntos KP en tiempo real (Persistente en DB y LocalStorage)
@@ -600,7 +636,7 @@ const App = () => {
         window.localStorage.setItem(`sinpanico_points_${userId}`, nextKP);
         supabase.from('user_profiles').update({
           knowledge_points: nextKP
-        }).eq('user_id', userId).then(() => {}).catch(e => console.error("Error actualizando KP en DB:", e));
+        }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error actualizando KP en DB:", e));
       }
 
       return {
@@ -612,15 +648,27 @@ const App = () => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('capybara_equipped', JSON.stringify(equippedItems));
-    } catch (e) {}
-  }, [equippedItems]);
+      const key = userId ? `capybara_equipped_${userId}` : 'capybara_equipped_global';
+      localStorage.setItem(key, JSON.stringify(equippedItems));
+      if (userId) {
+        supabase.from('user_profiles').update({
+          pet_equipped: equippedItems
+        }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error guardando pet_equipped en DB:", e));
+      }
+    } catch (e) { }
+  }, [equippedItems, userId]);
 
   useEffect(() => {
     try {
-      localStorage.setItem('capybara_purchased', JSON.stringify(purchasedItems));
-    } catch (e) {}
-  }, [purchasedItems]);
+      const key = userId ? `capybara_purchased_${userId}` : 'capybara_purchased_global';
+      localStorage.setItem(key, JSON.stringify(purchasedItems));
+      if (userId) {
+        supabase.from('user_profiles').update({
+          pet_purchased: purchasedItems
+        }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error guardando pet_purchased en DB:", e));
+      }
+    } catch (e) { }
+  }, [purchasedItems, userId]);
 
   const [methodInteraction, setMethodInteraction] = useState(null); // 'active', 'spaced', 'feynman'
   const [globalError, setGlobalError] = useState(null);
@@ -875,6 +923,50 @@ const App = () => {
             full_name: profile.full_name || ''
           }));
           if (profile.selected_method) setSelectedMethod(profile.selected_method);
+
+          // Sincronizar Mascota (Nombre y Accesorios) y Foto de Perfil entre dispositivos
+          if (profile.pet_name) {
+            setCapybaraName(profile.pet_name);
+            setEditingCapyName(profile.pet_name);
+            window.localStorage.setItem(`capybara_name_${userId}`, profile.pet_name);
+          }
+
+          // Sincronizar Accesorios Equipados (Fusionar Nube + Local)
+          let cloudEquipped = profile.pet_equipped && typeof profile.pet_equipped === 'object' ? profile.pet_equipped : {};
+          let localEquipped = {};
+          try {
+            const savedEq = localStorage.getItem(`capybara_equipped_${userId}`) || localStorage.getItem('capybara_equipped');
+            if (savedEq) localEquipped = JSON.parse(savedEq);
+          } catch (e) { }
+          const mergedEquipped = { ...localEquipped, ...cloudEquipped };
+          if (Object.keys(mergedEquipped).length > 0) {
+            setEquippedItems(mergedEquipped);
+            window.localStorage.setItem(`capybara_equipped_${userId}`, JSON.stringify(mergedEquipped));
+          }
+
+          // Sincronizar Accesorios Comprados (Fusionar Nube + Local para no perder nada comprado en PC)
+          let cloudPurchased = Array.isArray(profile.pet_purchased) ? profile.pet_purchased : [];
+          let localPurchased = [];
+          try {
+            const savedPur = localStorage.getItem(`capybara_purchased_${userId}`) || localStorage.getItem('capybara_purchased');
+            if (savedPur) localPurchased = JSON.parse(savedPur);
+          } catch (e) { }
+          const mergedPurchased = Array.from(new Set(['hat_grad', ...cloudPurchased, ...localPurchased]));
+          setPurchasedItems(mergedPurchased);
+          window.localStorage.setItem(`capybara_purchased_${userId}`, JSON.stringify(mergedPurchased));
+
+          // Auto-respaldar en Supabase si el computador tenía compras locales que aún no estaban en la nube
+          if (userId && (mergedPurchased.length > cloudPurchased.length || Object.keys(mergedEquipped).length > Object.keys(cloudEquipped).length)) {
+            supabase.from('user_profiles').update({
+              pet_purchased: mergedPurchased,
+              pet_equipped: mergedEquipped
+            }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error respaldando compras locales a Supabase:", e));
+          }
+
+          if (profile.profile_pic) {
+            setProfilePic(profile.profile_pic);
+            window.localStorage.setItem(`sinpanico_avatar_${userId}`, profile.profile_pic);
+          }
         }
 
         // Cargar diagnósticos
@@ -2132,6 +2224,11 @@ const App = () => {
         const croppedBase64 = canvas.toDataURL('image/jpeg', 0.95);
         setProfilePic(croppedBase64);
         window.localStorage.setItem(`sinpanico_avatar_${userId}`, croppedBase64);
+        if (userId) {
+          supabase.from('user_profiles').update({
+            profile_pic: croppedBase64
+          }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error guardando avatar en DB:", e));
+        }
         setCropImageSrc(null);
       };
       img.src = cropImageSrc;
@@ -2789,7 +2886,7 @@ const ExamScreen = ({
             // Fallback: actualizar solo horas estudiadas si faltan columnas en Supabase
             await supabase.from('user_profiles').update({
               total_hours_studied: updatedProfile.totalHoursStudied
-            }).eq('user_id', userId).catch(() => {});
+            }).eq('user_id', userId).catch(() => { });
           }
 
         } catch (e) {

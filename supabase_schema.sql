@@ -21,6 +21,10 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   last_points_date TEXT,
   daily_active_minutes INTEGER DEFAULT 0,
   last_active_date TEXT,
+  pet_name TEXT DEFAULT 'Chigüiro Sabio',
+  pet_equipped JSONB DEFAULT '{"hat": "hat_grad"}'::jsonb,
+  pet_purchased JSONB DEFAULT '["hat_grad"]'::jsonb,
+  profile_pic TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
@@ -77,3 +81,7 @@ ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS daily_points NUMERIC DEFAULT 
 ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS last_points_date TEXT;
 ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS daily_active_minutes INTEGER DEFAULT 0;
 ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS last_active_date TEXT;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS pet_name TEXT DEFAULT 'Chigüiro Sabio';
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS pet_equipped JSONB DEFAULT '{"hat": "hat_grad"}'::jsonb;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS pet_purchased JSONB DEFAULT '["hat_grad"]'::jsonb;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS profile_pic TEXT;
