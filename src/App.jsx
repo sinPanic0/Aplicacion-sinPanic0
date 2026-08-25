@@ -9,6 +9,8 @@ import { EXAM_QUESTIONS, PRACTICE_QUESTIONS } from './utils/questions';
 import { supabase } from './lib/supabaseClient';
 import { AiTutorWidget } from './components/AiTutorWidget';
 import { SyllabusScreen } from './screens/SyllabusScreen';
+import { CapybaraMascot } from './components/CapybaraMascot';
+import { CapybaraShopModal } from './components/CapybaraShopModal';
 
 const SUBJECTS = [
   { id: 1, name: 'Lectura Crítica', completed: 0, total: 21, icon: Book, color: 'emerald', score: 380 },
@@ -528,6 +530,39 @@ const App = () => {
     knowledgePoints: 0
   });
   const [diagnosticCompleted, setDiagnosticCompleted] = useLocalStorage('sinpanico_diagnostic', {});
+
+  // Estados de la Mascota Chigüiro y la Tienda de Accesorios
+  const [equippedItems, setEquippedItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem('capybara_equipped');
+      return saved ? JSON.parse(saved) : { hat: 'hat_grad' };
+    } catch (e) {
+      return { hat: 'hat_grad' };
+    }
+  });
+
+  const [purchasedItems, setPurchasedItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem('capybara_purchased');
+      return saved ? JSON.parse(saved) : ['hat_grad'];
+    } catch (e) {
+      return ['hat_grad'];
+    }
+  });
+
+  const [isCapybaraShopOpen, setIsCapybaraShopOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('capybara_equipped', JSON.stringify(equippedItems));
+    } catch (e) {}
+  }, [equippedItems]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('capybara_purchased', JSON.stringify(purchasedItems));
+    } catch (e) {}
+  }, [purchasedItems]);
 
   const [methodInteraction, setMethodInteraction] = useState(null); // 'active', 'spaced', 'feynman'
   const [globalError, setGlobalError] = useState(null);
@@ -1481,6 +1516,29 @@ const App = () => {
         <div className="absolute -right-6 -bottom-6 opacity-[0.07]"><BookOpen size={130} strokeWidth={1} /></div>
       </div>
 
+      {/* TARJETA INTERACTIVA DE LA MASCOTA CHIGÜIRO */}
+      <div className="bg-white dark:bg-[#241A12] p-5 rounded-3xl border border-[#EADBC8] dark:border-[#3A2A1E] shadow-sm mb-8 flex flex-col sm:flex-row items-center justify-between gap-6 ios-shadow">
+        <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+          <CapybaraMascot equippedItems={equippedItems} size="md" />
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#C85A28]/10 text-[#C85A28] dark:text-[#F4A261] rounded-full text-[10px] font-black uppercase mb-1">
+              <Sparkles size={12} /> Mascota de Estudio
+            </div>
+            <h3 className="text-lg font-black text-navy leading-snug">Chigüiro Sabio</h3>
+            <p className="text-xs text-teal mt-1 max-w-xs font-medium leading-relaxed">
+              Toca a tu Chigüiro para escuchar sus consejos. ¡Usa tus puntos KP para comprarle ropa y accesorios!
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setIsCapybaraShopOpen(true)}
+          className="px-5 py-3.5 bg-[#C85A28] hover:bg-[#B04A1F] text-white font-black rounded-2xl shadow-md active:scale-95 transition-all text-xs flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto"
+        >
+          <Crown size={16} /> Tienda & Armario ({userProfile.knowledgePoints || 0} KP)
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {(() => {
           const currentMethod = STUDY_METHODS.find(m => m.id === selectedMethod);
@@ -2373,6 +2431,23 @@ const App = () => {
 
       {/* Tutor IA Flotante (Solo visible para usuarios registrados / que iniciaron sesión) */}
       {!['welcome', 'auth_login', 'auth_signup', 'onboarding'].includes(screen) && <AiTutorWidget />}
+
+      {/* Modal de la Tienda y Armario del Chigüiro */}
+      <CapybaraShopModal
+        isOpen={isCapybaraShopOpen}
+        onClose={() => setIsCapybaraShopOpen(false)}
+        knowledgePoints={userProfile.knowledgePoints || 0}
+        setKnowledgePoints={(fn) => {
+          setUserProfile(prev => ({
+            ...prev,
+            knowledgePoints: typeof fn === 'function' ? fn(prev.knowledgePoints || 0) : fn
+          }));
+        }}
+        equippedItems={equippedItems}
+        setEquippedItems={setEquippedItems}
+        purchasedItems={purchasedItems}
+        setPurchasedItems={setPurchasedItems}
+      />
     </div>
   );
 };
