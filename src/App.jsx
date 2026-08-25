@@ -3,7 +3,7 @@ import {
   BookOpen, Calendar as CalendarIcon, BarChart2, User, ChevronLeft, ChevronRight,
   Flame, Lightbulb, Book, Calculator, Globe, FlaskConical, Languages, Clock,
   Settings, LogOut, CheckCircle2, Brain, Timer, Zap, Info, GraduationCap, ArrowRight,
-  Check, X, AlertCircle, Lock, Moon, ListChecks, Sparkles, Crown
+  Check, X, AlertCircle, Lock, Moon, ListChecks, Sparkles, Crown, ShoppingBag
 } from 'lucide-react';
 import { EXAM_QUESTIONS, PRACTICE_QUESTIONS } from './utils/questions';
 import { supabase } from './lib/supabaseClient';
@@ -2157,6 +2157,29 @@ const App = () => {
             <span className="text-[10px] font-black text-teal uppercase tracking-widest mb-1">{t('total')}</span>
             <span className="text-2xl font-black text-navy">{userProfile.totalHoursStudied}{t('hours')}</span>
           </div>
+        </div>
+
+        {/* MASCOTA CHIGÜIRO Y ARMADURA DE PUNTOS EN PERFIL */}
+        <div className="bg-white dark:bg-[#241A12] p-5 rounded-3xl border border-[#EADBC8] dark:border-[#3A2A1E] shadow-sm mb-10 flex flex-col sm:flex-row items-center justify-between gap-5 ios-shadow">
+          <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            <CapybaraMascot equippedItems={equippedItems} size="md" />
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#C85A28]/10 text-[#C85A28] dark:text-[#F4A261] rounded-full text-[10px] font-black uppercase mb-1">
+                <Sparkles size={12} /> Tu Mascota
+              </div>
+              <h3 className="text-lg font-black text-navy leading-snug">Chigüiro Sabio</h3>
+              <p className="text-xs text-teal font-semibold mt-1">
+                {userProfile.knowledgePoints || 0} Puntos KP acumulados
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setIsCapybaraShopOpen(true)}
+            className="px-5 py-3 bg-[#C85A28] hover:bg-[#B04A1F] text-white font-black rounded-2xl shadow-md active:scale-95 transition-all text-xs flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto"
+          >
+            <ShoppingBag size={16} /> Abrir Tienda del Chigüiro
+          </button>
         </div>
 
         <h3 className="text-xs font-black text-teal uppercase tracking-widest mb-4">{t('account_config')}</h3>
