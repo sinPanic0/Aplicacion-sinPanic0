@@ -619,9 +619,12 @@ const App = () => {
       const key = userId ? `capybara_name_${userId}` : 'capybara_name_global';
       localStorage.setItem(key, trimmed);
       if (userId) {
-        supabase.from('user_profiles').update({
+        supabase.from('user_profiles').upsert({
+          user_id: userId,
           pet_name: trimmed
-        }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error guardando pet_name en DB:", e));
+        }).then(({ error }) => {
+          if (error) console.error("Error guardando pet_name en DB:", error);
+        }).catch(e => console.error("Error guardando pet_name en DB:", e));
       }
     } catch (e) { }
   };
@@ -634,9 +637,12 @@ const App = () => {
 
       if (userId) {
         window.localStorage.setItem(`sinpanico_points_${userId}`, nextKP);
-        supabase.from('user_profiles').update({
+        supabase.from('user_profiles').upsert({
+          user_id: userId,
           knowledge_points: nextKP
-        }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error actualizando KP en DB:", e));
+        }).then(({ error }) => {
+          if (error) console.error("Error actualizando KP en DB:", error);
+        }).catch(e => console.error("Error actualizando KP en DB:", e));
       }
 
       return {
@@ -651,9 +657,12 @@ const App = () => {
       const key = userId ? `capybara_equipped_${userId}` : 'capybara_equipped_global';
       localStorage.setItem(key, JSON.stringify(equippedItems));
       if (userId) {
-        supabase.from('user_profiles').update({
+        supabase.from('user_profiles').upsert({
+          user_id: userId,
           pet_equipped: equippedItems
-        }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error guardando pet_equipped en DB:", e));
+        }).then(({ error }) => {
+          if (error) console.error("Error guardando pet_equipped en DB:", error);
+        }).catch(e => console.error("Error guardando pet_equipped en DB:", e));
       }
     } catch (e) { }
   }, [equippedItems, userId]);
@@ -663,9 +672,12 @@ const App = () => {
       const key = userId ? `capybara_purchased_${userId}` : 'capybara_purchased_global';
       localStorage.setItem(key, JSON.stringify(purchasedItems));
       if (userId) {
-        supabase.from('user_profiles').update({
+        supabase.from('user_profiles').upsert({
+          user_id: userId,
           pet_purchased: purchasedItems
-        }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error guardando pet_purchased en DB:", e));
+        }).then(({ error }) => {
+          if (error) console.error("Error guardando pet_purchased en DB:", error);
+        }).catch(e => console.error("Error guardando pet_purchased en DB:", e));
       }
     } catch (e) { }
   }, [purchasedItems, userId]);
@@ -834,11 +846,11 @@ const App = () => {
       const todayStr = getTodayString();
 
       try {
-        // Cargar Perfil
-        let { data: profile } = await supabase.from('user_profiles').select('*').eq('user_id', userId).single();
+        // Cargar Perfil de forma segura con maybeSingle para evitar excepciones PGRST116
+        let { data: profile } = await supabase.from('user_profiles').select('*').eq('user_id', userId).maybeSingle();
 
-        // Si el perfil no existe, crearlo dinámicamente para evitar errores de Foreign Key
-        if (!profile && session?.user) {
+        // Si el perfil no existe en Supabase, crearlo con valores por defecto
+        if (!profile && userId) {
           const newProfile = {
             user_id: userId,
             full_name: 'Estudiante',
@@ -846,7 +858,11 @@ const App = () => {
             time_left_months: 3,
             intensity: 3,
             total_hours_studied: 0,
-            streak: 0
+            streak: 0,
+            knowledge_points: 0,
+            pet_name: 'Chigüiro Sabio',
+            pet_equipped: { hat: 'hat_grad' },
+            pet_purchased: ['hat_grad']
           };
           await supabase.from('user_profiles').upsert(newProfile);
           profile = newProfile;
