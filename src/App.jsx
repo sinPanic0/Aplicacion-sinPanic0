@@ -1286,6 +1286,25 @@ const App = () => {
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [loginRecoverySent, setLoginRecoverySent] = useState(false);
+
+    const handleLoginRecoverPassword = async () => {
+      if (!email) {
+        setErrorMsg('Por favor ingresa tu correo electrónico primero para enviar el enlace de recuperación.');
+        return;
+      }
+      setLoading(true);
+      setErrorMsg('');
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email);
+        if (error) throw error;
+        setLoginRecoverySent(true);
+      } catch (err) {
+        setErrorMsg('Error al enviar el correo. Verifica que tu dirección sea correcta.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
     const handleGoogleAuth = async () => {
       setGoogleLoading(true);
@@ -1402,6 +1421,12 @@ const App = () => {
             </div>
           )}
 
+          {loginRecoverySent && (
+            <div className="bg-emerald-50 text-emerald-600 p-4 rounded-xl text-sm font-bold mb-6 border border-emerald-200 text-center">
+              ¡Correo enviado! Revisa tu bandeja de entrada o spam para restablecer tu contraseña.
+            </div>
+          )}
+
           {/* Botón oficial para iniciar sesión / registrarse con Google */}
           <button
             type="button"
@@ -1515,6 +1540,17 @@ const App = () => {
               {loading ? '...' : (isLogin ? t('login_submit') : t('register_submit'))}
             </button>
           </form>
+
+          {isLogin && (
+            <button 
+              type="button"
+              onClick={handleLoginRecoverPassword}
+              disabled={loading || loginRecoverySent}
+              className="mt-6 text-sm font-bold text-slate-500 hover:text-navy transition-colors disabled:opacity-50"
+            >
+              ¿Olvidaste tu contraseña? Recupérala aquí
+            </button>
+          )}
 
           <button
             type="button"
