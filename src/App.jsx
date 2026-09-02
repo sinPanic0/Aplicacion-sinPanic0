@@ -832,7 +832,12 @@ const App = () => {
       if (session) {
         setUserId(session.user.id);
         localStorage.setItem('sinpanico_user_id', session.user.id);
-        setScreen(prev => (prev === 'welcome' || prev === 'auth_login' || prev === 'auth_signup') ? 'home' : prev);
+        
+        if (event === 'PASSWORD_RECOVERY') {
+          setScreen('reset_password');
+        } else {
+          setScreen(prev => (prev === 'welcome' || prev === 'auth_login' || prev === 'auth_signup') ? 'home' : prev);
+        }
 
         // Crear perfil si es primer inicio de sesión con Google (Fire and forget para evitar deadlocks de Supabase)
         const checkAndCreateProfile = async () => {
@@ -3453,6 +3458,23 @@ const PersonalInfoScreen = ({
   const isGoogleUser = session?.user?.app_metadata?.provider === 'google' ||
                        session?.user?.identities?.some(id => id.provider === 'google');
 
+  const [recoverySent, setRecoverySent] = useState(false);
+
+  const handleRecoverPassword = async () => {
+    setAuthLoading(true);
+    setAuthError('');
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(session?.user?.email);
+      if (error) throw error;
+      setRecoverySent(true);
+      setAuthError('');
+    } catch (err) {
+      setAuthError('Error al enviar el correo de recuperación. Intenta más tarde.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const handleUnlock = async (e) => {
     e.preventDefault();
     setAuthLoading(true);
@@ -3568,6 +3590,12 @@ const PersonalInfoScreen = ({
           </div>
         )}
 
+        {recoverySent && (
+          <div className="bg-emerald-50 text-emerald-600 p-4 rounded-xl text-sm font-bold mb-6 border border-emerald-200 w-full max-w-sm text-center">
+            ¡Correo enviado! Revisa tu bandeja de entrada o spam para restablecer tu contraseña.
+          </div>
+        )}
+
         <form onSubmit={handleUnlock} className="w-full max-w-sm flex flex-col gap-4">
           <input
             type="password"
@@ -3586,10 +3614,20 @@ const PersonalInfoScreen = ({
           </button>
         </form>
 
+        {!isCreatingPassword && (
+          <button 
+            onClick={handleRecoverPassword} 
+            disabled={authLoading || recoverySent}
+            className="mt-6 text-sm font-bold text-slate-500 hover:text-navy transition-colors disabled:opacity-50"
+          >
+            ¿Olvidaste tu contraseña? Recupérala aquí
+          </button>
+        )}
+
         {!isCreatingPassword && isGoogleUser && !session?.user?.user_metadata?.has_local_password && !session?.user?.app_metadata?.providers?.includes('email') && (
           <button 
-            onClick={() => { setIsCreatingPassword(true); setAuthError(''); setAuthPassword(''); }} 
-            className="mt-6 text-sm font-bold text-teal hover:text-navy transition-colors border-b border-teal/30 pb-0.5"
+            onClick={() => { setIsCreatingPassword(true); setAuthError(''); setAuthPassword(''); setRecoverySent(false); }} 
+            className="mt-3 text-sm font-bold text-teal hover:text-navy transition-colors border-b border-teal/30 pb-0.5"
           >
             ¿Usuario de Google sin contraseña local? Créala aquí
           </button>
