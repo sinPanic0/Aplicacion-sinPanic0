@@ -3437,6 +3437,7 @@ const PersonalInfoScreen = ({
   const [authPassword, setAuthPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [isCreatingPassword, setIsCreatingPassword] = useState(false);
 
   const [newName, setNewName] = useState(userProfile.full_name || '');
   const [newPassword, setNewPassword] = useState('');
@@ -3452,15 +3453,25 @@ const PersonalInfoScreen = ({
     setAuthLoading(true);
     setAuthError('');
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email: session?.user?.email, password: authPassword });
-      if (error) throw error;
-      setProfileUnlocked(true);
-    } catch (err) {
-      if (isGoogleUser) {
-        // Simulamos éxito para usuarios de Google ya que no podemos validar su contraseña de Google directamente con Supabase
+      if (isCreatingPassword) {
+        if (authPassword.length < 6) throw new Error("La contraseña debe tener al menos 6 caracteres.");
+        const { error } = await supabase.auth.updateUser({ password: authPassword });
+        if (error) throw error;
         setProfileUnlocked(true);
       } else {
-        setAuthError('Contraseña incorrecta. Acceso denegado.');
+        const { error } = await supabase.auth.signInWithPassword({ email: session?.user?.email, password: authPassword });
+        if (error) throw error;
+        setProfileUnlocked(true);
+      }
+    } catch (err) {
+      if (isCreatingPassword) {
+        setAuthError(err.message || 'Error al crear la contraseña.');
+      } else {
+        if (isGoogleUser) {
+          setAuthError('Contraseña incorrecta. Si eres usuario de Google y aún no has creado una contraseña local, haz clic en el botón de abajo para crear una.');
+        } else {
+          setAuthError('Contraseña incorrecta. Acceso denegado.');
+        }
       }
     } finally {
       setAuthLoading(false);
@@ -3510,9 +3521,13 @@ const PersonalInfoScreen = ({
         <div className="w-20 h-20 bg-rose-50 dark:bg-rose-950/20 rounded-full flex items-center justify-center text-rose-500 mb-6">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
         </div>
-        <h2 className="text-2xl font-black text-navy mb-2">Seguridad Requerida</h2>
+        <h2 className="text-2xl font-black text-navy mb-2 text-center">
+          {isCreatingPassword ? 'Crear Contraseña Local' : 'Seguridad Requerida'}
+        </h2>
         <p className="text-teal text-sm mb-8 max-w-xs text-center font-semibold">
-          Para proteger tus datos personales, confirma tu identidad ingresando tu contraseña actual.
+          {isCreatingPassword 
+            ? 'Ingresa una nueva contraseña segura para proteger tus datos personales y poder desbloquear esta sección.' 
+            : 'Para proteger tus datos personales, confirma tu identidad ingresando tu contraseña actual.'}
         </p>
 
         {authError && (
@@ -3521,23 +3536,41 @@ const PersonalInfoScreen = ({
           </div>
         )}
 
-        <form onSubmit={handleUnlock} className="w-full max-w-sm">
+        <form onSubmit={handleUnlock} className="w-full max-w-sm flex flex-col gap-4">
           <input
             type="password"
             required
-            placeholder="Contraseña actual"
+            placeholder={isCreatingPassword ? "Nueva contraseña (mínimo 6 caracteres)" : "Contraseña actual"}
             value={authPassword}
             onChange={(e) => setAuthPassword(e.target.value)}
-            className="w-full bg-white border border-sky-blue/50 p-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy transition-all font-medium text-navy text-sm shadow-sm mb-4"
+            className="w-full bg-white border border-sky-blue/50 p-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy transition-all font-medium text-navy text-sm shadow-sm"
           />
           <button
             type="submit"
             disabled={authLoading}
             className="w-full py-4 bg-navy text-white rounded-2xl font-black shadow-lg shadow-navy/20 active:scale-95 transition-all"
           >
-            {authLoading ? 'Verificando...' : 'Desbloquear'}
+            {authLoading ? 'Procesando...' : (isCreatingPassword ? 'Guardar y Desbloquear' : 'Desbloquear')}
           </button>
         </form>
+
+        {!isCreatingPassword && isGoogleUser && (
+          <button 
+            onClick={() => { setIsCreatingPassword(true); setAuthError(''); setAuthPassword(''); }} 
+            className="mt-6 text-sm font-bold text-teal hover:text-navy transition-colors border-b border-teal/30 pb-0.5"
+          >
+            ¿Usuario de Google sin contraseña local? Créala aquí
+          </button>
+        )}
+        
+        {isCreatingPassword && (
+          <button 
+            onClick={() => { setIsCreatingPassword(false); setAuthError(''); setAuthPassword(''); }} 
+            className="mt-6 text-sm font-bold text-slate-500 hover:text-navy transition-colors"
+          >
+            Volver a inicio de sesión
+          </button>
+        )}
       </div>
     );
   }
