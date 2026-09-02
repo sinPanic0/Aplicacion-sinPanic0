@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ChevronLeft, Check, X, Lightbulb, ArrowRight, AlertCircle, Eye, PenTool } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
-import { EXAM_QUESTIONS } from '../utils/questions';
+import { MascotMotivationModal } from '../components/MascotMotivationModal';
 
 /**
  * @description Pantalla interactiva del examen (diagnóstico o práctica).
- * Maneja el temporizador, el renderizado de preguntas y la comprobación de respuestas.
+ * Maneja temporizador, preguntas, comprobación y la mascota animada cada 3 respuestas.
  */
 export const ExamScreen = () => {
   const { 
@@ -30,6 +30,9 @@ export const ExamScreen = () => {
 
   const [optionsRevealed, setOptionsRevealed] = useState(false);
   const [feynmanReflection, setFeynmanReflection] = useState('');
+
+  // Mascota Motivacional estilo Duolingo (Cada 3 preguntas)
+  const [mascotModal, setMascotModal] = useState({ isOpen: false, type: 'every_3_questions', count: 3, questionNumber: 3 });
 
   const questions = currentQuestions;
 
@@ -65,7 +68,9 @@ export const ExamScreen = () => {
   const handleCheck = () => {
     if (selectedOption === null) return;
     setHasChecked(true);
-    if (selectedOption === currentQuestion.correct) {
+
+    const isCorrect = selectedOption === currentQuestion.correct;
+    if (isCorrect) {
       setScore(score + 1);
     } else {
       if (examMode === 'diagnostic' && currentQuestion.category) {
@@ -78,6 +83,17 @@ export const ExamScreen = () => {
           return prev;
         });
       }
+    }
+
+    const qNum = currentQIndex + 1;
+    // Lanzar animación motivacional de la Mascota CADA 3 PREGUNTAS
+    if (qNum % 3 === 0) {
+      setMascotModal({
+        isOpen: true,
+        type: 'every_3_questions',
+        count: qNum,
+        questionNumber: qNum
+      });
     }
   };
 
@@ -95,6 +111,15 @@ export const ExamScreen = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      {/* Mascot Motivation Modal (Duolingo Style cada 3 preguntas) */}
+      <MascotMotivationModal
+        isOpen={mascotModal.isOpen}
+        onClose={() => setMascotModal({ ...mascotModal, isOpen: false })}
+        type={mascotModal.type}
+        streakCount={mascotModal.count}
+        questionNumber={mascotModal.questionNumber}
+      />
+
       <header className="bg-white border-b border-slate-200 p-4 sticky top-0 z-10 flex justify-between items-center shadow-sm">
         <div className="flex items-center gap-3">
           <button onClick={() => setScreen('subject')} className="text-slate-400 hover:text-slate-600"><ChevronLeft size={24} /></button>

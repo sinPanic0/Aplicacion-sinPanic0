@@ -1,52 +1,83 @@
 import React, { useContext } from 'react';
-import { Lightbulb, Brain, Timer, User } from 'lucide-react';
+import { Lightbulb, Brain, Timer, User, Sparkles } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 import { STUDY_METHODS } from '../utils/constants';
-import { EXAM_QUESTIONS } from '../utils/questions';
+import { CapybaraMascot } from '../components/CapybaraMascot';
 
 /**
- * @description Pantalla de resultados del examen.
- * Muestra el porcentaje y sugiere un método de estudio con interacciones específicas.
+ * @description Pantalla de resultados del examen con presencia motivacional de la mascota Capybara.
+ * Muestra el porcentaje, retroalimentación al estilo Duolingo y sugiere un método de estudio.
  */
 export const ExamResultsScreen = () => {
   const { 
     examMode, 
     selectedSubject, 
-    practiceQuestions, 
     score, 
     selectedMethod, 
     failedCategories, 
     feynmanText, 
     setFeynmanText, 
     setScreen,
-    currentQuestions
+    currentQuestions,
+    equippedItems,
+    capybaraName
   } = useContext(AppContext);
 
-  const questions = currentQuestions;
-  const percentage = Math.round((score / questions.length) * 100);
+  const questions = currentQuestions || [];
+  const totalQ = questions.length || 10;
+  const percentage = Math.round((score / totalQ) * 100);
 
   let recommendation = "";
+  let mascotFeedback = "";
+
   if (percentage >= 80) {
     recommendation = "¡Excelente trabajo! Tienes un dominio muy sólido. Te recomendamos la Repetición Espaciada para no olvidar estos temas.";
+    mascotFeedback = `¡IMPRESIONANTE RENDIMIENTO DEL ${percentage}%! 🎉 Has superado esta prueba como todo un maestro del ICFES. ¡Sigue con esta disciplina!`;
   } else if (percentage >= 50) {
     recommendation = "Buen intento, pero hay margen de mejora. Te sugerimos la Recuperación Activa para reforzar tus puntos débiles.";
+    mascotFeedback = `¡BUEN TRABAJO DEL ${percentage}%! 🍊 Tienes bases sólidas, pero puedes dar más. Revisa la explicación del tema y repite el examen para alcanzar el 100%.`;
   } else {
     recommendation = "Esta área requiere más atención. Te recomendamos el Método Feynman: explica los conceptos difíciles con palabras simples.";
+    mascotFeedback = `¡NUNCA TE RINDAS! (${percentage}%) 💪 No te desanimes. Los mejores puntajes se construyen aprendiendo de cada tropiezo. ¡Lee la explicación sencilla y vuelve a intentarlo!`;
   }
 
   const currentMethodInfo = STUDY_METHODS.find(m => m.id === selectedMethod);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center p-6 text-center pb-24 relative overflow-y-auto">
-      <div className="w-32 h-32 rounded-full border-8 border-emerald-100 flex items-center justify-center mb-6 mt-8 relative bg-white shadow-sm">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center p-6 text-center pb-28 relative overflow-y-auto font-sans">
+      
+      {/* Círculo de Porcentaje */}
+      <div className="w-32 h-32 rounded-full border-8 border-emerald-100 flex items-center justify-center mb-4 mt-6 relative bg-white shadow-md">
         <svg className="absolute inset-0 w-full h-full transform -rotate-90">
           <circle cx="60" cy="60" r="56" stroke="#10b981" strokeWidth="8" fill="transparent" strokeDasharray="351.8" strokeDashoffset={351.8 - (351.8 * percentage) / 100} strokeLinecap="round" />
         </svg>
         <span className="text-4xl font-black text-slate-800">{percentage}%</span>
       </div>
 
-      <h2 className="text-3xl font-black text-slate-900 mb-2">¡Examen Finalizado!</h2>
-      <p className="text-slate-500 mb-8 font-medium">Acertaste {score} de {questions.length} preguntas de {selectedSubject?.name}.</p>
+      <h2 className="text-3xl font-black text-slate-900 mb-1">¡Examen Finalizado!</h2>
+      <p className="text-slate-500 mb-6 font-medium text-sm">
+        Acertaste {score} de {totalQ} preguntas en {selectedSubject?.name || 'la materia'}.
+      </p>
+
+      {/* Card Motivacional de la Mascota estilo Duolingo */}
+      <div className="bg-gradient-to-b from-amber-50 to-orange-50 border-2 border-orange-200 p-6 rounded-[2rem] max-w-md w-full mb-6 text-center shadow-md relative overflow-hidden">
+        <div className="flex justify-center mb-3 transform hover:scale-105 transition-transform">
+          <CapybaraMascot 
+            size="lg" 
+            interactive={false} 
+            customName={capybaraName || 'Capybara Motivador'} 
+            equippedItems={equippedItems}
+          />
+        </div>
+
+        <h3 className="font-black text-slate-900 text-lg mb-2 flex items-center justify-center gap-1.5">
+          <Sparkles className="text-[#C85A28]" size={18} /> Mensaje de {capybaraName || 'tu Mascota'}
+        </h3>
+        
+        <p className="text-xs md:text-sm font-bold text-orange-950 leading-relaxed bg-white/80 p-3.5 rounded-2xl border border-orange-200/60 shadow-sm">
+          {mascotFeedback}
+        </p>
+      </div>
 
       {examMode === 'diagnostic' && (
         <div className="bg-blue-50 p-6 rounded-[2rem] border border-blue-100 max-w-md w-full mb-6 text-left relative shadow-sm">
@@ -93,7 +124,7 @@ export const ExamResultsScreen = () => {
                     value={feynmanText}
                     onChange={(e) => setFeynmanText(e.target.value)}
                     placeholder="Escribe tu explicación aquí..."
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
                     rows={3}
                   />
                   <button className="w-full py-3 bg-indigo-50 text-indigo-600 font-bold rounded-xl active:scale-95 transition-all">Analizar mi explicación</button>
@@ -104,7 +135,7 @@ export const ExamResultsScreen = () => {
         </div>
       )}
 
-      <button onClick={() => setScreen('subject')} className="w-full max-w-md py-4 bg-emerald-500 text-white rounded-2xl font-black shadow-lg shadow-emerald-200 active:scale-95 transition-all fixed bottom-6 left-1/2 -translate-x-1/2 z-10">
+      <button onClick={() => setScreen('subject')} className="w-full max-w-md py-4 bg-[#C85A28] hover:bg-[#C84B1A] text-white rounded-2xl font-black shadow-lg shadow-orange-200 active:scale-95 transition-all fixed bottom-6 left-1/2 -translate-x-1/2 z-10">
         Continuar Estudiando
       </button>
     </div>

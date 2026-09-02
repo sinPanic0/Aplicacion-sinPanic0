@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { VERSES } from '../utils/constants';
 import { EXAM_QUESTIONS, PRACTICE_QUESTIONS } from '../utils/questions';
 import { supabase } from '../lib/supabaseClient';
@@ -13,6 +13,12 @@ export const AppContext = createContext({
   setSelectedSubject: () => {},
   userProfile: { fullName: '', grade: '11° Grado', streak: 0, knowledgePoints: 0, totalHoursStudied: 0 },
   setUserProfile: () => {},
+  equippedItems: { hat: 'hat_grad' },
+  setEquippedItems: () => {},
+  purchasedItems: ['hat_grad'],
+  setPurchasedItems: () => {},
+  capybaraName: 'Chigüiro Sabio',
+  setCapybaraName: () => {},
   diagnosticCompleted: {},
   setDiagnosticCompleted: () => {},
   practiceProgress: {},
@@ -37,15 +43,105 @@ export const AppProvider = ({ children }) => {
   const [selectedSubject, setSelectedSubject] = useState(null);
 
   // --- PERFIL DE USUARIO ---
-  const [userProfile, setUserProfile] = useState({
-    fullName: '',
-    grade: '11° Grado',
-    testDate: null,
-    timeLeftMonths: 3,
-    intensity: 3, // 1: Relajado, 2: Medio, 3: Intensivo, 4: Muy Intensivo
-    totalHoursStudied: 124, // Mock para el perfil
-    streak: 12 // Mock para la racha
+  const [userProfile, setUserProfile] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sinpanico_user_profile');
+      return saved ? JSON.parse(saved) : {
+        fullName: '',
+        grade: '11° Grado',
+        testDate: null,
+        timeLeftMonths: 3,
+        intensity: 3,
+        totalHoursStudied: 12,
+        streak: 1,
+        knowledgePoints: 50
+      };
+    } catch (e) {
+      return {
+        fullName: '',
+        grade: '11° Grado',
+        testDate: null,
+        timeLeftMonths: 3,
+        intensity: 3,
+        totalHoursStudied: 12,
+        streak: 1,
+        knowledgePoints: 50
+      };
+    }
   });
+
+  // Save user profile to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('sinpanico_user_profile', JSON.stringify(userProfile));
+    } catch (e) { }
+  }, [userProfile]);
+
+  // --- ESTADO DE LA MASCOTA Y ACCESORIOS ---
+  const [userId, setUserId] = useState(() => localStorage.getItem('sinpanico_user_id'));
+
+  const [capybaraName, setCapybaraNameState] = useState(() => {
+    try {
+      const key = userId ? `capybara_name_${userId}` : 'capybara_name_global';
+      return localStorage.getItem(key) || localStorage.getItem('capybara_name') || 'Chigüiro Sabio';
+    } catch (e) {
+      return 'Chigüiro Sabio';
+    }
+  });
+
+  const [equippedItems, setEquippedItemsState] = useState(() => {
+    try {
+      const key = userId ? `capybara_equipped_${userId}` : 'capybara_equipped_global';
+      const saved = localStorage.getItem(key) || localStorage.getItem('capybara_equipped');
+      return saved ? JSON.parse(saved) : { hat: 'hat_grad' };
+    } catch (e) {
+      return { hat: 'hat_grad' };
+    }
+  });
+
+  const [purchasedItems, setPurchasedItemsState] = useState(() => {
+    try {
+      const key = userId ? `capybara_purchased_${userId}` : 'capybara_purchased_global';
+      const saved = localStorage.getItem(key) || localStorage.getItem('capybara_purchased');
+      return saved ? JSON.parse(saved) : ['hat_grad'];
+    } catch (e) {
+      return ['hat_grad'];
+    }
+  });
+
+  const setCapybaraName = (name) => {
+    const val = typeof name === 'function' ? name(capybaraName) : name;
+    setCapybaraNameState(val);
+    try {
+      const key = userId ? `capybara_name_${userId}` : 'capybara_name_global';
+      localStorage.setItem(key, val);
+      localStorage.setItem('capybara_name', val);
+    } catch (e) { }
+  };
+
+  const setEquippedItems = (items) => {
+    setEquippedItemsState(prev => {
+      const val = typeof items === 'function' ? items(prev) : items;
+      try {
+        const key = userId ? `capybara_equipped_${userId}` : 'capybara_equipped_global';
+        localStorage.setItem(key, JSON.stringify(val));
+        localStorage.setItem('capybara_equipped', JSON.stringify(val));
+      } catch (e) { }
+      return val;
+    });
+  };
+
+  const setPurchasedItems = (items) => {
+    setPurchasedItemsState(prev => {
+      const val = typeof items === 'function' ? items(prev) : items;
+      try {
+        const key = userId ? `capybara_purchased_${userId}` : 'capybara_purchased_global';
+        localStorage.setItem(key, JSON.stringify(val));
+        localStorage.setItem('capybara_purchased', JSON.stringify(val));
+      } catch (e) { }
+      return val;
+    });
+  };
 
   // --- ESTADO DE EXÁMENES Y PRÁCTICAS ---
   const [currentQIndex, setCurrentQIndex] = useState(0);
@@ -53,8 +149,8 @@ export const AppProvider = ({ children }) => {
   const [hasChecked, setHasChecked] = useState(false);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15 * 60);
-  const [examMode, setExamMode] = useState('diagnostic'); // 'diagnostic' | 'practice'
-  const [failedCategories, setFailedCategories] = useState({}); // Ahora es un objeto por materia
+  const [examMode, setExamMode] = useState('diagnostic');
+  const [failedCategories, setFailedCategories] = useState({});
   const [currentQuestions, setCurrentQuestions] = useState([]);
   const [examId, setExamId] = useState(null);
   const [practiceProgress, setPracticeProgress] = useState({});
@@ -66,11 +162,9 @@ export const AppProvider = ({ children }) => {
   const [methodInteraction, setMethodInteraction] = useState(null);
   const [feynmanText, setFeynmanText] = useState('');
 
-  // --- EFECTOS GLOBALES Y SINCRONIZACIÓN SUPABASE ---
-  const [userId, setUserId] = useState(() => localStorage.getItem('sinpanico_user_id'));
   const [isDbLoading, setIsDbLoading] = useState(true);
 
-  // Inicializar usuario y cargar datos
+  // Inicializar usuario y cargar datos desde Supabase
   useEffect(() => {
     setDailyVerse(VERSES[Math.floor(Math.random() * VERSES.length)]);
 
@@ -79,7 +173,7 @@ export const AppProvider = ({ children }) => {
       if (session) {
         setUserId(session.user.id);
         localStorage.setItem('sinpanico_user_id', session.user.id);
-        if (screen === 'welcome' || screen === 'auth') setScreen('home');
+        setScreen(prev => (prev === 'welcome' || prev === 'auth' || prev === 'auth_login' || prev === 'auth_signup') ? 'home' : prev);
       }
     });
 
@@ -87,64 +181,70 @@ export const AppProvider = ({ children }) => {
       if (session) {
         setUserId(session.user.id);
         localStorage.setItem('sinpanico_user_id', session.user.id);
+        setScreen(prev => (prev === 'welcome' || prev === 'auth' || prev === 'auth_login' || prev === 'auth_signup') ? 'home' : prev);
       } else {
-        setUserId(null);
-        localStorage.removeItem('sinpanico_user_id');
+        const localId = localStorage.getItem('sinpanico_user_id');
+        if (!localId) setUserId(null);
       }
     });
 
     const initDb = async () => {
       try {
-        let currentUserId = userId;
+        const { data: { session } } = await supabase.auth.getSession();
+        let currentUserId = session ? session.user.id : userId;
         if (!currentUserId) {
-          // Crear nuevo usuario si no existe
           const { data, error } = await supabase.from('user_profiles').insert([{}]).select('user_id').single();
-          if (error) throw error;
-          currentUserId = data.user_id;
-          localStorage.setItem('sinpanico_user_id', currentUserId);
-          setUserId(currentUserId);
+          if (!error && data) {
+            currentUserId = data.user_id;
+            localStorage.setItem('sinpanico_user_id', currentUserId);
+            setUserId(currentUserId);
+          }
         }
 
-        // Cargar perfil
-        const { data: profile } = await supabase.from('user_profiles').select('*').eq('user_id', currentUserId).single();
-        if (profile) {
-          setUserProfile({
-            fullName: profile.full_name || '',
-            grade: profile.grade,
-            testDate: profile.test_date ? new Date(profile.test_date) : null,
-            timeLeftMonths: profile.time_left_months,
-            intensity: profile.intensity,
-            totalHoursStudied: Number(profile.total_hours_studied),
-            streak: profile.streak
-          });
-          if (profile.selected_method) setSelectedMethod(profile.selected_method);
-        }
+        if (currentUserId) {
+          const { data: profile } = await supabase.from('user_profiles').select('*').eq('user_id', currentUserId).single();
+          if (profile) {
+            setUserProfile(prev => ({
+              ...prev,
+              fullName: profile.full_name || prev.fullName,
+              grade: profile.grade || prev.grade,
+              testDate: profile.test_date ? new Date(profile.test_date) : prev.testDate,
+              timeLeftMonths: profile.time_left_months || prev.timeLeftMonths,
+              intensity: profile.intensity || prev.intensity,
+              totalHoursStudied: profile.total_hours_studied ? Number(profile.total_hours_studied) : prev.totalHoursStudied,
+              streak: profile.streak || prev.streak,
+              knowledgePoints: profile.knowledge_points !== undefined ? profile.knowledge_points : (prev.knowledgePoints || 50)
+            }));
+            if (profile.selected_method) setSelectedMethod(profile.selected_method);
+            if (profile.pet_name) setCapybaraNameState(profile.pet_name);
+            if (profile.pet_equipped) setEquippedItemsState(profile.pet_equipped);
+            if (profile.pet_purchased) setPurchasedItemsState(profile.pet_purchased);
+          }
 
-        // Cargar diagnósticos
-        const { data: diagnostics } = await supabase.from('user_diagnostics').select('*').eq('user_id', currentUserId);
-        if (diagnostics) {
-          const diagState = {};
-          const failsState = {};
-          const scoresState = {};
-          diagnostics.forEach(d => { 
-            if (d.completed) diagState[d.subject_id] = true; 
-            if (d.failed_categories) failsState[d.subject_id] = d.failed_categories;
-            if (d.score !== null) scoresState[d.subject_id] = d.score;
-          });
-          setDiagnosticCompleted(diagState);
-          setFailedCategories(failsState);
-          setDiagnosticScores(scoresState);
-        }
+          const { data: diagnostics } = await supabase.from('user_diagnostics').select('*').eq('user_id', currentUserId);
+          if (diagnostics) {
+            const diagState = {};
+            const failsState = {};
+            const scoresState = {};
+            diagnostics.forEach(d => { 
+              if (d.completed) diagState[d.subject_id] = true; 
+              if (d.failed_categories) failsState[d.subject_id] = d.failed_categories;
+              if (d.score !== null) scoresState[d.subject_id] = d.score;
+            });
+            setDiagnosticCompleted(diagState);
+            setFailedCategories(failsState);
+            setDiagnosticScores(scoresState);
+          }
 
-        // Cargar prácticas
-        const { data: practices } = await supabase.from('practice_logs').select('*').eq('user_id', currentUserId);
-        if (practices) {
-          const pracState = {};
-          practices.forEach(p => {
-            if (!pracState[p.practice_date]) pracState[p.practice_date] = {};
-            pracState[p.practice_date][p.subject_id] = { practice_1: p.practice_1_completed, practice_2: p.practice_2_completed };
-          });
-          setPracticeProgress(pracState);
+          const { data: practices } = await supabase.from('practice_logs').select('*').eq('user_id', currentUserId);
+          if (practices) {
+            const pracState = {};
+            practices.forEach(p => {
+              if (!pracState[p.practice_date]) pracState[p.practice_date] = {};
+              pracState[p.practice_date][p.subject_id] = { practice_1: p.practice_1_completed, practice_2: p.practice_2_completed };
+            });
+            setPracticeProgress(pracState);
+          }
         }
       } catch (err) {
         console.error("Error cargando base de datos:", err);
@@ -156,7 +256,6 @@ export const AppProvider = ({ children }) => {
     initDb();
   }, []);
 
-  // Función envoltorio para actualizar perfil en DB y UI
   const updateUserProfile = async (updates) => {
     let newProfile = {};
     setUserProfile(prev => {
@@ -166,7 +265,6 @@ export const AppProvider = ({ children }) => {
     });
 
     if (userId) {
-      // Necesitamos esperar al render o usar los calculados directamente
       const resolvedUpdates = typeof updates === 'function' ? updates(userProfile) : updates;
       
       const dbUpdates = {};
@@ -177,6 +275,7 @@ export const AppProvider = ({ children }) => {
       if (resolvedUpdates.intensity !== undefined) dbUpdates.intensity = resolvedUpdates.intensity;
       if (resolvedUpdates.totalHoursStudied !== undefined) dbUpdates.total_hours_studied = resolvedUpdates.totalHoursStudied;
       if (resolvedUpdates.streak !== undefined) dbUpdates.streak = resolvedUpdates.streak;
+      if (resolvedUpdates.knowledgePoints !== undefined) dbUpdates.knowledge_points = resolvedUpdates.knowledgePoints;
       
       if (Object.keys(dbUpdates).length > 0) {
         await supabase.from('user_profiles').update(dbUpdates).eq('user_id', userId);
@@ -184,7 +283,6 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Función envoltorio para actualizar método en DB
   const updateSelectedMethod = async (method) => {
     setSelectedMethod(method);
     if (userId) {
@@ -192,15 +290,11 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // --- FUNCIONES UTILITARIAS COMPARTIDAS ---
   const getTodayString = () => {
     const d = new Date();
     return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
   };
 
-  /**
-   * @description Inicia un examen diagnóstico o de práctica, reseteando el estado necesario y barajando preguntas.
-   */
   const startExam = (subject, mode = 'diagnostic', practiceId = null) => {
     const targetSubject = subject || { id: 1, name: 'Lectura Crítica' };
     setSelectedSubject(targetSubject);
@@ -212,18 +306,17 @@ export const AppProvider = ({ children }) => {
     setExamId(practiceId || mode);
     
     if (mode === 'diagnostic') {
-      setTimeLeft(15 * 60); // 15 minutos
+      setTimeLeft(15 * 60);
       setFailedCategories(prev => ({ ...prev, [targetSubject.id]: [] }));
       const available = EXAM_QUESTIONS[targetSubject.id] || EXAM_QUESTIONS[1] || [];
       const shuffled = [...available].sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, Math.min(15, shuffled.length));
       setCurrentQuestions(selected.length > 0 ? selected : (EXAM_QUESTIONS[1] || []));
     } else {
-      setTimeLeft(10 * 60); // 10 minutos
+      setTimeLeft(10 * 60);
       let available = [];
       const subjectFails = failedCategories[targetSubject.id] || [];
       
-      // 1. Intentar cargar preguntas de categorías falladas
       if (subjectFails.length > 0 && PRACTICE_QUESTIONS[targetSubject.id]) {
         subjectFails.forEach(cat => {
           if (PRACTICE_QUESTIONS[targetSubject.id]?.[cat]) {
@@ -232,7 +325,6 @@ export const AppProvider = ({ children }) => {
         });
       }
       
-      // 2. Si no hay suficientes, cargar de todas las categorías de práctica de la materia
       if (available.length < 5 && PRACTICE_QUESTIONS[targetSubject.id]) {
         Object.values(PRACTICE_QUESTIONS[targetSubject.id]).forEach(catArray => {
           if (Array.isArray(catArray)) {
@@ -241,12 +333,10 @@ export const AppProvider = ({ children }) => {
         });
       }
       
-      // 3. Si aún no hay suficientes, combinar con el banco de examen diagnóstico
       if (available.length < 5 && EXAM_QUESTIONS[targetSubject.id]) {
         available = [...available, ...EXAM_QUESTIONS[targetSubject.id]];
       }
 
-      // 4. Garantía absoluta: fallback a materia 1 si estuviese vacío
       if (available.length === 0) {
         available = EXAM_QUESTIONS[1] || [];
       }
@@ -258,16 +348,12 @@ export const AppProvider = ({ children }) => {
     setScreen('exam');
   };
 
-  /**
-   * @description Finaliza el examen, calcula resultados, recomienda un método y guarda el progreso en Supabase.
-   */
   const finishExam = async () => {
     const percentage = Math.round((score / currentQuestions.length) * 100);
     
     if (examMode === 'diagnostic') {
       setDiagnosticCompleted(prev => ({ ...prev, [selectedSubject.id]: true }));
       
-      // Guardar en Supabase
       if (userId) {
         await supabase.from('user_diagnostics').upsert({
           user_id: userId,
@@ -278,7 +364,6 @@ export const AppProvider = ({ children }) => {
         });
       }
 
-      // Recomendar método
       if (percentage >= 80) updateSelectedMethod('spaced');
       else if (percentage >= 50) updateSelectedMethod('active');
       else updateSelectedMethod('feynman');
@@ -299,16 +384,14 @@ export const AppProvider = ({ children }) => {
       const isFirstPracticeToday = !practiceProgress[todayStr] || Object.keys(practiceProgress[todayStr]).length === 0;
       let newStreak = userProfile.streak;
       if (isFirstPracticeToday) {
-        newStreak += 1; // Incrementamos la racha al iniciar el primer estudio del día
+        newStreak += 1;
       }
 
-      // Actualizar horas estudiadas (+ 0.2 horas por práctica aprox)
       updateUserProfile({ 
         totalHoursStudied: userProfile.totalHoursStudied + 0.2,
         streak: newStreak 
       });
 
-      // Guardar práctica en Supabase
       if (userId) {
         const updateData = {
           user_id: userId,
@@ -316,12 +399,6 @@ export const AppProvider = ({ children }) => {
           subject_id: selectedSubject.id,
           score: score
         };
-        if (isPractice1) updateData.practice_1_completed = true;
-        else updateData.practice_2_completed = true;
-
-        // Upsert no tiene un merge fácil para booleanos separados en Supabase, 
-        // pero podemos intentarlo o ignorar el overwrite del otro valor si solo hacemos upsert parcial
-        // Para simplificar, obtenemos el estado actual del UI (que acaba de actualizarse localmente)
         const currentData = practiceProgress[todayStr]?.[selectedSubject.id] || {};
         updateData.practice_1_completed = isPractice1 ? true : !!currentData.practice_1;
         updateData.practice_2_completed = !isPractice1 ? true : !!currentData.practice_2;
@@ -338,6 +415,9 @@ export const AppProvider = ({ children }) => {
     dailyVerse, setDailyVerse,
     selectedSubject, setSelectedSubject,
     userProfile, setUserProfile: updateUserProfile,
+    equippedItems, setEquippedItems,
+    purchasedItems, setPurchasedItems,
+    capybaraName, setCapybaraName,
     currentQIndex, setCurrentQIndex,
     selectedOption, setSelectedOption,
     hasChecked, setHasChecked,
