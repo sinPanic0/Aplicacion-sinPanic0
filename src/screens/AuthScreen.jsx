@@ -54,10 +54,11 @@ export const AuthScreen = () => {
     setGoogleLoading(true);
     setErrorMsg('');
     try {
+      const currentBaseUrl = window.location.href.split('#')[0].split('?')[0];
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: currentBaseUrl
         }
       });
       if (error) throw error;
