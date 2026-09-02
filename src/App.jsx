@@ -827,32 +827,36 @@ const App = () => {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (session) {
         setUserId(session.user.id);
         localStorage.setItem('sinpanico_user_id', session.user.id);
         setScreen(prev => (prev === 'welcome' || prev === 'auth_login' || prev === 'auth_signup') ? 'home' : prev);
 
-        // Crear perfil si es primer inicio de sesión con Google
-        const googleName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Estudiante';
-        try {
-          const { data: existingProfile } = await supabase.from('user_profiles').select('user_id').eq('user_id', session.user.id).maybeSingle();
-          if (!existingProfile) {
-            await supabase.from('user_profiles').upsert({
-              user_id: session.user.id,
-              full_name: googleName,
-              grade: '11° Grado',
-              time_left_months: 3,
-              intensity: 3,
-              total_hours_studied: 0,
-              streak: 1,
-              knowledge_points: 50
-            });
+        // Crear perfil si es primer inicio de sesión con Google (Fire and forget para evitar deadlocks de Supabase)
+        const checkAndCreateProfile = async () => {
+          const googleName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Estudiante';
+          try {
+            const { data: existingProfile } = await supabase.from('user_profiles').select('user_id').eq('user_id', session.user.id).maybeSingle();
+            if (!existingProfile) {
+              await supabase.from('user_profiles').upsert({
+                user_id: session.user.id,
+                full_name: googleName,
+                grade: '11° Grado',
+                time_left_months: 3,
+                intensity: 3,
+                total_hours_studied: 0,
+                streak: 1,
+                knowledge_points: 50
+              });
+            }
+          } catch (e) {
+            console.error("Error al crear perfil inicial de Google:", e);
           }
-        } catch (e) {
-          console.error("Error al crear perfil inicial de Google:", e);
-        }
+        };
+        
+        checkAndCreateProfile();
       } else if (event === 'SIGNED_OUT' || !session) {
         localStorage.removeItem('sinpanico_user_id');
         localStorage.removeItem('sinpanico_screen');
