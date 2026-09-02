@@ -3,7 +3,7 @@ import {
   BookOpen, Calendar as CalendarIcon, BarChart2, User, ChevronLeft, ChevronRight,
   Flame, Lightbulb, Book, Calculator, Globe, FlaskConical, Languages, Clock,
   Settings, LogOut, CheckCircle2, Brain, Timer, Zap, Info, GraduationCap, ArrowRight,
-  Check, X, AlertCircle, Lock, Moon, ListChecks, Sparkles, Crown, ShoppingBag
+  Check, X, AlertCircle, Lock, Moon, ListChecks, Sparkles, Crown, ShoppingBag, Loader2
 } from 'lucide-react';
 import { EXAM_QUESTIONS, PRACTICE_QUESTIONS } from './utils/questions';
 import { supabase } from './lib/supabaseClient';
@@ -3455,7 +3455,13 @@ const PersonalInfoScreen = ({
     try {
       if (isCreatingPassword) {
         if (authPassword.length < 6) throw new Error("La contraseña debe tener al menos 6 caracteres.");
-        const { error } = await supabase.auth.updateUser({ password: authPassword });
+        
+        // Timeout para evitar que la promesa se quede colgada
+        const updatePromise = supabase.auth.updateUser({ password: authPassword });
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. Intenta de nuevo más tarde.")), 8000));
+        
+        const { data, error } = await Promise.race([updatePromise, timeoutPromise]);
+        
         if (error) throw error;
         setProfileUnlocked(true);
       } else {
@@ -3467,7 +3473,7 @@ const PersonalInfoScreen = ({
       if (isCreatingPassword) {
         setAuthError(err.message || 'Error al crear la contraseña.');
       } else {
-        if (isGoogleUser) {
+        if (isGoogleUser && err.message?.includes('Invalid login credentials')) {
           setAuthError('Contraseña incorrecta. Si eres usuario de Google y aún no has creado una contraseña local, haz clic en el botón de abajo para crear una.');
         } else {
           setAuthError('Contraseña incorrecta. Acceso denegado.');
