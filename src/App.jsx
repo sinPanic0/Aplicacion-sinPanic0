@@ -3444,6 +3444,7 @@ const PersonalInfoScreen = ({
   const [isCreatingPassword, setIsCreatingPassword] = useState(false);
 
   const [newName, setNewName] = useState(userProfile.full_name || '');
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [loadingName, setLoadingName] = useState(false);
   const [loadingPass, setLoadingPass] = useState(false);
@@ -3504,18 +3505,36 @@ const PersonalInfoScreen = ({
   };
 
   const handleUpdatePassword = async () => {
+    if (!oldPassword) {
+      setMsg('Debes ingresar tu contraseña actual.');
+      return;
+    }
     if (!newPassword || newPassword.length < 6) {
-      setMsg('La contraseña debe tener al menos 6 caracteres.');
+      setMsg('La nueva contraseña debe tener al menos 6 caracteres.');
       return;
     }
     setLoadingPass(true);
+    setMsg('');
     try {
+      // 1. Verificar la contraseña antigua antes de permitir el cambio
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: session?.user?.email,
+        password: oldPassword
+      });
+      
+      if (verifyError) {
+        throw new Error('La contraseña actual es incorrecta.');
+      }
+
+      // 2. Si es correcta, procedemos a actualizar
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
+      
       setMsg('Contraseña actualizada con éxito.');
+      setOldPassword('');
       setNewPassword('');
     } catch (err) {
-      setMsg('No se pudo actualizar la contraseña. Por favor, verifica tu conexión a internet.');
+      setMsg(err.message || 'No se pudo actualizar la contraseña.');
     } finally {
       setLoadingPass(false);
     }
@@ -3656,32 +3675,44 @@ const PersonalInfoScreen = ({
         {isGoogleUser ? (
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
             <p className="text-xs font-bold text-slate-700 leading-relaxed mb-2">
-              🔒 Tu contraseña es la misma registrada con tu cuenta de Google.
+              🔒 Tu contraseña está enlazada a tu cuenta de Google.
             </p>
             <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-              Google protege tu acceso sin necesidad de gestionar una contraseña separada. Si deseas cambiar tu contraseña, puedes hacerlo directamente desde los ajustes de tu cuenta de Google.
+              Google protege tu acceso. Para cambiar tu contraseña general, debes hacerlo directamente desde los ajustes de tu cuenta de Google. Si creaste una contraseña local para desbloquear este panel, esta permanecerá fija.
             </p>
           </div>
         ) : (
-          <div className="mb-4">
-            <label className="block text-xs font-black text-teal uppercase tracking-widest mb-2">Nueva Contraseña</label>
-            <div className="flex gap-2">
+          <div className="mb-4 flex flex-col gap-3">
+            <div>
+              <label className="block text-xs font-black text-teal uppercase tracking-widest mb-2">Contraseña Actual</label>
               <input
                 type="password"
-                value={newPassword}
-                placeholder="Mínimo 6 caracteres"
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="flex-1 bg-white border border-sky-blue/50 p-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-navy transition-all font-semibold text-sm text-navy"
+                value={oldPassword}
+                placeholder="Ingresa tu contraseña actual"
+                onChange={(e) => setOldPassword(e.target.value)}
+                className="w-full bg-white border border-sky-blue/50 p-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-navy transition-all font-semibold text-sm text-navy"
               />
-              <button
-                onClick={handleUpdatePassword}
-                disabled={loadingPass || !newPassword}
-                className="px-5 bg-teal text-white font-black text-sm rounded-xl disabled:opacity-50 hover:bg-teal/90 active:scale-95 transition-all shadow-sm"
-              >
-                {loadingPass ? '...' : 'Actualizar'}
-              </button>
             </div>
-            <p className="text-[10px] text-teal mt-2 font-semibold">Por seguridad, Supabase encriptará tu nueva contraseña inmediatamente.</p>
+            <div>
+              <label className="block text-xs font-black text-teal uppercase tracking-widest mb-2">Nueva Contraseña</label>
+              <div className="flex gap-2">
+                <input
+                  type="password"
+                  value={newPassword}
+                  placeholder="Mínimo 6 caracteres"
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="flex-1 bg-white border border-sky-blue/50 p-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-navy transition-all font-semibold text-sm text-navy"
+                />
+                <button
+                  onClick={handleUpdatePassword}
+                  disabled={loadingPass || !newPassword || !oldPassword}
+                  className="px-5 bg-teal text-white font-black text-sm rounded-xl disabled:opacity-50 hover:bg-teal/90 active:scale-95 transition-all shadow-sm"
+                >
+                  {loadingPass ? '...' : 'Actualizar'}
+                </button>
+              </div>
+              <p className="text-[10px] text-teal mt-2 font-semibold">Por seguridad, Supabase encriptará tu nueva contraseña inmediatamente.</p>
+            </div>
           </div>
         )}
       </div>
