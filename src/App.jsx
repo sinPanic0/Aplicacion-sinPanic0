@@ -609,19 +609,17 @@ const App = () => {
     });
 
     try {
-      const { error } = await supabase.from('user_profiles').upsert({
-        user_id: userId,
+      const { error } = await supabase.from('user_profiles').update({
         selected_method: metaPayload,
         pet_name: nameToSave,
         pet_equipped: equippedToSave,
         pet_purchased: purchasedToSave
-      });
+      }).eq('user_id', userId);
 
       if (error) {
-        await supabase.from('user_profiles').upsert({
-          user_id: userId,
+        await supabase.from('user_profiles').update({
           selected_method: metaPayload
-        });
+        }).eq('user_id', userId);
       }
     } catch (err) {
       console.error("Error guardando estado de la mascota en Supabase:", err);
@@ -649,10 +647,9 @@ const App = () => {
 
       if (userId) {
         window.localStorage.setItem(`sinpanico_points_${userId}`, nextKP);
-        supabase.from('user_profiles').upsert({
-          user_id: userId,
+        supabase.from('user_profiles').update({
           knowledge_points: nextKP
-        }).then(({ error }) => {
+        }).eq('user_id', userId).then(({ error }) => {
           if (error) console.error("Error actualizando KP en DB:", error);
         }).catch(e => console.error("Error actualizando KP en DB:", e));
       }
@@ -915,10 +912,8 @@ const App = () => {
             window.localStorage.setItem(`sinpanico_darkmode_${userId}`, profile.dark_mode);
           }
 
-          // Synchronize Daily Active Study Time across devices
-          const localMins = Number(window.localStorage.getItem(`sinpanico_activeTime_${todayStr}`)) || 0;
-          const cloudMins = (profile.last_active_date === todayStr) ? (Number(profile.daily_active_minutes) || 0) : 0;
-          const syncedMins = Math.max(cloudMins, localMins);
+          // Synchronize Daily Active Study Time across devices (Cloud is Truth)
+          const syncedMins = (profile.last_active_date === todayStr) ? (Number(profile.daily_active_minutes) || 0) : 0;
           setActiveTimeMinutes(syncedMins);
           window.localStorage.setItem(`sinpanico_activeTime_${todayStr}`, syncedMins);
 
@@ -929,20 +924,13 @@ const App = () => {
             }).eq('user_id', userId).then(() => { }).catch(e => console.error("Error updating daily active minutes:", e));
           }
 
-          // Synchronize Knowledge Points (KP) & Daily Points across devices
-          const cloudTotalKP = Number(profile.knowledge_points) || 0;
+          // Synchronize Knowledge Points (KP) & Daily Points across devices (Cloud is Truth)
+          const syncedTotalKP = Number(profile.knowledge_points) || 0;
           const localKey = `sinpanico_points_${userId}`;
-          const localTotalKP = Number(window.localStorage.getItem(localKey)) || 0;
-          const syncedTotalKP = Math.max(cloudTotalKP, localTotalKP);
 
           let syncedDailyPoints = 0;
           if (profile.last_points_date === todayStr) {
-            const cloudDailyPoints = Number(profile.daily_points) || 0;
-            const localDailyKey = `sinpanico_daily_points_${userId}`;
-            let localDailyMap = {};
-            try { localDailyMap = JSON.parse(window.localStorage.getItem(localDailyKey) || '{}'); } catch (e) { }
-            const localDailyPoints = Number(localDailyMap[todayStr]) || 0;
-            syncedDailyPoints = Math.max(cloudDailyPoints, localDailyPoints);
+            syncedDailyPoints = Number(profile.daily_points) || 0;
           } else {
             // New calendar day! Reset daily points accumulated today to 0 while keeping total KP balance
             syncedDailyPoints = 0;
@@ -991,17 +979,11 @@ const App = () => {
           }
           setSelectedMethod(activeMethod);
 
-          let userPurchased = [];
-          try { userPurchased = JSON.parse(localStorage.getItem(`capybara_purchased_${userId}`) || '[]'); } catch (e) { }
-
           const finalCloudPurchased = Array.isArray(cloudPurchased) ? cloudPurchased : [];
-          const allPurchased = Array.from(new Set(['hat_grad', ...finalCloudPurchased, ...userPurchased]));
-
-          let userEquipped = {};
-          try { userEquipped = JSON.parse(localStorage.getItem(`capybara_equipped_${userId}`) || '{}'); } catch (e) { }
+          const allPurchased = Array.from(new Set(['hat_grad', ...finalCloudPurchased]));
 
           const finalCloudEquipped = cloudEquipped || {};
-          const allEquipped = { hat: 'hat_grad', ...userEquipped, ...finalCloudEquipped };
+          const allEquipped = { hat: 'hat_grad', ...finalCloudEquipped };
 
           let legacyName = localStorage.getItem(`capybara_name_${userId}`);
           const finalPetName = cloudName || legacyName || 'Chigüiro Sabio';
