@@ -824,13 +824,10 @@ const App = () => {
         setUserId(session.user.id);
         localStorage.setItem('sinpanico_user_id', session.user.id);
         setScreen(prev => (prev === 'welcome' || prev === 'auth_login' || prev === 'auth_signup') ? 'home' : prev);
-      } else {
-        const localId = localStorage.getItem('sinpanico_user_id');
-        if (localId) setUserId(localId);
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       if (session) {
         setUserId(session.user.id);
@@ -856,13 +853,12 @@ const App = () => {
         } catch (e) {
           console.error("Error al crear perfil inicial de Google:", e);
         }
-      } else {
-        const localId = localStorage.getItem('sinpanico_user_id');
-        if (localId) {
-          setUserId(localId);
-        } else {
-          setUserId(null);
-        }
+      } else if (event === 'SIGNED_OUT' || !session) {
+        localStorage.removeItem('sinpanico_user_id');
+        localStorage.removeItem('sinpanico_screen');
+        setUserId(null);
+        setSession(null);
+        setScreen('welcome');
       }
     });
 

@@ -53,7 +53,14 @@ export const ProfileScreen = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.error(e);
+    }
+    localStorage.removeItem('sinpanico_user_id');
+    localStorage.removeItem('sinpanico_screen');
+    setUserId(null);
     setScreen('welcome');
   };
 
