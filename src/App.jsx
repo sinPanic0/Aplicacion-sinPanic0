@@ -3462,7 +3462,10 @@ const PersonalInfoScreen = ({
         if (authPassword.length < 6) throw new Error("La contraseña debe tener al menos 6 caracteres.");
         
         // Timeout para evitar que la promesa se quede colgada
-        const updatePromise = supabase.auth.updateUser({ password: authPassword });
+        const updatePromise = supabase.auth.updateUser({ 
+          password: authPassword,
+          data: { has_local_password: true }
+        });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. Intenta de nuevo más tarde.")), 8000));
         
         const { data, error } = await Promise.race([updatePromise, timeoutPromise]);
@@ -3583,8 +3586,7 @@ const PersonalInfoScreen = ({
           </button>
         </form>
 
-        {!isCreatingPassword && isGoogleUser && 
-         !(session?.user?.app_metadata?.providers?.includes('email') || session?.user?.identities?.some(id => id.provider === 'email')) && (
+        {!isCreatingPassword && isGoogleUser && !session?.user?.user_metadata?.has_local_password && !session?.user?.app_metadata?.providers?.includes('email') && (
           <button 
             onClick={() => { setIsCreatingPassword(true); setAuthError(''); setAuthPassword(''); }} 
             className="mt-6 text-sm font-bold text-teal hover:text-navy transition-colors border-b border-teal/30 pb-0.5"
