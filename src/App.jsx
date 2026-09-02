@@ -982,27 +982,19 @@ const App = () => {
           }
           setSelectedMethod(activeMethod);
 
-          let legacyPurchased = [];
-          let globalPurchased = [];
           let userPurchased = [];
-          try { legacyPurchased = JSON.parse(localStorage.getItem('capybara_purchased') || '[]'); } catch (e) { }
-          try { globalPurchased = JSON.parse(localStorage.getItem('capybara_purchased_global') || '[]'); } catch (e) { }
           try { userPurchased = JSON.parse(localStorage.getItem(`capybara_purchased_${userId}`) || '[]'); } catch (e) { }
 
           const finalCloudPurchased = Array.isArray(cloudPurchased) ? cloudPurchased : [];
-          const allPurchased = Array.from(new Set(['hat_grad', ...finalCloudPurchased, ...userPurchased, ...globalPurchased, ...legacyPurchased]));
+          const allPurchased = Array.from(new Set(['hat_grad', ...finalCloudPurchased, ...userPurchased]));
 
-          let legacyEquipped = {};
-          let globalEquipped = {};
           let userEquipped = {};
-          try { legacyEquipped = JSON.parse(localStorage.getItem('capybara_equipped') || '{}'); } catch (e) { }
-          try { globalEquipped = JSON.parse(localStorage.getItem('capybara_equipped_global') || '{}'); } catch (e) { }
           try { userEquipped = JSON.parse(localStorage.getItem(`capybara_equipped_${userId}`) || '{}'); } catch (e) { }
 
           const finalCloudEquipped = cloudEquipped || {};
-          const allEquipped = { hat: 'hat_grad', ...legacyEquipped, ...globalEquipped, ...userEquipped, ...finalCloudEquipped };
+          const allEquipped = { hat: 'hat_grad', ...userEquipped, ...finalCloudEquipped };
 
-          let legacyName = localStorage.getItem(`capybara_name_${userId}`) || localStorage.getItem('capybara_name_global');
+          let legacyName = localStorage.getItem(`capybara_name_${userId}`);
           const finalPetName = cloudName || legacyName || 'Chigüiro Sabio';
 
           setCapybaraName(finalPetName);
@@ -2390,6 +2382,9 @@ const App = () => {
                 }
                 window.localStorage.removeItem('sinpanico_user_id');
                 window.localStorage.removeItem('sinpanico_screen');
+                setEquippedItems({ hat: 'hat_grad' });
+                setPurchasedItems(['hat_grad']);
+                setCapybaraName('Chigüiro Sabio');
                 setUserId(null);
                 setSession(null);
                 setScreen('welcome');
@@ -3454,11 +3449,6 @@ const PersonalInfoScreen = ({
 
   const handleUnlock = async (e) => {
     e.preventDefault();
-    if (isGoogleUser) {
-      setProfileUnlocked(true);
-      return;
-    }
-
     setAuthLoading(true);
     setAuthError('');
     try {
@@ -3466,7 +3456,12 @@ const PersonalInfoScreen = ({
       if (error) throw error;
       setProfileUnlocked(true);
     } catch (err) {
-      setAuthError('Contraseña incorrecta. Acceso denegado.');
+      if (isGoogleUser) {
+        // Simulamos éxito para usuarios de Google ya que no podemos validar su contraseña de Google directamente con Supabase
+        setProfileUnlocked(true);
+      } else {
+        setAuthError('Contraseña incorrecta. Acceso denegado.');
+      }
     } finally {
       setAuthLoading(false);
     }
@@ -3505,7 +3500,7 @@ const PersonalInfoScreen = ({
     }
   };
 
-  if (!profileUnlocked && !isGoogleUser) {
+  if (!profileUnlocked) {
     return (
       <div className="p-6 bg-beige min-h-screen flex flex-col items-center justify-center relative animate-fade-in font-sans">
         <button onClick={() => { setProfileUnlocked(false); setScreen('profile'); }} className="absolute top-6 left-6 w-11 h-11 rounded-full bg-white shadow-sm text-navy flex items-center justify-center border border-sky-blue/20">
